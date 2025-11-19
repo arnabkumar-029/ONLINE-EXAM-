@@ -1,0 +1,30 @@
+{
+  "arnab_kumar": {
+    "email": "arnabkumarjana7543@gmail.com",
+    "pw_hash": "scrypt:32768:8:1$CS03ZiZHY2gxyCSF$befa56c76f38cd3446cb7da9802e4ba61182de8c255920a6ed774c60e8a236b655d913c1a061cd62ab863e647fd277f4b91be230aadbf67a6a3ec6b1a0106f42"
+  },
+  "NANDU": {
+    "email": "arnabkumarjana7543@gmail.com",
+    "pw_hash": "scrypt:32768:8:1$5kTe41lWB4zsiTLF$0136529436231a777037f9438c6b503c68b070f1a1317fc5690ec33af94f221a9868085c2a4df57a24013e56bd3b4a27b9b341cb48c5968eb2610b1c3381a644"
+  },
+  "ATANU": {
+    "email": "atanubiswas027@gmail.com",
+    "pw_hash": "scrypt:32768:8:1$X7dySvXiqUz9R0oW$33fa77350c2343402c0ceb96fff1dc53505183bcb9e980f67c1bed1fc91887a329e7bd6716214b033aadf69c1715a02020ee59eabb107595d3c550e8a28737a5"
+  },
+  "admin": {
+    "email": "arnabkumarjana7543@gmail.com",
+    "pw_hash": "scrypt:32768:8:1$TOY7WoozAqFzSeJw$45f06b6d43f7c62ddab81ac13fcd54fdbdf48f3c3e33733c10cdcb8f28987361f5c6a69802e748d02c343131a80657755c427586ec34de4bafd37c696e780004"
+  },
+  "ATANU x": {
+    "email": "arnabkumarjana7543@gmail.com",
+    "pw_hash": "scrypt:32768:8:1$fpPV1pjrcqdsD0IK$e0c3b307c5298926b7065e0d6ec06eda34272201dc9b5a58bfc325abeaf5fb52f6e4f95ee11497065328435fe178a4724c4553273139a1208bf4f8ba299a367e"
+  },
+  "NANDU ": {
+    "email": "arnabkumarjana7543@gmail.com",
+    "pw_hash": "scrypt:32768:8:1$y38BJdAFR5qf5j41$a01cfb6b5e131afef8771cd66658564f41ef5e37c7b3984bb60ef79c653099a210920e2f3e000464c8c733a1b638c507d6b59564c477aa7b0724621cc3482f06"
+  },
+  "adminC": {
+    "email": "arnabkumarjana7543@gmail.com",
+    "pw_hash": "scrypt:32768:8:1$uMOiIJabNzSs2L8W$4399ac631b17e27947823e76b7bbbb9f4d15bb4fabdfa8a3db8f91e94e6187c40f28c44e11605c697fe627e2e66bc18748fc5b6a84977837c77e8c616d326609"
+  }
+}

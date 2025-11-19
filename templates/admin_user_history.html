@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ username }}'s Exam History</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 90%;
+      max-width: 1000px;
+      margin: 30px auto;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.25);
+    }
+
+    th {
+      background: rgba(255,255,255,0.25);
+      text-transform: uppercase;
+    }
+
+    .btn {
+      background: #fff;
+      color: #5563DE;
+      padding: 10px 20px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      margin-top: 25px;
+      display: inline-block;
+    }
+
+    .btn:hover {
+      background: #ffdd57;
+      color: #333;
+    }
+
+    /* Chart Box */
+    #chartContainer {
+      width: 90%;
+      max-width: 900px;
+      margin: 40px auto;
+      background: rgba(255,255,255,0.15);
+      border-radius: 15px;
+      padding: 25px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    }
+
+    canvas { max-width: 100%; }
+
+    /* Descriptive Table */
+    .desc-title {
+      margin-top: 35px;
+      font-size: 26px;
+      font-weight: bold;
+      color: #ffe680;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>📊 {{ username }}'s Performance History</h1>
+
+  {% if history %}
+
+  <!-- ✅ Performance Chart -->
+  <div id="chartContainer">
+    <canvas id="scoreChart"></canvas>
+  </div>
+
+  <!-- ✅ Summary Table -->
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Score</th>
+      <th>Total</th>
+      <th>Time Taken</th>
+    </tr>
+
+    {% for record in history|reverse %}
+    <tr>
+      <td>{{ record.date }}</td>
+      <td>{{ record.score }}</td>
+      <td>{{ record.total }}</td>
+      <td>{{ record.time_taken }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- ✅ 🎓 Descriptive Analysis Table (Per Attempt) -->
+  {% for record in history|reverse %}
+    {% if record.descriptive_reports %}
+      <h2 class="desc-title">📝 Descriptive Analysis — {{ record.date }}</h2>
+
+      <table>
+        <tr>
+          <th>Question</th>
+          <th>Similarity</th>
+          <th>Originality</th>
+          <th>Grade</th>
+          <th>Marks</th>
+        </tr>
+
+        {% for d in record.descriptive_reports %}
+        <tr>
+          <td>{{ d.q }}</td>
+          <td>{{ d.similarity }}%</td>
+          <td>{{ d.originality }}%</td>
+          <td>{{ d.grade }}</td>
+          <td>{{ d.marks }}</td>
+        </tr>
+        {% endfor %}
+      </table>
+    {% endif %}
+  {% endfor %}
+
+  {% else %}
+  <p>No exam history found for this user.</p>
+  {% endif %}
+
+  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn">⬅ Back to Dashboard</a>
+
+  <!-- ✅ Chart.js -->
+  <script>
+    const labels = {{ history | map(attribute='date') | list | tojson }};
+    const scores = {{ history | map(attribute='score') | list | tojson }};
+
+    if (labels.length > 0) {
+      const ctx = document.getElementById("scoreChart").getContext("2d");
+
+      new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Score",
+            data: scores,
+            borderColor: "#ffdd57",
+            backgroundColor: "rgba(255,221,87,0.25)",
+            borderWidth: 3,
+            tension: 0.3,
+            fill: true,
+            pointBackgroundColor: "#fff",
+            pointBorderColor: "#ffdd57",
+            pointRadius: 6
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { labels: { color: "white" } },
+            title: {
+              display: true,
+              text: "Exam Score Progress",
+              color: "white",
+              font: { size: 18 }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: "white" },
+              grid: { color: "rgba(255,255,255,0.1)" }
+            },
+            y: {
+              ticks: { color: "white" },
+              grid: { color: "rgba(255,255,255,0.1)" }
+            }
+          }
+        }
+      });
+    }
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,227 @@
+[
+  {
+    "q": "Which planet is known as the Red Planet?",
+    "type": "MCQ",
+    "a": [
+      "Earth",
+      "Mars",
+      "Jupiter",
+      "Venus"
+    ],
+    "correct": "Mars",
+    "level": "Easy"
+  },
+  {
+    "q": "Who wrote the National Anthem of India?",
+    "type": "MCQ",
+    "a": [
+      "Rabindranath Tagore",
+      "Bankim Chandra",
+      "Sarojini Naidu",
+      "Mahatma Gandhi"
+    ],
+    "correct": "Rabindranath Tagore",
+    "level": "Easy"
+  },
+  {
+    "q": "In which year did India gain independence?",
+    "type": "MCQ",
+    "a": [
+      "1947",
+      "1950",
+      "1930",
+      "1960"
+    ],
+    "correct": "1947",
+    "level": "Easy"
+  },
+  {
+    "q": "Which instrument measures atmospheric pressure?",
+    "type": "MCQ",
+    "a": [
+      "Barometer",
+      "Thermometer",
+      "Hygrometer",
+      "Altimeter"
+    ],
+    "correct": "Barometer",
+    "level": "Medium"
+  },
+  {
+    "q": "Which continent is called the ‘Dark Continent’?",
+    "type": "MCQ",
+    "a": [
+      "Asia",
+      "Africa",
+      "Europe",
+      "America"
+    ],
+    "correct": "Africa",
+    "level": "Easy"
+  },
+  {
+    "q": "Which vitamin is produced in the human body when exposed to sunlight?",
+    "type": "MCQ",
+    "a": [
+      "Vitamin A",
+      "Vitamin C",
+      "Vitamin D",
+      "Vitamin K"
+    ],
+    "correct": "Vitamin D",
+    "level": "Easy"
+  },
+  {
+    "q": "What is the national flower of India?",
+    "type": "MCQ",
+    "a": [
+      "Rose",
+      "Lotus",
+      "Lily",
+      "Jasmine"
+    ],
+    "correct": "Lotus",
+    "level": "Easy"
+  },
+  {
+    "q": "What is the hardest natural substance on Earth?",
+    "type": "MCQ",
+    "a": [
+      "Gold",
+      "Iron",
+      "Diamond",
+      "Platinum"
+    ],
+    "correct": "Diamond",
+    "level": "Medium"
+  },
+  {
+    "q": "What is the capital city of India?",
+    "type": "MCQ",
+    "a": [
+      "Mumbai",
+      "New Delhi",
+      "Kolkata",
+      "Bengaluru"
+    ],
+    "correct": "New Delhi",
+    "level": "Easy"
+  },
+  {
+    "q": "Which animal is the national animal of India?",
+    "type": "MCQ",
+    "a": [
+      "Lion",
+      "Elephant",
+      "Tiger",
+      "Peacock"
+    ],
+    "correct": "Tiger",
+    "level": "Easy"
+  },
+  {
+    "q": "Which mountain peak, located entirely within India, is the highest in the country?",
+    "type": "MCQ",
+    "a": [
+      "Nanda Devi",
+      "Kanchenjunga",
+      "Mount Everest",
+      "K2"
+    ],
+    "correct": "Nanda Devi",
+    "level": "Hard"
+  },
+  {
+    "q": "Who was the first Prime Minister of independent India?",
+    "type": "MCQ",
+    "a": [
+      "Jawaharlal Nehru",
+      "Sardar Vallabhbhai Patel",
+      "Mahatma Gandhi",
+      "Dr. B.R. Ambedkar"
+    ],
+    "correct": "Jawaharlal Nehru",
+    "level": "Medium"
+  },
+  {
+    "q": "What is the largest ocean on Earth?",
+    "type": "MCQ",
+    "a": [
+      "Atlantic Ocean",
+      "Indian Ocean",
+      "Pacific Ocean",
+      "Arctic Ocean"
+    ],
+    "correct": "Pacific Ocean",
+    "level": "Easy"
+  },
+  {
+    "q": "How many players are typically on one side of a cricket team on the field during a match?",
+    "type": "MCQ",
+    "a": [
+      "11",
+      "9",
+      "10",
+      "12"
+    ],
+    "correct": "11",
+    "level": "Easy"
+  },
+  {
+    "q": "In which format of cricket does each team typically bat for a maximum of 50 overs?",
+    "type": "MCQ",
+    "a": [
+      "One Day International (ODI)",
+      "Test Cricket",
+      "Twenty20 (T20)",
+      "First-Class Cricket"
+    ],
+    "correct": "One Day International (ODI)",
+    "level": "Medium"
+  },
+  {
+    "q": "Which country is known as the 'Land of the Rising Sun'?",
+    "type": "MCQ",
+    "a": [
+      "China",
+      "Japan",
+      "South Korea",
+      "Thailand"
+    ],
+    "correct": "Japan",
+    "level": "Easy"
+  },
+  {
+    "q": "Explain how the invention of the printing press fundamentally transformed European society and the dissemination of knowledge.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: printing press, Gutenberg, mass production of books, literacy rates, Reformation, scientific revolution, information access, political discourse, education",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Describe the cultural and historical significance of the ancient Olympic Games, including their purpose and impact on Greek city-states.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: ancient Greece, religious festival, athletic competition, truce, unity, city-states, prestige, physical prowess, artistic expression, Zeus",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Explain the phenomenon of the Northern Lights (Aurora Borealis), detailing its scientific causes and the geographical regions where it is most commonly observed.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: solar wind, charged particles, Earth's magnetic field, atmospheric gases, ionization, photons, poles, high latitudes, Arctic, Antarctic",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "What is the largest planet in our solar system?",
+    "type": "MCQ",
+    "a": [
+      "Mars",
+      "Jupiter",
+      "Earth",
+      "Saturn"
+    ],
+    "correct": "Jupiter",
+    "level": "Easy"
+  }
+]

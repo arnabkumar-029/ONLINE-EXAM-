@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard</title>
+
+  <!-- ✅ SweetAlert CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #eef1f7;
+      padding: 30px;
+      color: #333;
+    }
+    h1, h2 { color: #2d2d2d; }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      gap: 10px;
+    }
+    .btn {
+      background: #5563DE;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    .btn:hover { background: #3d4bbf; }
+    .btn-danger { background: #E53935; }
+    .btn-danger:hover { background: #c62828; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 25px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px 12px;
+      text-align: left;
+    }
+    th {
+      background: #5563DE;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    tr:nth-child(even) { background: #f8f9ff; }
+
+    .add-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+    input[type="text"], select, textarea, input[type="number"] {
+      padding: 10px;
+      width: 100%;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 15px;
+      font-family: inherit;
+      font-size: 15px;
+    }
+    input[type="text"]:focus, select:focus, textarea:focus {
+      border-color: #5563DE;
+      outline: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ✅ SweetAlert popup for special notices -->
+  {% if popup %}
+  <script>
+  Swal.fire({
+    icon: "info",
+    title: "Notice",
+    text: "{{ popup }}"
+  });
+  </script>
+  {% endif %}
+
+  <!-- ✅ SweetAlert flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <script>
+          Swal.fire({
+            icon: "{{ 'success' if category == 'success' else 'error' }}",
+            title: "{{ 'Success' if category == 'success' else 'Error' }}",
+            text: "{{ message }}"
+          });
+        </script>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="header">
+    <h1>Admin Dashboard</h1>
+    <div>
+      <a href="{{ url_for('admin.generate_questions_page') }}" class="btn">✨ AI Generate</a>
+      <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-danger">Logout</a>
+    </div>
+  </div>
+
+  <!-- ✅ Add Question Box (MCQ + DESCRIPTIVE SUPPORT) -->
+  <div class="add-box">
+    <h2>Add New Question</h2>
+
+    <form action="{{ url_for('admin.add_question') }}" method="POST">
+
+      <select name="type" required id="qType">
+        <option value="">Select Question Type</option>
+        <option value="mcq">MCQ (Objective)</option>
+        <option value="descriptive">Descriptive (Long Answer)</option>
+      </select>
+
+      <input type="text" name="question" placeholder="Enter question..." required>
+
+      <!-- ✅ MCQ Fields -->
+      <div id="mcqFields">
+        <input type="text" name="opt1" placeholder="Option 1">
+        <input type="text" name="opt2" placeholder="Option 2">
+        <input type="text" name="opt3" placeholder="Option 3">
+        <input type="text" name="opt4" placeholder="Option 4">
+        <input type="text" name="correct" placeholder="Correct Answer (A/B/C/D)">
+      </div>
+
+      <!-- ✅ Descriptive Fields -->
+      <div id="descFields" style="display:none;">
+        <textarea name="answer_key" placeholder="Enter model answer..." style="height:120px;"></textarea>
+        <input type="number" name="max_marks" placeholder="Max Marks (e.g., 5)">
+      </div>
+
+      <select name="level" required>
+        <option value="">Select Difficulty Level</option>
+        <option value="Easy">Easy</option>
+        <option value="Medium">Medium</option>
+        <option value="Hard">Hard</option>
+      </select>
+
+      <button type="submit" class="btn">Add Question</button>
+    </form>
+  </div>
+
+  <script>
+    const qType = document.getElementById('qType');
+    const mcqFields = document.getElementById('mcqFields');
+    const descFields = document.getElementById('descFields');
+
+    qType.addEventListener('change', () => {
+      if (qType.value === 'mcq') {
+        mcqFields.style.display = 'block';
+        descFields.style.display = 'none';
+      } else {
+        mcqFields.style.display = 'none';
+        descFields.style.display = 'block';
+      }
+    });
+  </script>
+
+  <!-- ✅ All Questions -->
+  <h2>All Questions</h2>
+  <table>
+    <tr>
+      <th>#</th>
+      <th>Question</th>
+      <th>Correct / Keywords</th>
+      <th>Type</th>
+      <th>Level</th>
+      <th>Action</th>
+    </tr>
+
+    {% for q in questions %}
+    <tr>
+      <td>{{ loop.index }}</td>
+      <td>{{ q.q }}</td>
+
+      {% if q.type == 'DESCRIPTIVE' %}
+        <td>
+          <strong>Keywords:</strong> {{ q.answer_key }}<br>
+          <strong>Marks:</strong> {{ q.max_marks }}
+        </td>
+      {% else %}
+        <td>{{ q.correct }}</td>
+      {% endif %}
+
+      <td>{{ q.type }}</td>
+      <td>{{ q.level }}</td>
+
+      <td><a href="{{ url_for('admin.delete_question', index=loop.index0) }}" class="btn btn-danger">Delete</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- ✅ Registered Users -->
+  <h2>Registered Users</h2>
+  <table>
+    <tr>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Latest Score</th>
+      <th>Action</th>
+    </tr>
+
+    {% for username, info in users.items() %}
+    <tr>
+      <td>{{ username }}</td>
+      <td>{{ info.email }}</td>
+      <td>
+        {% if results.get(username) %}
+          {{ results[username].get('score', 'N/A') }} /
+          {{ results[username].get('total', 'N/A') }}
+        {% else %}
+          N/A
+        {% endif %}
+      </td>
+      <td><a href="{{ url_for('admin.admin_user_history', username=username) }}" class="btn">📜 View History</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <!-- ✅ Leaderboard -->
+  <h2>Leaderboard</h2>
+  <table>
+    <tr>
+      <th>Username</th>
+      <th>Score</th>
+      <th>Total</th>
+      <th>Time Taken</th>
+    </tr>
+
+    {% for name, data in results.items() %}
+    <tr>
+      <td>{{ name }}</td>
+      <td>{{ data.score }}</td>
+      <td>{{ data.total }}</td>
+      <td>{{ data.time_taken or 'N/A' }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+</body>
+</html>

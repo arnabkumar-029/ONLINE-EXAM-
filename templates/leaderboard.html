@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaderboard</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      color: white;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    h1 {
+      font-size: 40px;
+      margin-bottom: 25px;
+      animation: popIn 1s ease;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    table {
+      width: 90%;
+      max-width: 850px;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(0,0,0,0.3);
+      animation: fadeInUp 1.5s ease;
+    }
+
+    th, td {
+      padding: 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    th {
+      background: rgba(255,255,255,0.2);
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+
+    tr:nth-child(even) {
+      background: rgba(255,255,255,0.05);
+    }
+
+    .rank {
+      font-weight: bold;
+      color: #ffdd57;
+    }
+
+    .rank:first-child { color: #FFD700; }
+    .rank:nth-child(2) { color: #C0C0C0; }
+    .rank:nth-child(3) { color: #CD7F32; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Buttons */
+    .button-box {
+      margin-top: 30px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button, a.btn {
+      background: #fff;
+      color: #5563DE;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    button:hover, a.btn:hover {
+      background: #ffdd57;
+      color: #333;
+    }
+
+    /* --- Logout Popup Animation --- */
+    .logout-popup {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      text-align: center;
+      animation: fadeIn 0.6s ease forwards;
+      z-index: 100;
+      display: none;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .logout-box {
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(12px);
+      padding: 60px 90px;
+      border-radius: 25px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.3);
+      animation: popIn 0.8s ease forwards;
+    }
+
+    .logout-box .icon {
+      font-size: 90px;
+      color: #ffdd57;
+      animation: rotate 2.5s infinite linear;
+    }
+
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .logout-box h1 {
+      margin-top: 20px;
+      font-size: 38px;
+    }
+
+    .logout-box p {
+      margin-top: 10px;
+      font-size: 18px;
+    }
+
+    .loading-bar {
+      width: 300px;
+      height: 8px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 10px;
+      margin: 25px auto;
+      overflow: hidden;
+    }
+
+    .progress {
+      width: 0%;
+      height: 100%;
+      background: #ffdd57;
+      animation: load 4s linear forwards;
+    }
+
+    @keyframes load {
+      from { width: 0%; }
+      to { width: 100%; }
+    }
+
+    .bye-text {
+      opacity: 0;
+      animation: fadeIn 4s ease forwards;
+    }
+  </style>
+</head>
+<body>
+
+  <h1><i class='bx bx-trophy'></i> Leaderboard</h1>
+
+  <table>
+    <tr>
+      <th>Rank</th>
+      <th>Username</th>
+      <th>Score</th>
+      <th>Total</th>
+      <th>Time Taken</th>
+    </tr>
+
+    {% for user, data in leaderboard %}
+    <tr>
+      <td class="rank">{{ loop.index }}</td>
+      <td>{{ user }}</td>
+      <td>{{ data.score }}</td>
+      <td>{{ data.total }}</td>
+      <td>{{ data.time_taken if data.time_taken else 'N/A' }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <div class="button-box">
+    <a href="{{ url_for('exam.history') }}" class="btn">📜 View My Exam History</a>
+    <button onclick="showLogout()">🚪 Logout</button>
+  </div>
+
+  <!-- Logout Animation Popup -->
+  <div class="logout-popup" id="logoutPopup">
+    <div class="logout-box">
+      <i class='bx bx-party icon'></i>
+      <h1>Logging Out...</h1>
+      <p>See you soon!</p>
+
+      <div class="loading-bar"><div class="progress"></div></div>
+
+      <p class="bye-text">Redirecting to Login Page...</p>
+    </div>
+  </div>
+
+  <script>
+    function showLogout() {
+      const popup = document.getElementById('logoutPopup');
+      popup.style.display = 'flex';
+
+      setTimeout(() => {
+        window.location.href = "{{ url_for('auth.logout_final') }}";
+      }, 4000);
+    }
+  </script>
+
+</body>
+</html>

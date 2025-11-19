@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Question Generator</title>
+
+  <!-- ✅ SweetAlert -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      color: white;
+      text-align: center;
+      padding: 40px;
+    }
+
+    h1 {
+      font-size: 38px;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .box {
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(12px);
+      padding: 40px;
+      width: 480px;
+      margin: auto;
+      border-radius: 25px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.2);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin: 12px 0;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      font-size: 16px;
+    }
+
+    button {
+      padding: 12px 20px;
+      width: 100%;
+      border-radius: 10px;
+      border: none;
+      background: #ffdd57;
+      font-weight: 600;
+      color: #333;
+      cursor: pointer;
+      transition: .3s;
+      font-size: 17px;
+    }
+
+    button:hover {
+      background: #ffe87a;
+    }
+
+    a {
+      color: white;
+      display: inline-block;
+      margin-top: 25px;
+      font-size: 17px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: .3s;
+    }
+
+    a:hover {
+      color: #ffdd57;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h1>✨ AI Question Generator</h1>
+
+  <!-- ✅ SweetAlert Flash Popups -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <script>
+        Swal.fire({
+          icon: "{{ 'success' if category=='success' else 'error' }}",
+          title: "{{ 'Success' if category=='success' else 'Error' }}",
+          text: "{{ message }}",
+          confirmButtonColor: "#ffdd57"
+        });
+      </script>
+    {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <div class="box">
+    <form method="POST" action="{{ url_for('admin.api_generate') }}" id="genForm">
+
+      <!-- ✅ Choose Type of Question -->
+      <select name="qtype" required>
+        <option value="">Select Question Type</option>
+        <option value="mcq">MCQ Questions</option>
+        <option value="descriptive">Descriptive Questions</option>
+      </select>
+
+      <input type="text" name="topic" placeholder="Enter Topic (e.g. Machine Learning)" required>
+
+      <input type="number" name="count" min="1" max="20" value="10" required>
+
+      <button type="submit" id="submitBtn">Generate Questions 🚀</button>
+    </form>
+  </div>
+
+  <a href="{{ url_for('admin.admin_dashboard') }}">⬅ Back to Dashboard</a>
+
+  <script>
+    // ✅ Prevent double submission
+    const form = document.getElementById('genForm');
+    const btn = document.getElementById('submitBtn');
+
+    form.addEventListener('submit', () => {
+      btn.disabled = true;
+      btn.textContent = "Generating...";
+    });
+  </script>
+
+</body>
+</html>

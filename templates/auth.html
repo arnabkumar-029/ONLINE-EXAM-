@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login / Signup</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='SignUp_LogIn_Form.css') }}">
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <style>
+        /* Admin Button Styling */
+        .admin-btn {
+            display: inline-block;
+            margin-top: 15px;
+            background: linear-gradient(90deg, #5563DE, #74ABE2);
+            color: #fff;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: 0.3s;
+            box-shadow: 0 0 12px rgba(85, 99, 222, 0.5);
+        }
+
+        .admin-btn:hover {
+            background: linear-gradient(90deg, #4052c5, #5a9ce5);
+            box-shadow: 0 0 18px rgba(85, 99, 222, 0.8);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ✅ Success Popup -->
+    <div class="success-message" id="successMessage">
+        <div class="success-box">
+            <i class='bx bxs-check-circle'></i>
+            <h2 id="successText">Account Created Successfully!</h2>
+        </div>
+    </div>
+
+    <!-- ❌ Error Popup -->
+    <div class="error-message" id="errorMessage">
+        <div class="error-box">
+            <i class='bx bxs-error-circle'></i>
+            <h2 id="errorText">Something went wrong</h2>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+
+        <!-- Login Form -->
+        <div class="form-box login">
+            <form action="{{ url_for('auth.login') }}" method="POST">
+                <h1>Login</h1>
+
+                <div class="input-box">
+                    <input type="text" name="username" placeholder="Username" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" name="password" placeholder="Password" required>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+
+                <button type="submit" class="btn">Login</button>
+
+                <!-- Admin Login -->
+                <a href="{{ url_for('admin.admin_login') }}" class="admin-btn">👑 Admin Login</a>
+            </form>
+        </div>
+
+        <!-- Register Form -->
+        <div class="form-box register">
+            <form action="{{ url_for('auth.signup') }}" method="POST">
+                <h1>Registration</h1>
+
+                <div class="input-box">
+                    <input type="text" name="username" placeholder="Username" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="email" name="email" placeholder="Email" required>
+                    <i class='bx bxs-envelope'></i>
+                </div>
+
+                <div class="input-box">
+                    <input type="password" name="password" placeholder="Password" required>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+
+                <button type="submit" class="btn">Register</button>
+            </form>
+        </div>
+
+        <!-- Toggle Panels -->
+        <div class="toggle-box">
+            <div class="toggle-panel toggle-left">
+                <h1>Hello, Welcome!</h1>
+                <p>Don't have an account?</p>
+                <button class="btn register-btn">Register</button>
+            </div>
+
+            <div class="toggle-panel toggle-right">
+                <h1>Welcome Back!</h1>
+                <p>Already have an account?</p>
+                <button class="btn login-btn">Login</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- FLASH MESSAGES -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    <script>
+        window.serverMessages = [];
+        {% for category, message in messages %}
+            window.serverMessages.push({ category: "{{ category }}", text: {{ message|tojson }} });
+        {% endfor %}
+    </script>
+    {% endwith %}
+
+    <!-- ✅ POPUP HANDLING & TAB SWITCHING -->
+    <script src="{{ url_for('static', filename='SignUp_LogIn_Form.js') }}"></script>
+
+    <!-- ✅ Force open LOGIN or REGISTER tab correctly -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const container = document.querySelector(".container");
+            const loginTab = document.querySelector(".login-btn");
+            const registerTab = document.querySelector(".register-btn");
+
+            function showLogin() {
+                container.classList.remove("active");
+            }
+
+            function showRegister() {
+                container.classList.add("active");
+            }
+
+            loginTab.addEventListener("click", showLogin);
+            registerTab.addEventListener("click", showRegister);
+
+            // ✅ Check URL hash
+            if (window.location.hash === "#register") {
+                showRegister();
+            } else {
+                showLogin();
+            }
+
+            // ✅ Show popup from backend messages
+            if (window.serverMessages.length > 0) {
+                const successBox = document.getElementById("successMessage");
+                const errorBox = document.getElementById("errorMessage");
+                const successSound = document.getElementById("successSound");
+                const errorSound = document.getElementById("errorSound");
+
+                window.serverMessages.forEach(msg => {
+                    if (msg.category === "success") {
+                        document.getElementById("successText").innerText = msg.text;
+                        successBox.classList.add("show");
+                        successSound.play();
+                        setTimeout(() => successBox.classList.remove("show"), 2500);
+                    } else {
+                        document.getElementById("errorText").innerText = msg.text;
+                        errorBox.classList.add("show");
+                        errorSound.play();
+                        setTimeout(() => errorBox.classList.remove("show"), 2500);
+                    }
+                });
+            }
+        });
+    </script>
+
+    <!-- ✅ Sounds -->
+    <audio id="successSound" src="{{ url_for('static', filename='success.mp3') }}" preload="auto"></audio>
+    <audio id="errorSound" src="{{ url_for('static', filename='error.mp3') }}" preload="auto"></audio>
+
+</body>
+</html>

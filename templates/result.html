@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exam Result</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      color: white;
+      text-align: center;
+      padding: 40px 10px;
+      min-height: 100vh;
+    }
+
+    .main-box {
+      max-width: 900px;
+      margin: auto;
+      background: rgba(255,255,255,0.12);
+      border-radius: 25px;
+      padding: 40px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 0 25px rgba(0,0,0,0.4);
+      animation: popIn 0.8s ease;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .icon {
+      font-size: 80px;
+      color: #ffdd57;
+      animation: bounce 1.5s infinite ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    h1 { font-size: 35px; margin-bottom: 10px; }
+    h2 { margin: 5px 0; }
+    .time { margin: 15px 0; font-size: 18px; color: #ffe680; }
+
+    /* Descriptive Analysis Table */
+    table {
+      width: 100%;
+      margin-top: 25px;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    th {
+      background: rgba(0,0,0,0.25);
+      font-size: 18px;
+      text-transform: uppercase;
+    }
+
+    .redirect {
+      margin-top: 18px;
+      font-size: 15px;
+      opacity: 0;
+      animation: fadeIn 2s forwards 1.5s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="main-box">
+    <i class='bx bx-trophy icon'></i>
+
+    <h1>Exam Completed!</h1>
+    <h2>✅ Correct or Total Marks Obtained: {{ score }}</h2>
+    <h2>❌ Wrong (MCQ): {{ wrong }}</h2>
+    <h2>⏭ Skipped: {{ skipped }}</h2>
+    <h2>🎯 Total Marks: {{ total }}</h2>
+    <div class="time">⏱ Time Taken: <strong>{{ time_taken }}</strong></div>
+
+    {% if descriptive_reports %}
+    <h2 style="margin-top: 25px;">📝 Descriptive Question Analysis</h2>
+
+    <table>
+      <tr>
+        <th>Question</th>
+        <th>Similarity</th>
+        <th>Originality</th>
+        <th>Grade</th>
+        <th>Marks</th>
+      </tr>
+
+      {% for d in descriptive_reports %}
+      <tr>
+        <td>{{ d.q }}</td>
+        <td>{{ d.similarity }}%</td>
+        <td>{{ d.originality }}%</td>
+        <td>{{ d.grade }}</td>
+        <td>{{ d.marks }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+
+    <p class="redirect">Redirecting to Leaderboard...</p>
+  </div>
+
+  <script>
+    setTimeout(() => {
+      window.location.href = "{{ url_for('exam.save_result') }}";
+    }, 3000);
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>My Exam History</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    h1 {
+      margin-bottom: 25px;
+    }
+    table {
+      width: 90%;
+      max-width: 800px;
+      margin: auto;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+    th {
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+    }
+    tr:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    a.btn {
+      background: white;
+      color: #5563DE;
+      padding: 10px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      display: inline-block;
+      margin-top: 20px;
+      transition: 0.3s;
+    }
+    a.btn:hover {
+      background: #dce1ff;
+    }
+  </style>
+</head>
+<body>
+  <h1><i class='bx bx-history'></i> {{ username }}'s Exam History</h1>
+
+  {% if history %}
+  <table>
+    <tr>
+      <th>Date</th>
+      <th>Score</th>
+      <th>Total</th>
+      <th>Time Taken</th>
+    </tr>
+    {% for record in history|reverse %}
+    <tr>
+      <td>{{ record.date }}</td>
+      <td>{{ record.score }}</td>
+      <td>{{ record.total }}</td>
+      <td>{{ record.time_taken }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>No exam history found yet.</p>
+  {% endif %}
+
+  <a href="{{ url_for('exam.leaderboard') }}" class="btn">🏆 Go to Leaderboard</a>
+</body>
+</html>

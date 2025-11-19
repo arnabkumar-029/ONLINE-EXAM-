@@ -2,3 +2,4 @@ flask
 gunicorn
 jinja2
 mysql-connector-python
+google-generativeai

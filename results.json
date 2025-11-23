@@ -472,6 +472,35 @@
             "similarity": 0
           }
         ]
+      },
+      {
+        "score": 1.0,
+        "total": 32.0,
+        "time_taken": "1m 13s",
+        "date": "2025-11-20 15:48:17",
+        "descriptive_reports": [
+          {
+            "grade": "Not Answered",
+            "marks": 0,
+            "originality": 100,
+            "q": "Explain the phenomenon of the Northern Lights (Aurora Borealis), detailing its scientific causes and the geographical regions where it is most commonly observed.",
+            "similarity": 0
+          },
+          {
+            "grade": "Not Answered",
+            "marks": 0,
+            "originality": 100,
+            "q": "Describe the cultural and historical significance of the ancient Olympic Games, including their purpose and impact on Greek city-states.",
+            "similarity": 0
+          },
+          {
+            "grade": "Not Answered",
+            "marks": 0,
+            "originality": 100,
+            "q": "Explain how the invention of the printing press fundamentally transformed European society and the dissemination of knowledge.",
+            "similarity": 0
+          }
+        ]
       }
     ]
   },

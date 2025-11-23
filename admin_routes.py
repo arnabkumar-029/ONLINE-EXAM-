@@ -13,6 +13,21 @@ import re
 import json
 import os
 import google.generativeai as genai
+from dotenv import load_dotenv  # 👈 load from .env
+
+# -----------------------
+# Load environment vars
+# -----------------------
+load_dotenv()  # This reads .env file locally
+
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+
+if not GEMINI_API_KEY:
+    # You will see this error if GEMINI_API_KEY is missing
+    raise RuntimeError("GEMINI_API_KEY not set in environment!")
+
+# Configure Gemini once (global)
+genai.configure(api_key=GEMINI_API_KEY)
 
 # Blueprint MUST be defined before any @admin_bp.route()
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -225,14 +240,9 @@ Each item in the array must be an object like:
 }}
 """
 
-    # ----- Configure Gemini -----
-    # For simplicity, we use your hard-coded key as requested.
-    API_KEY = "AIzaSyCJimhwj57WXZh7IFuru6SCWYPqRU-xqaw"
-    genai.configure(api_key=API_KEY)
-
-    model_name = "models/gemini-2.5-flash"
-
     try:
+        # Model already configured globally with GEMINI_API_KEY
+        model_name = "models/gemini-2.5-flash"
         model = genai.GenerativeModel(model_name)
         response = model.generate_content(prompt)
         raw = (getattr(response, "text", "") or "").strip()

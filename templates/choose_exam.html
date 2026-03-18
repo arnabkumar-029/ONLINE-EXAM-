@@ -3,71 +3,225 @@
 <head>
   <title>Choose Exam</title>
 
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      background: #0f172a;
-      color: white;
-      text-align: center;
-      font-family: Arial;
-      padding: 50px;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Orbitron', sans-serif;
     }
 
-    h2 {
+    body {
+      height: 100vh;
+      background: #020617;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .container {
+      text-align: center;
+      width: 90%;
+      max-width: 800px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
+      color: #38bdf8;
+      text-shadow: 0 0 20px #38bdf8;
+    }
+
+    /* CARD GRID */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
       margin-bottom: 30px;
     }
 
+    .card {
+      padding: 30px;
+      border-radius: 15px;
+      background: #0f172a;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .card:hover {
+      transform: scale(1.08);
+      border: 2px solid #22c55e;
+      box-shadow: 0 0 25px #22c55e;
+    }
+
+    .selected {
+      border: 2px solid #facc15 !important;
+      box-shadow: 0 0 25px #facc15;
+    }
+
+    /* INPUTS */
     select, input {
       padding: 10px;
       margin: 10px;
       border-radius: 8px;
       border: none;
-      font-size: 16px;
-    }
-
-    button {
-      padding: 15px 30px;
-      margin-top: 20px;
-      font-size: 18px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      background: #22c55e;
+      background: #0f172a;
       color: white;
     }
+
+    /* NEON BUTTON */
+    button {
+      padding: 15px 40px;
+      border-radius: 10px;
+      border: none;
+      background: #22c55e;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 0 15px #22c55e;
+    }
+
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 40px #22c55e;
+    }
+
+    /* PROGRESS BAR */
+    .progress {
+      width: 100%;
+      height: 10px;
+      background: #1e293b;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #38bdf8;
+      transition: width 0.5s;
+      box-shadow: 0 0 10px #38bdf8;
+    }
+
   </style>
 </head>
 
 <body>
 
-<h2>🎯 Customize Your Exam</h2>
+<div class="container">
 
-<form action="/start_exam" method="POST">
+  <h1>🎮 SELECT EXAM MODE</h1>
 
-  <!-- Question Type -->
-  <h3>📘 Select Question Type</h3>
-  <select name="type">
-    <option value="MCQ">Only MCQ</option>
-    <option value="DESCRIPTIVE">Only Descriptive</option>
-    <option value="MIX">MCQ + Descriptive</option>
-  </select>
+  <!-- PROGRESS BAR -->
+  <div class="progress">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
 
-  <!-- Difficulty -->
-  <h3>📊 Select Difficulty</h3>
-  <select name="level">
-    <option value="ALL">All</option>
-    <option value="Easy">Easy</option>
-    <option value="Medium">Medium</option>
-    <option value="Hard">Hard</option>
-  </select>
+  <form action="/start_exam" method="POST">
 
-  <!-- Number of Questions -->
-  <h3>🔢 Number of Questions</h3>
-  <input type="number" name="count" min="1" max="50" value="5">
+    <!-- CARD SELECTION -->
+    <div class="cards">
+      <div class="card" onclick="selectType('MCQ', this)">
+        📘<br>MCQ
+      </div>
 
-  <br>
-  <button type="submit">🚀 Start Exam</button>
+      <div class="card" onclick="selectType('DESCRIPTIVE', this)">
+        📝<br>Descriptive
+      </div>
 
-</form>
+      <div class="card" onclick="selectType('MIX', this)">
+        🎯<br>Mixed
+      </div>
+    </div>
+
+    <input type="hidden" name="type" id="typeInput">
+
+    <!-- FILTERS -->
+    <select name="level" onchange="updateProgress()">
+      <option value="ALL">All Levels</option>
+      <option value="Easy">Easy</option>
+      <option value="Medium">Medium</option>
+      <option value="Hard">Hard</option>
+    </select>
+
+    <input type="number" name="count" min="1" max="50" value="5" oninput="updateProgress()">
+
+    <br>
+
+    <button type="submit" onclick="handleStart(event, this)">🚀 START EXAM</button>
+  </form>
+
+</div>
+
+<!-- SOUND -->
+<audio id="clickSound" src="/static/click2.mp3" preload="auto"></audio>
+
+<script>
+
+const sound = document.getElementById("clickSound");
+
+// unlock audio on first click
+window.addEventListener("click", () => {
+  sound.load();
+}, { once: true });
+
+let progress = 0;
+
+// ✅ SOUND FUNCTION (OUTSIDE)
+function playSound() {
+  const sound = document.getElementById("clickSound");
+
+  if (!sound) return;
+
+  sound.pause();
+  sound.currentTime = 0;
+
+  sound.play().catch(err => console.log("Play blocked ❌", err));
+}
+
+// ✅ CARD SELECT
+function selectType(type, el) {
+  document.getElementById("typeInput").value = type;
+
+  document.querySelectorAll(".card").forEach(c => c.classList.remove("selected"));
+  el.classList.add("selected");
+
+  progress = 40;
+  updateProgress();
+  playSound();
+}
+
+// ✅ PROGRESS
+function updateProgress() {
+  let level = document.querySelector("select").value;
+  let count = document.querySelector("input").value;
+
+  let extra = 0;
+
+  if (level !== "ALL") extra += 30;
+  if (count > 0) extra += 30;
+
+  document.getElementById("progressBar").style.width = (progress + extra) + "%";
+}
+
+// ✅ START BUTTON
+function handleStart(e, btn) {
+  e.preventDefault();
+
+  btn.disabled = true;
+  playSound();
+
+  setTimeout(() => {
+    e.target.closest("form").submit();
+  }, 500);
+}
+
+</script>
 
 </body>
 </html>

@@ -206,22 +206,80 @@
     "level": "Medium"
   },
   {
-    "q": "Explain the phenomenon of the Northern Lights (Aurora Borealis), detailing its scientific causes and the geographical regions where it is most commonly observed.",
+    "q": "Discuss the major factors contributing to India's unique cultural diversity, including its linguistic, religious, and traditional aspects.",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: solar wind, charged particles, Earth's magnetic field, atmospheric gases, ionization, photons, poles, high latitudes, Arctic, Antarctic",
+    "answer_key": "keywords: geographical variations, historical invasions/migrations, multiple religions coexisting, linguistic families, regional customs, festivals, art forms.",
     "max_marks": 5,
     "level": "Medium"
   },
   {
-    "q": "What is the largest planet in our solar system?",
-    "type": "MCQ",
-    "a": [
-      "Mars",
-      "Jupiter",
-      "Earth",
-      "Saturn"
-    ],
-    "correct": "Jupiter",
-    "level": "Easy"
+    "q": "Explain the significant shifts in India's economy since its independence, focusing on the transition from an agrarian base to a service-sector-led growth model.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: agrarian economy post-independence, Green Revolution, liberalization 1991, rise of IT/service sector, manufacturing challenges, 'Make in India' initiative.",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Describe the key challenges and successes of India's democratic system since its inception, considering its vast population and diverse socio-political landscape.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: adoption of democracy, electoral process, federal structure, social inequalities, regionalism, coalition politics, stability, rule of law, challenges of governance.",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Analyze how India's diverse geographical features, such as the Himalayas, the Indo-Gangetic Plains, and the Deccan Plateau, have influenced its climate, agriculture, and human settlements.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: Himalayas (monsoon, rivers, climate barrier), Gangetic Plains (fertile, dense population, agriculture), Deccan Plateau (minerals, different crops, rainfall patterns), coastal areas (trade, fishing), diverse ecosystems.",
+    "max_marks": 5,
+    "level": "Hard"
+  },
+  {
+    "q": "Elaborate on the historical evolution and contemporary relevance of the caste system in India, including its impact on social mobility and political dynamics.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: historical origins (Vedic period), Varna system, Jati system, social hierarchy, discrimination, constitutional abolition, affirmative action (reservations), socio-political influence, persistence in rural areas.",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Discuss the philosophical underpinnings and core tenets of Hinduism, and its pervasive influence on Indian art, literature, and daily life.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: Dharma, Karma, Moksha, Samsara, Vedas, Upanishads, polytheism/monism, diverse deities, rituals, festivals, influence on architecture, dance, music, ethical framework.",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Explain the major environmental challenges facing India today, such as air pollution, water scarcity, and deforestation, and outline efforts being made to address them.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: air pollution (urban centers, industrial emissions, vehicle exhaust), water scarcity (groundwater depletion, river pollution), deforestation (agriculture, urbanization), climate change impacts, government policies (Swachh Bharat, Namami Gange, renewable energy targets), public awareness.",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Describe India's evolving foreign policy approach, particularly its shift from non-alignment during the Cold War to its current multi-aligned strategy and engagement with global powers.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: Non-Aligned Movement (NAM), Cold War neutrality, Look East/Act East Policy, strategic autonomy, relations with USA, Russia, China, regional diplomacy, QUAD, BRICS, UN role.",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Elaborate on the factors that led to India's emergence as a global hub for information technology and software services, and discuss its future prospects in digital innovation.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: skilled workforce (English proficiency, engineering education), government support, liberalization policies, cost advantage, time zone difference, outsourcing boom, startup ecosystem, Digital India initiative, AI/ML focus.",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Trace the development of Indian architecture from ancient to medieval periods, highlighting the distinctive features and cultural influences seen in prominent structures like stupas, temples, and Mughal monuments.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: Indus Valley (urban planning), Mauryan (Stupas, Ashokan Pillars), Gupta (temple architecture, cave temples), Dravidian style (gopurams), Nagara style (shikhara), Islamic/Mughal (arches, domes, minarets, pietra dura), fusion of styles.",
+    "max_marks": 5,
+    "level": "Medium"
+  },
+  {
+    "q": "Discuss the major historical, geographical, and social factors that have contributed to India's remarkable cultural and linguistic diversity.",
+    "type": "DESCRIPTIVE",
+    "answer_key": "keywords: Geographical variations (mountains, rivers, plains, coastlines), historical migrations (Aryan, Huns, Turks, Mughals), diverse religious traditions (Hinduism, Islam, Christianity, Sikhism, Buddhism, Jainism), evolution of numerous regional kingdoms and empires, influence of different linguistic families (Indo-Aryan, Dravidian, Tibeto-Burman, Austroasiatic), the federal structure and state reorganization post-independence.",
+    "max_marks": 5,
+    "level": "Medium"
   }
 ]

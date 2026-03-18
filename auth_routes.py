@@ -83,7 +83,7 @@ def login():
         qs = []
 
     session["username"] = username
-    session["questions"] = random.sample(qs, len(qs)) if qs else []
+    session["questions"] = []   # keep empty
     session["index"] = 0
     session["answers"] = {}
     session["start_time"] = int(time.time())
@@ -100,3 +100,4 @@ def choose_exam():
     if "username" not in session:
         return redirect(url_for("auth.auth_page"))
     return render_template("choose_exam.html")
+

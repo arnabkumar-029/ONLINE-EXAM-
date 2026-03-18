@@ -218,7 +218,7 @@ def start_exam():
     from utils import load_questions
     import random, time
 
-    qtype = request.form.get("type")
+    qtype = request.form.get("type") or "MCQ"
     level = request.form.get("level")
     count = int(request.form.get("count", 5))
 

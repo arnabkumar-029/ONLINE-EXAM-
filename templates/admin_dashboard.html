@@ -78,6 +78,19 @@
       border-color: #5563DE;
       outline: none;
     }
+    .action-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;   /* 🔥 THIS CREATES SPACE */
+}
+
+.save-btn {
+  margin-top: 5px;
+}
+
+.delete-btn {
+  margin-top: 5px;
+}
   </style>
 </head>
 
@@ -202,7 +215,29 @@
       <td>{{ q.type }}</td>
       <td>{{ q.level }}</td>
 
-      <td><a href="{{ url_for('admin.delete_question', index=loop.index0) }}" class="btn btn-danger">Delete</a></td>
+<td>
+  <div class="action-box">
+
+    <form action="/admin/edit_question/{{ loop.index0 }}" method="POST">
+      <select name="level">
+        <option value="Easy" {% if q.level=='Easy' %}selected{% endif %}>Easy</option>
+        <option value="Medium" {% if q.level=='Medium' %}selected{% endif %}>Medium</option>
+        <option value="Hard" {% if q.level=='Hard' %}selected{% endif %}>Hard</option>
+      </select>
+
+      {% if q.type == "DESCRIPTIVE" %}
+        <input type="number" name="max_marks" value="{{ q.max_marks }}" min="1">
+      {% endif %}
+
+      <button type="submit" class="btn save-btn">💾</button>
+    </form>
+
+    <a href="{{ url_for('admin.delete_question', index=loop.index0) }}" class="btn btn-danger delete-btn">
+      Delete
+    </a>
+
+  </div>
+</td>
     </tr>
     {% endfor %}
   </table>

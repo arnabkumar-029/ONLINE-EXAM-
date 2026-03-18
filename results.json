@@ -501,6 +501,49 @@
             "similarity": 0
           }
         ]
+      },
+      {
+        "score": 0.0,
+        "total": 15.0,
+        "time_taken": "0m 7s",
+        "date": "2026-03-18 19:53:33",
+        "descriptive_reports": [
+          {
+            "grade": "Not Answered",
+            "marks": 0,
+            "originality": 100,
+            "q": "Describe the cultural and historical significance of the ancient Olympic Games, including their purpose and impact on Greek city-states.",
+            "similarity": 0
+          },
+          {
+            "grade": "Not Answered",
+            "marks": 0,
+            "originality": 100,
+            "q": "Explain how the invention of the printing press fundamentally transformed European society and the dissemination of knowledge.",
+            "similarity": 0
+          },
+          {
+            "grade": "Not Answered",
+            "marks": 0,
+            "originality": 100,
+            "q": "Explain the phenomenon of the Northern Lights (Aurora Borealis), detailing its scientific causes and the geographical regions where it is most commonly observed.",
+            "similarity": 0
+          }
+        ]
+      },
+      {
+        "score": 0.0,
+        "total": 5.0,
+        "time_taken": "0m 20s",
+        "date": "2026-03-18 20:43:07",
+        "descriptive_reports": []
+      },
+      {
+        "score": 0.0,
+        "total": 2.0,
+        "time_taken": "0m 8s",
+        "date": "2026-03-18 20:58:23",
+        "descriptive_reports": []
       }
     ]
   },

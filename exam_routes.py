@@ -209,3 +209,50 @@ def leaderboard():
 
     sorted_users = sorted(results.items(), key=pct, reverse=True)
     return render_template("leaderboard.html", leaderboard=sorted_users)
+
+@exam_bp.route("/start_exam", methods=["POST"])
+def start_exam():
+    if "username" not in session:
+        return redirect(url_for("auth.auth_page"))
+
+    from utils import load_questions
+    import random, time
+
+    qtype = request.form.get("type")
+    level = request.form.get("level")
+    count = int(request.form.get("count", 5))
+
+    all_qs = load_questions()
+
+    # ✅ FILTER TYPE
+    if qtype == "MCQ":
+        filtered = [q for q in all_qs if q.get("type") == "MCQ"]
+
+    elif qtype == "DESCRIPTIVE":
+        filtered = [q for q in all_qs if q.get("type") == "DESCRIPTIVE"]
+
+    else:  # MIX
+        filtered = all_qs
+
+    # ✅ FILTER DIFFICULTY
+    if level != "ALL":
+        filtered = [q for q in filtered if q.get("level") == level]
+
+    # ❌ If no questions
+    if not filtered:
+        flash("No questions found!", "error")
+        return redirect(url_for("auth.choose_exam"))
+
+    # ✅ LIMIT COUNT
+    if count > len(filtered):
+        count = len(filtered)
+
+    selected_qs = random.sample(filtered, count)
+
+    # ✅ SAVE TO SESSION
+    session["questions"] = selected_qs
+    session["index"] = 0
+    session["answers"] = {}
+    session["start_time"] = int(time.time())
+
+    return redirect(url_for("exam.exam"))

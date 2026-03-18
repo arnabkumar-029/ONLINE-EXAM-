@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Choose Exam</title>
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+      padding-top: 100px;
+    }
+
+    button {
+      padding: 15px 30px;
+      margin: 20px;
+      font-size: 18px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .mcq { background: #22c55e; }
+    .mix { background: #3b82f6; }
+  </style>
+</head>
+
+<body>
+
+<h2>🎯 Choose Exam Type</h2>
+
+<form action="/start_exam" method="POST">
+  <button class="mcq" name="type" value="MCQ">📘 Only MCQ</button>
+  <button class="mix" name="type" value="MIX">📗 MCQ + Short</button>
+</form>
+
+</body>
+</html>

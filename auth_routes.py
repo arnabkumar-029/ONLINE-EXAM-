@@ -87,10 +87,16 @@ def login():
     session["index"] = 0
     session["answers"] = {}
     session["start_time"] = int(time.time())
-    return redirect(url_for("exam.exam"))
+    return redirect(url_for("auth.choose_exam"))
 
 @auth_bp.route("/logout_final")
 def logout_final():
     session.clear()
     flash("Logged out!", "success")
     return redirect(url_for("auth.auth_page"))
+
+@auth_bp.route("/choose_exam")
+def choose_exam():
+    if "username" not in session:
+        return redirect(url_for("auth.auth_page"))
+    return render_template("choose_exam.html")

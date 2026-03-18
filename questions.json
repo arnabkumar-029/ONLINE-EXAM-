@@ -223,17 +223,5 @@
     ],
     "correct": "Jupiter",
     "level": "Easy"
-  },
-  {
-    "q": "What is the capital city of India?",
-    "type": "MCQ",
-    "a": [
-      "New Delhi",
-      "Mumbai",
-      "Kolkata",
-      "Bengaluru"
-    ],
-    "correct": "New Delhi",
-    "level": "Easy"
   }
 ]

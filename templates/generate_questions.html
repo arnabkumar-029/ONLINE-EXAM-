@@ -1,138 +1,1958 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>AI Question Generator</title>
+<!-- ===================== AI QUESTION GENERATOR ===================== -->
+<div class="ai-gen-wrapper">
 
-  <!-- ✅ SweetAlert -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Header Title with Cybernetic Neon Glow -->
+    <div class="ai-title-container">
+        <div class="ai-header-badge">
+            <span class="badge-dot"></span>
+            <span>NEXT-GEN AI CURRICULUM ENGINE</span>
+        </div>
 
-  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+        <h1 class="ai-main-title">
+            <span class="ai-icon-sparkle">✨</span>
+            <span class="gradient-text">AI Question Generator</span>
+            <span class="ai-icon-robot">🤖</span>
+        </h1>
 
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #74ABE2, #5563DE);
-      color: white;
-      text-align: center;
-      padding: 40px;
+        <p class="ai-subtitle">Define academic curriculum standards, generate structured assessments, and review before committing to the question bank.</p>
+        <div class="ai-glow-bar"></div>
+    </div>
+
+    <!-- Datalist Autocompletions for Existing Courses & Subjects -->
+    <datalist id="existingCoursesList">
+        {% for c in existing_courses or [] %}
+        <option value="{{ c }}"></option>
+        {% endfor %}
+    </datalist>
+
+    <datalist id="existingCourseNamesList">
+        {% for cn in existing_course_names or [] %}
+        <option value="{{ cn }}"></option>
+        {% endfor %}
+    </datalist>
+
+    <datalist id="existingSubjectsList">
+        {% for s in existing_subjects or [] %}
+        <option value="{{ s }}"></option>
+        {% endfor %}
+    </datalist>
+
+    <!-- ===================== GENERATOR FORM CONTAINER ===================== -->
+    <div class="box ai-generator-box" id="generatorCard">
+        <form id="genForm" autocomplete="off">
+
+            <!-- SECTION 1: ACADEMIC CLASSIFICATION (REQUIRED) -->
+            <div class="form-section-header">
+                <i class="fa-solid fa-graduation-cap section-icon"></i>
+                <span class="section-title">1. ACADEMIC CLASSIFICATION (REQUIRED)</span>
+            </div>
+
+            <div class="grid-2-col">
+                <div class="form-group">
+                    <label class="field-label">Course Code <span class="req-star">*</span></label>
+                    <input
+                        type="text"
+                        name="course_code"
+                        id="courseCodeInput"
+                        list="existingCoursesList"
+                        placeholder="e.g. CS301"
+                        style="text-transform: uppercase;"
+                        required>
+                    <span class="field-hint">e.g. CS301, IT202, EE101</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label">Course Name <span class="req-star">*</span></label>
+                    <input
+                        type="text"
+                        name="course_name"
+                        id="courseNameInput"
+                        list="existingCourseNamesList"
+                        placeholder="e.g. Artificial Intelligence"
+                        required>
+                    <span class="field-hint">Full degree course title</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="field-label">Subject <span class="req-star">*</span></label>
+                <input
+                    type="text"
+                    name="subject"
+                    id="subjectInput"
+                    list="existingSubjectsList"
+                    placeholder="e.g. Machine Learning"
+                    required>
+                <span class="field-hint">Departmental subject / paper</span>
+            </div>
+
+            <div class="form-group">
+                <label class="field-label">Unit / Module <span class="req-star">*</span></label>
+                <input
+                    type="text"
+                    name="unit"
+                    id="unitInput"
+                    placeholder="e.g. Module III"
+                    required>
+                <span class="field-hint">Syllabus unit or module name</span>
+            </div>
+
+            <!-- SPECIAL FOCAL TOPIC CARD: THE MAIN CONCEPT FOR AI QUESTION GENERATION -->
+            <div class="topic-focal-card" id="topicCard">
+                <div class="topic-card-header">
+                    <div class="topic-label-wrap">
+                        <label class="topic-main-label" for="topicInput">
+                            <span class="topic-icon-glow">💡</span>
+                            <span>TOPIC</span>
+                            <span class="req-star">*</span>
+                        </label>
+                        <span class="topic-sub-prompt">What should the AI generate questions about?</span>
+                    </div>
+                    <div class="topic-concept-badge">
+                        <i class="fa-solid fa-crosshairs"></i> AI GENERATION FOCUS
+                    </div>
+                </div>
+
+                <div class="topic-input-wrapper">
+                    <input
+                        type="text"
+                        name="topic"
+                        id="topicInput"
+                        class="topic-focal-input"
+                        placeholder="e.g. Decision Trees, BFS, Neural Networks"
+                        autocomplete="off"
+                        required>
+                </div>
+
+                <div class="topic-card-footer">
+                    <div class="topic-helper-text">
+                        <i class="fa-solid fa-circle-info"></i> Define the main concept for AI-generated questions.
+                    </div>
+                    <div class="topic-readiness-indicator" id="topicReadiness">
+                        <span class="readiness-label">Topic readiness:</span>
+                        <span class="status-dot waiting"></span>
+                        <span id="topicReadinessText">Waiting for topic</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: QUESTION CONFIGURATION -->
+            <div class="form-section-header" style="margin-top: 10px;">
+                <i class="fa-solid fa-sliders section-icon"></i>
+                <span class="section-title">2. GENERATION PARAMETERS</span>
+            </div>
+
+            <div class="grid-3-col">
+                <div class="form-group">
+                    <label class="field-label">Question Type <span class="req-star">*</span></label>
+                    <select name="qtype" id="qtypeSelect" required>
+                        <option value="MCQ" selected>MCQ (Multiple Choice)</option>
+                        <option value="DESCRIPTIVE">Descriptive (Theory / Model Ans)</option>
+                        <option value="MIXED">Mixed (MCQ + Descriptive)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label">Difficulty Level <span class="req-star">*</span></label>
+                    <select name="difficulty" id="difficultySelect" required>
+                        <option value="Easy">Easy (Foundational)</option>
+                        <option value="Medium" selected>Medium (Standard / Analytical)</option>
+                        <option value="Hard">Hard (Advanced / Complex)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label">Number of Questions (1–50) <span class="req-star">*</span></label>
+                    <input
+                        type="number"
+                        name="count"
+                        id="countInput"
+                        min="1"
+                        max="50"
+                        value="5"
+                        required>
+                </div>
+            </div>
+
+            <!-- SUBMIT BUTTON & LOADER -->
+            <div class="submit-container">
+                <button type="submit" id="submitBtn" class="ai-submit-btn">
+                    <span class="btn-text">Generate Questions with AI 🚀</span>
+                </button>
+            </div>
+
+        </form>
+
+        <!-- Dynamic Holographic Cyber Loader -->
+        <div id="aiLoader" class="ai-loader-container" style="display: none;">
+            <div class="cyber-spinner"></div>
+            <div class="ai-loader-status" id="loaderStatusText">Engaging Gemini 2.5 Flash Engine...</div>
+            <div class="ai-loader-sub">Strictly enforcing academic classification: <strong id="loaderMetadata">...</strong></div>
+        </div>
+    </div>
+
+    <!-- ===================== PREVIEW SECTION ===================== -->
+    <div id="previewSection" class="ai-preview-section" style="display: none;">
+
+        <div class="preview-header-bar">
+            <div class="preview-header-left">
+                <span class="preview-badge">
+                    <i class="fa-solid fa-eye"></i> PREVIEW MODE
+                </span>
+                <span class="preview-count-chip" id="previewCountBadge">0 Questions Ready</span>
+                <div class="preview-meta-pill" id="previewMetaPill">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
+            <div class="preview-header-actions">
+                <button type="button" class="btn-preview-reset" id="resetBtn" onclick="resetToGenerator()">
+                    <i class="fa-solid fa-rotate-left"></i> Reconfigure / New
+                </button>
+                <button type="button" class="btn-preview-save" id="saveAllBtn" onclick="saveAllQuestions()">
+                    <i class="fa-solid fa-check-double"></i> ✓ SAVE ALL TO QUESTION BANK
+                </button>
+            </div>
+        </div>
+
+        <!-- Cards Container -->
+        <div id="previewCardsList" class="preview-cards-grid">
+            <!-- Dynamic question cards injected here -->
+        </div>
+
+        <!-- Bottom Floating Save Bar for Convenience -->
+        <div class="preview-bottom-actions">
+            <button type="button" class="btn-preview-save large" onclick="saveAllQuestions()">
+                <i class="fa-solid fa-check-double"></i> ✓ SAVE ALL QUESTIONS NOW
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- ===================== EDIT QUESTION MODAL ===================== -->
+<div id="editModalOverlay" class="edit-modal-overlay" style="display: none;">
+    <div class="edit-modal-content">
+        <div class="edit-modal-header">
+            <h3><i class="fa-solid fa-pen-to-square"></i> Edit Question Preview</h3>
+            <button type="button" class="modal-close-btn" onclick="closeEditModal()">&times;</button>
+        </div>
+
+        <div class="edit-modal-body">
+            <input type="hidden" id="editItemIndex">
+
+            <div class="form-group">
+                <label class="field-label">Question Statement</label>
+                <textarea id="editQuestionText" class="modal-textarea" rows="3" required></textarea>
+            </div>
+
+            <div class="grid-2-col">
+                <div class="form-group">
+                    <label class="field-label">Topic</label>
+                    <input type="text" id="editTopic" class="modal-input">
+                </div>
+                <div class="form-group">
+                    <label class="field-label">Difficulty</label>
+                    <select id="editLevel" class="modal-select">
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- MCQ Specific Fields -->
+            <div id="editMcqContainer" style="display: none;">
+                <label class="field-label" style="margin-top: 10px;">Options & Correct Answer (Select radio for correct)</label>
+                <div class="mcq-options-edit-grid">
+                    <div class="option-edit-row">
+                        <input type="radio" name="editCorrectRadio" id="radioOpt0" value="0">
+                        <span class="opt-letter-tag">A</span>
+                        <input type="text" id="editOpt0" class="modal-input" placeholder="Option A text">
+                    </div>
+                    <div class="option-edit-row">
+                        <input type="radio" name="editCorrectRadio" id="radioOpt1" value="1">
+                        <span class="opt-letter-tag">B</span>
+                        <input type="text" id="editOpt1" class="modal-input" placeholder="Option B text">
+                    </div>
+                    <div class="option-edit-row">
+                        <input type="radio" name="editCorrectRadio" id="radioOpt2" value="2">
+                        <span class="opt-letter-tag">C</span>
+                        <input type="text" id="editOpt2" class="modal-input" placeholder="Option C text">
+                    </div>
+                    <div class="option-edit-row">
+                        <input type="radio" name="editCorrectRadio" id="radioOpt3" value="3">
+                        <span class="opt-letter-tag">D</span>
+                        <input type="text" id="editOpt3" class="modal-input" placeholder="Option D text">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Descriptive Specific Fields -->
+            <div id="editDescContainer" style="display: none;">
+                <div class="form-group" style="margin-top: 10px;">
+                    <label class="field-label">Model Answer / Scoring Criteria</label>
+                    <textarea id="editModelAnswer" class="modal-textarea" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="field-label">Maximum Marks</label>
+                    <input type="number" id="editMaxMarks" class="modal-input" min="1" max="100" value="5">
+                </div>
+            </div>
+
+        </div>
+
+        <div class="edit-modal-footer">
+            <button type="button" class="btn-modal-cancel" onclick="closeEditModal()">Cancel</button>
+            <button type="button" class="btn-modal-save" onclick="saveEditedQuestion()">Update Question</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===================== STYLES ===================== -->
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800;900&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+.ai-gen-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 10px 15px 60px;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+    color: #e2e8f0;
+}
+
+/* Header & Holographic Title */
+.ai-title-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 25px;
+    text-align: center;
+    animation: fadeDown .8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 16px;
+    border-radius: 50px;
+    background: rgba(15, 23, 42, 0.85);
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+    color: #00f0ff;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.badge-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00f0ff;
+    box-shadow: 0 0 8px #00f0ff;
+    animation: badgePulse 1.8s infinite ease-in-out;
+}
+
+@keyframes badgePulse {
+    0%, 100% { opacity: 0.6; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.3); }
+}
+
+.ai-main-title {
+    font-family: 'Orbitron', 'Outfit', sans-serif;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 1.2px;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    text-transform: uppercase;
+}
+
+.gradient-text {
+    background: linear-gradient(120deg, #FFE259 0%, #FFA751 25%, #FF5E7E 50%, #A855F7 75%, #00F0FF 100%);
+    background-size: 250% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: holographicShine 6s linear infinite;
+    filter: drop-shadow(0 0 15px rgba(255, 216, 77, 0.35));
+}
+
+@keyframes holographicShine {
+    0% { background-position: 0% center; }
+    50% { background-position: 100% center; }
+    100% { background-position: 0% center; }
+}
+
+.ai-subtitle {
+    font-size: 14.5px;
+    color: #94a3b8;
+    max-width: 650px;
+    margin: 4px 0 12px;
+    line-height: 1.5;
+}
+
+.ai-glow-bar {
+    position: relative;
+    width: 200px;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(
+        90deg,
+        #00F0FF,
+        #3B82F6,
+        #8B5CF6,
+        #EC4899,
+        #FFD84D,
+        #00F0FF
+    );
+    background-size: 300% 100%;
+    box-shadow:
+        0 0 6px #00F0FF,
+        0 0 14px rgba(139, 92, 246, 0.45),
+        0 0 28px rgba(0, 240, 255, 0.3);
+    animation:
+        heroLineFlow 4s linear infinite,
+        heroLinePulse 3s ease-in-out infinite alternate;
+    overflow: hidden;
+    margin: 4px auto 0;
+}
+
+/* Shimmer beam traveling continuously left -> right */
+.ai-glow-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -70px;
+    width: 60px;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.85),
+        #ffffff,
+        rgba(255, 255, 255, 0.85),
+        transparent
+    );
+    border-radius: 999px;
+    filter: blur(1px);
+    animation: heroShimmerTravel 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes heroLineFlow {
+    0% {
+        background-position: 0% 50%;
     }
-
-    h1 {
-      font-size: 38px;
-      margin-bottom: 25px;
-      font-weight: 600;
+    100% {
+        background-position: 300% 50%;
     }
+}
 
-    .box {
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(12px);
-      padding: 40px;
-      width: 480px;
-      margin: auto;
-      border-radius: 25px;
-      box-shadow: 0 0 25px rgba(0,0,0,0.2);
-      animation: fadeIn 0.4s ease-in-out;
+@keyframes heroLinePulse {
+    0% {
+        box-shadow:
+            0 0 6px #00F0FF,
+            0 0 14px rgba(139, 92, 246, 0.4),
+            0 0 24px rgba(0, 240, 255, 0.25);
+        filter: brightness(1);
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    50% {
+        box-shadow:
+            0 0 10px #00F0FF,
+            0 0 20px rgba(236, 72, 153, 0.55),
+            0 0 32px rgba(0, 240, 255, 0.45);
+        filter: brightness(1.2);
     }
-
-    input, select {
-      width: 100%;
-      padding: 14px;
-      margin: 12px 0;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      font-size: 16px;
+    100% {
+        box-shadow:
+            0 0 6px #00F0FF,
+            0 0 14px rgba(139, 92, 246, 0.4),
+            0 0 24px rgba(0, 240, 255, 0.25);
+        filter: brightness(1);
     }
+}
 
-    button {
-      padding: 12px 20px;
-      width: 100%;
-      border-radius: 10px;
-      border: none;
-      background: #ffdd57;
-      font-weight: 600;
-      color: #333;
-      cursor: pointer;
-      transition: .3s;
-      font-size: 17px;
+@keyframes heroShimmerTravel {
+    0% {
+        left: -70px;
+        opacity: 0;
     }
-
-    button:hover {
-      background: #ffe87a;
+    15% {
+        opacity: 1;
     }
-
-    a {
-      color: white;
-      display: inline-block;
-      margin-top: 25px;
-      font-size: 17px;
-      text-decoration: none;
-      font-weight: 500;
-      transition: .3s;
+    85% {
+        opacity: 1;
     }
-
-    a:hover {
-      color: #ffdd57;
+    100% {
+        left: calc(100% + 70px);
+        opacity: 0;
     }
-  </style>
-</head>
+}
 
-<body>
+/* Glassmorphism Container */
+.box.ai-generator-box {
+    background: rgba(15, 23, 42, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 32px 36px;
+    width: 100%;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+    transition: all 0.3s ease;
+}
 
-  <h1>✨ AI Question Generator</h1>
+/* Form Sections */
+.form-section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-  <!-- ✅ SweetAlert Flash Popups -->
-  {% with messages = get_flashed_messages(with_categories=true) %}
-  {% if messages %}
-    {% for category, message in messages %}
-      <script>
+.section-icon {
+    color: #00F0FF;
+    font-size: 16px;
+}
+
+.section-title {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: #00F0FF;
+    text-transform: uppercase;
+}
+
+/* Grid Layouts */
+.grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.grid-3-col {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.field-label {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.req-star {
+    color: #f43f5e;
+    font-weight: 800;
+}
+
+.field-hint {
+    font-size: 11px;
+    color: #64748b;
+    font-style: italic;
+}
+
+/* ==============================================================
+   SPECIAL TOPIC FOCAL CARD & ENHANCED INPUT
+   ============================================================== */
+.topic-focal-card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(16, 28, 54, 0.92) 100%);
+    border: 1.5px solid rgba(0, 240, 255, 0.38);
+    border-radius: 18px;
+    padding: 22px 24px;
+    margin: 18px 0 16px;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), 0 0 25px rgba(0, 240, 255, 0.12);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+.topic-focal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #00F0FF, #38BDF8, #818CF8);
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.7);
+}
+
+.topic-focal-card:focus-within {
+    border-color: rgba(0, 240, 255, 0.7);
+    box-shadow: 0 16px 42px rgba(0, 0, 0, 0.55), 0 0 32px rgba(0, 240, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.topic-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+.topic-label-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.topic-main-label {
+    font-size: 17px;
+    font-weight: 800;
+    font-family: 'Orbitron', 'Outfit', sans-serif;
+    letter-spacing: 1.2px;
+    color: #00F0FF;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-shadow: 0 0 12px rgba(0, 240, 255, 0.45);
+    cursor: pointer;
+    margin: 0;
+}
+
+.topic-icon-glow {
+    font-size: 19px;
+    filter: drop-shadow(0 0 6px rgba(255, 216, 77, 0.65));
+    animation: lightbulbPulse 2.4s infinite ease-in-out;
+}
+
+@keyframes lightbulbPulse {
+    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(255, 216, 77, 0.5)); }
+    50% { transform: scale(1.1); filter: drop-shadow(0 0 12px rgba(255, 216, 77, 0.95)); }
+}
+
+.topic-sub-prompt {
+    font-size: 13.5px;
+    color: #cbd5e1;
+    font-weight: 500;
+    margin-top: 2px;
+}
+
+.topic-concept-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 24px;
+    background: rgba(0, 240, 255, 0.12);
+    border: 1px solid rgba(0, 240, 255, 0.45);
+    color: #00F0FF;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.18);
+    white-space: nowrap;
+}
+
+.topic-input-wrapper {
+    position: relative;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.ai-gen-wrapper input[type="text"].topic-focal-input,
+.topic-focal-input {
+    width: 100% !important;
+    height: 76px !important;
+    padding: 18px 22px !important;
+    border-radius: 14px !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #ffffff !important;
+    background: rgba(23, 33, 56, 0.92) !important;
+    border: 1.5px solid rgba(0, 240, 255, 0.32) !important;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    font-family: inherit !important;
+}
+
+.ai-gen-wrapper input[type="text"].topic-focal-input::placeholder,
+.topic-focal-input::placeholder {
+    font-size: 15.5px !important;
+    font-weight: 400 !important;
+    color: #64748b !important;
+    font-style: normal !important;
+}
+
+.ai-gen-wrapper input[type="text"].topic-focal-input:focus,
+.topic-focal-input:focus {
+    border-color: #00F0FF !important;
+    background: rgba(28, 45, 78, 0.98) !important;
+    box-shadow: 0 0 24px rgba(0, 240, 255, 0.45), inset 0 0 10px rgba(0, 240, 255, 0.12) !important;
+}
+
+.topic-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding-top: 4px;
+}
+
+.topic-helper-text {
+    font-size: 12.5px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-style: normal;
+}
+
+.topic-helper-text i {
+    color: #38bdf8;
+    font-size: 12px;
+}
+
+.topic-readiness-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12px;
+    color: #cbd5e1;
+    font-weight: 500;
+}
+
+.topic-readiness-indicator .readiness-label {
+    color: #64748b;
+    font-size: 11.5px;
+}
+
+.topic-readiness-indicator .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    transition: all 0.25s ease;
+}
+
+.topic-readiness-indicator .status-dot.waiting {
+    background: #f59e0b;
+    box-shadow: 0 0 7px #f59e0b;
+}
+
+.topic-readiness-indicator .status-dot.ready {
+    background: #10b981;
+    box-shadow: 0 0 10px #10b981;
+}
+
+#topicReadinessText {
+    font-weight: 600;
+    transition: color 0.25s ease;
+}
+
+/* Uniform Modern Inputs */
+.ai-gen-wrapper input[type="text"],
+.ai-gen-wrapper input[type="number"],
+.ai-gen-wrapper select,
+.modal-input,
+.modal-select {
+    width: 100%;
+    height: 48px;
+    border-radius: 12px;
+    font-size: 14.5px;
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    padding: 0 16px;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.25s ease;
+    font-family: inherit;
+}
+
+.ai-gen-wrapper input:focus,
+.ai-gen-wrapper select:focus,
+.modal-input:focus,
+.modal-select:focus,
+.modal-textarea:focus {
+    border-color: #00F0FF;
+    background: rgba(30, 41, 59, 1);
+    box-shadow: 0 0 14px rgba(0, 240, 255, 0.35);
+}
+
+.ai-gen-wrapper select option {
+    background: #0f172a;
+    color: #ffffff;
+}
+
+/* Submit Action Button */
+.submit-container {
+    margin-top: 14px;
+}
+
+.ai-submit-btn {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 52px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, #FFD84D 0%, #FFA751 50%, #FF5E7E 100%);
+    font-family: 'Orbitron', 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: #0f172a;
+    letter-spacing: 0.8px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(255, 167, 81, 0.4);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ai-submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(255, 167, 81, 0.6);
+    filter: brightness(1.08);
+}
+
+.ai-submit-btn:active {
+    transform: translateY(1px);
+}
+
+/* Cyber Loader Animation */
+.ai-loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 10px;
+    text-align: center;
+}
+
+.cyber-spinner {
+    width: 60px;
+    height: 60px;
+    border: 3px solid transparent;
+    border-top: 3px solid #00F0FF;
+    border-right: 3px solid #A855F7;
+    border-bottom: 3px solid #FFD84D;
+    border-radius: 50%;
+    animation: cyberSpin 1s linear infinite;
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+    margin-bottom: 18px;
+}
+
+@keyframes cyberSpin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.ai-loader-status {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #00F0FF;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.ai-loader-sub {
+    font-size: 13px;
+    color: #94a3b8;
+}
+
+/* ===================== PREVIEW SECTION ===================== */
+.ai-preview-section {
+    width: 100%;
+    margin-top: 35px;
+    animation: fadeIn .6s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.preview-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    padding: 18px 24px;
+    border-radius: 18px;
+    margin-bottom: 22px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.preview-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.preview-badge {
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid #00F0FF;
+    color: #00F0FF;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+}
+
+.preview-count-chip {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid #10B981;
+    color: #10B981;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.preview-meta-pill {
+    font-size: 12.5px;
+    color: #cbd5e1;
+    background: rgba(255, 255, 255, 0.06);
+    padding: 4px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.preview-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-preview-reset {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #cbd5e1;
+    padding: 9px 18px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-preview-reset:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+.btn-preview-save {
+    background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    border: none;
+    color: #ffffff;
+    padding: 10px 22px;
+    border-radius: 10px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-preview-save:hover {
+    box-shadow: 0 6px 22px rgba(16, 185, 129, 0.6);
+    transform: translateY(-2px);
+}
+
+.btn-preview-save.large {
+    padding: 14px 32px;
+    font-size: 15px;
+    border-radius: 14px;
+}
+
+.preview-bottom-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 25px;
+}
+
+/* Cards Grid */
+.preview-cards-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.preview-card {
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 18px;
+    padding: 22px 26px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    transition: all 0.25s ease;
+    position: relative;
+}
+
+.preview-card:hover {
+    border-color: rgba(0, 240, 255, 0.4);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), 0 0 15px rgba(0, 240, 255, 0.1);
+}
+
+.preview-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.card-header-chips {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.chip-idx {
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 800;
+    color: #FFD84D;
+    background: rgba(255, 216, 77, 0.12);
+    border: 1px solid rgba(255, 216, 77, 0.3);
+    padding: 2px 9px;
+    border-radius: 6px;
+}
+
+.chip-type {
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 6px;
+    text-transform: uppercase;
+}
+
+.chip-type.mcq {
+    background: rgba(0, 240, 255, 0.15);
+    border: 1px solid #00F0FF;
+    color: #00F0FF;
+}
+
+.chip-type.descriptive {
+    background: rgba(168, 85, 247, 0.15);
+    border: 1px solid #A855F7;
+    color: #C084FC;
+}
+
+.chip-level {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+}
+
+.chip-level.easy {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid #10B981;
+    color: #34D399;
+}
+
+.chip-level.medium {
+    background: rgba(245, 158, 11, 0.15);
+    border: 1px solid #F59E0B;
+    color: #FBBF24;
+}
+
+.chip-level.hard {
+    background: rgba(244, 63, 94, 0.15);
+    border: 1px solid #F43F5E;
+    color: #FB7185;
+}
+
+.chip-academic {
+    font-size: 11.5px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94a3b8;
+    padding: 3px 9px;
+    border-radius: 6px;
+}
+
+.card-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-card-action {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #cbd5e1;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.btn-card-action.edit:hover {
+    background: rgba(0, 240, 255, 0.2);
+    border-color: #00F0FF;
+    color: #00F0FF;
+}
+
+.btn-card-action.remove:hover {
+    background: rgba(244, 63, 94, 0.2);
+    border-color: #F43F5E;
+    color: #F43F5E;
+}
+
+/* Card Body */
+.card-question-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #f8fafc;
+    line-height: 1.55;
+    margin-bottom: 16px;
+}
+
+/* MCQ Options Presentation */
+.mcq-options-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.option-box {
+    background: rgba(30, 41, 59, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #cbd5e1;
+}
+
+.option-box.is-correct {
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.5);
+    color: #6ee7b7;
+    font-weight: 600;
+}
+
+.opt-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    font-family: 'Orbitron', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    color: #e2e8f0;
+    flex-shrink: 0;
+}
+
+.option-box.is-correct .opt-tag {
+    background: #10B981;
+    color: #064e3b;
+}
+
+.correct-summary-bar {
+    background: rgba(16, 185, 129, 0.12);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 13.5px;
+    color: #6ee7b7;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Descriptive Presentation */
+.desc-model-box {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(168, 85, 247, 0.25);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+}
+
+.desc-box-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    color: #C084FC;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.desc-box-content {
+    font-size: 14px;
+    color: #e2e8f0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.desc-marks-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 216, 77, 0.12);
+    border: 1px solid rgba(255, 216, 77, 0.3);
+    color: #FFD84D;
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+/* ===================== MODAL ===================== */
+.edit-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(10, 15, 30, 0.85);
+    backdrop-filter: blur(10px);
+    z-index: 99999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.edit-modal-content {
+    background: #0f172a;
+    border: 1px solid rgba(0, 240, 255, 0.35);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 650px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 240, 255, 0.2);
+    overflow: hidden;
+    animation: modalPop .3s ease;
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.edit-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 41, 59, 0.5);
+}
+
+.edit-modal-header h3 {
+    margin: 0;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 17px;
+    color: #00F0FF;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    font-size: 26px;
+    color: #94a3b8;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.modal-close-btn:hover {
+    color: #ffffff;
+}
+
+.edit-modal-body {
+    padding: 22px 24px;
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+.modal-textarea {
+    width: 100%;
+    border-radius: 12px;
+    background: rgba(30, 41, 59, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    padding: 12px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.option-edit-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.opt-letter-tag {
+    font-family: 'Orbitron', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    color: #00F0FF;
+    width: 20px;
+    text-align: center;
+}
+
+.edit-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(30, 41, 59, 0.5);
+}
+
+.btn-modal-cancel {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+    padding: 8px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.btn-modal-save {
+    background: #00F0FF;
+    border: none;
+    color: #0f172a;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    padding: 8px 22px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 240, 255, 0.4);
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .grid-2-col, .grid-3-col, .mcq-options-grid {
+        grid-template-columns: 1fr;
+    }
+    .box.ai-generator-box {
+        padding: 22px 18px;
+    }
+    .ai-main-title {
+        font-size: 24px;
+    }
+    .preview-header-bar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .topic-focal-card {
+        padding: 18px 16px;
+    }
+    .topic-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .ai-gen-wrapper input[type="text"].topic-focal-input,
+    .topic-focal-input {
+        height: 68px !important;
+        font-size: 16px !important;
+        padding: 14px 16px !important;
+    }
+    .topic-card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .ai-glow-bar {
+        width: 140px;
+        height: 3.5px;
+    }
+}
+
+/* Accessibility: Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .ai-glow-bar,
+    .ai-glow-bar::after {
+        animation: none !important;
+    }
+}
+</style>
+
+<!-- ===================== JAVASCRIPT LOGIC ===================== -->
+<script>
+// State Store for Generated Questions
+let generatedQuestions = [];
+let currentAcademicMeta = {};
+
+// Handle Form Submission via AJAX to /admin/api_generate
+const genForm = document.getElementById("genForm");
+const submitBtn = document.getElementById("submitBtn");
+const aiLoader = document.getElementById("aiLoader");
+const loaderStatusText = document.getElementById("loaderStatusText");
+const loaderMetadata = document.getElementById("loaderMetadata");
+const generatorCard = document.getElementById("generatorCard");
+const previewSection = document.getElementById("previewSection");
+
+genForm.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const courseCode = document.getElementById("courseCodeInput").value.trim().toUpperCase();
+    const courseName = document.getElementById("courseNameInput").value.trim();
+    const subject = document.getElementById("subjectInput").value.trim();
+    const unit = document.getElementById("unitInput").value.trim();
+    const topic = document.getElementById("topicInput").value.trim();
+    const qtype = document.getElementById("qtypeSelect").value;
+    const difficulty = document.getElementById("difficultySelect").value;
+    const count = parseInt(document.getElementById("countInput").value) || 5;
+
+    // Strict Client Validations
+    if (!courseCode) {
+        Swal.fire({ icon: 'warning', title: 'Missing Field', text: 'Please enter Course Code.' });
+        return;
+    }
+    if (!courseName) {
+        Swal.fire({ icon: 'warning', title: 'Missing Field', text: 'Please enter Course Name.' });
+        return;
+    }
+    if (!subject) {
+        Swal.fire({ icon: 'warning', title: 'Missing Field', text: 'Please enter Subject.' });
+        return;
+    }
+    if (!unit) {
+        Swal.fire({ icon: 'warning', title: 'Missing Field', text: 'Please enter Unit / Module.' });
+        return;
+    }
+    if (!topic) {
         Swal.fire({
-          icon: "{{ 'success' if category=='success' else 'error' }}",
-          title: "{{ 'Success' if category=='success' else 'Error' }}",
-          text: "{{ message }}",
-          confirmButtonColor: "#ffdd57"
+            icon: 'warning',
+            title: 'Topic Required',
+            text: 'Please enter a topic for question generation.',
+            confirmButtonColor: '#00F0FF',
+            background: '#0f172a',
+            color: '#fff'
+        }).then(() => {
+            const tInput = document.getElementById("topicInput");
+            if (tInput) {
+                tInput.focus();
+                tInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
         });
-      </script>
-    {% endfor %}
-  {% endif %}
-  {% endwith %}
+        return;
+    }
+    if (count < 1 || count > 50) {
+        Swal.fire({ icon: 'warning', title: 'Invalid Count', text: 'Number of questions must be between 1 and 50.' });
+        return;
+    }
 
-  <div class="box">
-    <form method="POST" action="{{ url_for('admin.api_generate') }}" id="genForm">
+    currentAcademicMeta = { courseCode, courseName, subject, unit, topic, difficulty, qtype };
 
-      <!-- ✅ Choose Type of Question -->
-      <select name="qtype" required>
-        <option value="">Select Question Type</option>
-        <option value="mcq">MCQ Questions</option>
-        <option value="descriptive">Descriptive Questions</option>
-      </select>
+    // Update UI for Loading State
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = "0.5";
+    aiLoader.style.display = "flex";
+    loaderMetadata.textContent = `${courseCode} | ${subject} | ${topic}`;
 
-      <input type="text" name="topic" placeholder="Enter Topic (e.g. Machine Learning)" required>
+    // Cycle through exciting loader status messages
+    const statusMessages = [
+        "Engaging Gemini 2.5 Flash Engine...",
+        "Analyzing Academic Syllabus...",
+        "Synthesizing Rigorous Questions & Options...",
+        "Formulating Model Answers & Rubrics...",
+        "Validating JSON Schema & Enforcing Classification..."
+    ];
+    let msgIdx = 0;
+    const statusInterval = setInterval(() => {
+        msgIdx = (msgIdx + 1) % statusMessages.length;
+        loaderStatusText.textContent = statusMessages[msgIdx];
+    }, 1800);
 
-      <input type="number" name="count" min="1" max="20" value="10" required>
+    try {
+        const response = await fetch("{{ url_for('admin.api_generate') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: JSON.stringify({
+                course_code: courseCode,
+                course_name: courseName,
+                subject: subject,
+                unit: unit,
+                topic: topic,
+                qtype: qtype,
+                difficulty: difficulty,
+                count: count
+            })
+        });
 
-      <button type="submit" id="submitBtn">Generate Questions 🚀</button>
-    </form>
-  </div>
+        clearInterval(statusInterval);
+        const data = await response.json();
 
-  <a href="{{ url_for('admin.admin_dashboard') }}">⬅ Back to Dashboard</a>
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "Failed to generate questions.");
+        }
 
-  <script>
-    // ✅ Prevent double submission
-    const form = document.getElementById('genForm');
-    const btn = document.getElementById('submitBtn');
+        // Store Questions
+        generatedQuestions = data.questions || [];
 
-    form.addEventListener('submit', () => {
-      btn.disabled = true;
-      btn.textContent = "Generating...";
+        if (generatedQuestions.length === 0) {
+            throw new Error("No questions were generated by the AI.");
+        }
+
+        // Hide Loader, Reset Button
+        aiLoader.style.display = "none";
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1";
+
+        // Render Preview Section
+        renderPreview();
+
+        // Smooth scroll to Preview
+        previewSection.scrollIntoView({ behavior: 'smooth' });
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Questions Generated!',
+            text: `Generated ${generatedQuestions.length} questions for ${courseCode} - ${subject}. Please review below.`,
+            timer: 2500,
+            showConfirmButton: false,
+            background: '#0f172a',
+            color: '#fff'
+        });
+
+    } catch (err) {
+        clearInterval(statusInterval);
+        aiLoader.style.display = "none";
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = "1";
+
+        Swal.fire({
+            icon: 'error',
+            title: 'Generation Failed',
+            text: err.message,
+            background: '#0f172a',
+            color: '#fff'
+        });
+    }
+});
+
+// Render Preview Cards
+function renderPreview() {
+    if (!generatedQuestions || generatedQuestions.length === 0) {
+        previewSection.style.display = "none";
+        return;
+    }
+
+    previewSection.style.display = "block";
+    document.getElementById("previewCountBadge").textContent = `${generatedQuestions.length} Question(s) Ready`;
+
+    const metaPill = document.getElementById("previewMetaPill");
+    const firstQ = generatedQuestions[0];
+    metaPill.innerHTML = `<strong>Course:</strong> ${escapeHtml(firstQ.course_code)} (${escapeHtml(firstQ.course_name)}) &nbsp;|&nbsp; <strong>Subject:</strong> ${escapeHtml(firstQ.subject)} &nbsp;|&nbsp; <strong>Topic:</strong> ${escapeHtml(firstQ.topic)}`;
+
+    const cardsContainer = document.getElementById("previewCardsList");
+    cardsContainer.innerHTML = "";
+
+    generatedQuestions.forEach((q, index) => {
+        const isMcq = (q.type || "").toUpperCase() === "MCQ";
+        const levelClass = (q.level || "Medium").toLowerCase();
+
+        let detailsHtml = "";
+
+        if (isMcq) {
+            const opts = q.options || q.a || [];
+            const correctAns = q.correct || (opts[0] || "");
+
+            let optsGrid = "";
+            const letters = ["A", "B", "C", "D"];
+            opts.forEach((optText, optIdx) => {
+                const isCorrect = (optText.trim() === correctAns.trim());
+                optsGrid += `
+                    <div class="option-box ${isCorrect ? 'is-correct' : ''}">
+                        <span class="opt-tag">${letters[optIdx] || (optIdx+1)}</span>
+                        <span>${escapeHtml(optText)}</span>
+                        ${isCorrect ? '<i class="fa-solid fa-check" style="margin-left:auto;"></i>' : ''}
+                    </div>
+                `;
+            });
+
+            detailsHtml = `
+                <div class="mcq-options-grid">${optsGrid}</div>
+                <div class="correct-summary-bar">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span><strong>Correct Answer:</strong> ${escapeHtml(correctAns)}</span>
+                </div>
+            `;
+        } else {
+            // Descriptive
+            const modelAns = q.answer_key || q.model_answer || "N/A";
+            const maxMarks = q.max_marks || 5;
+
+            detailsHtml = `
+                <div class="desc-model-box">
+                    <div class="desc-box-label"><i class="fa-solid fa-key"></i> Model Answer / Scoring Rubric</div>
+                    <div class="desc-box-content">${escapeHtml(modelAns)}</div>
+                </div>
+                <div class="desc-marks-bar">
+                    <i class="fa-solid fa-award"></i>
+                    <span>Maximum Marks: <strong>${maxMarks}</strong></span>
+                </div>
+            `;
+        }
+
+        const card = document.createElement("div");
+        card.className = "preview-card";
+        card.id = `qCard_${index}`;
+        card.innerHTML = `
+            <div class="preview-card-header">
+                <div class="card-header-chips">
+                    <span class="chip-idx">#${index + 1}</span>
+                    <span class="chip-type ${isMcq ? 'mcq' : 'descriptive'}">${escapeHtml(q.type)}</span>
+                    <span class="chip-level ${levelClass}">${escapeHtml(q.level || 'Medium')}</span>
+                    <span class="chip-academic">${escapeHtml(q.course_code)}</span>
+                    <span class="chip-academic">${escapeHtml(q.subject)}</span>
+                    <span class="chip-academic"><i class="fa-solid fa-tag"></i> ${escapeHtml(q.topic || 'General')}</span>
+                </div>
+
+                <div class="card-header-actions">
+                    <button type="button" class="btn-card-action edit" onclick="openEditModal(${index})">
+                        <i class="fa-solid fa-pen"></i> ✎ EDIT
+                    </button>
+                    <button type="button" class="btn-card-action remove" onclick="removeQuestion(${index})">
+                        <i class="fa-solid fa-trash"></i> 🗑 REMOVE
+                    </button>
+                </div>
+            </div>
+
+            <div class="card-question-text">
+                ${escapeHtml(q.question || q.q || "")}
+            </div>
+
+            <div class="card-details-section">
+                ${detailsHtml}
+            </div>
+        `;
+
+        cardsContainer.appendChild(card);
     });
-  </script>
+}
 
-</body>
-</html>
+// Remove Question from Preview
+function removeQuestion(index) {
+    if (index < 0 || index >= generatedQuestions.length) return;
+
+    generatedQuestions.splice(index, 1);
+    renderPreview();
+
+    if (generatedQuestions.length === 0) {
+        Swal.fire({
+            icon: 'info',
+            title: 'All Questions Removed',
+            text: 'You have cleared all questions from this preview batch. You can generate a new batch above.',
+            background: '#0f172a',
+            color: '#fff'
+        });
+    }
+}
+
+// Reset to Generator
+function resetToGenerator() {
+    generatorCard.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Edit Modal Handling
+function openEditModal(index) {
+    if (index < 0 || index >= generatedQuestions.length) return;
+    const q = generatedQuestions[index];
+
+    document.getElementById("editItemIndex").value = index;
+    document.getElementById("editQuestionText").value = q.question || q.q || "";
+    document.getElementById("editTopic").value = q.topic || "";
+    document.getElementById("editLevel").value = q.level || "Medium";
+
+    const isMcq = (q.type || "").toUpperCase() === "MCQ";
+    const mcqContainer = document.getElementById("editMcqContainer");
+    const descContainer = document.getElementById("editDescContainer");
+
+    if (isMcq) {
+        mcqContainer.style.display = "block";
+        descContainer.style.display = "none";
+
+        const opts = q.options || q.a || ["", "", "", ""];
+        const correctAns = q.correct || "";
+
+        for (let i = 0; i < 4; i++) {
+            const optVal = opts[i] || "";
+            document.getElementById(`editOpt${i}`).value = optVal;
+            const radio = document.getElementById(`radioOpt${i}`);
+            radio.checked = (optVal.trim() === correctAns.trim() && optVal.trim() !== "") || (i === 0 && !correctAns);
+        }
+    } else {
+        mcqContainer.style.display = "none";
+        descContainer.style.display = "block";
+
+        document.getElementById("editModelAnswer").value = q.answer_key || q.model_answer || "";
+        document.getElementById("editMaxMarks").value = q.max_marks || 5;
+    }
+
+    document.getElementById("editModalOverlay").style.display = "flex";
+}
+
+function closeEditModal() {
+    document.getElementById("editModalOverlay").style.display = "none";
+}
+
+function saveEditedQuestion() {
+    const idx = parseInt(document.getElementById("editItemIndex").value);
+    if (isNaN(idx) || idx < 0 || idx >= generatedQuestions.length) return;
+
+    const q = generatedQuestions[idx];
+    const newText = document.getElementById("editQuestionText").value.trim();
+    if (!newText) {
+        Swal.fire({ icon: 'warning', title: 'Missing Question', text: 'Question text cannot be blank.' });
+        return;
+    }
+
+    q.question = newText;
+    q.q = newText;
+    q.topic = document.getElementById("editTopic").value.trim() || q.topic;
+    q.level = document.getElementById("editLevel").value;
+
+    const isMcq = (q.type || "").toUpperCase() === "MCQ";
+    if (isMcq) {
+        const opts = [];
+        for (let i = 0; i < 4; i++) {
+            opts.push(document.getElementById(`editOpt${i}`).value.trim());
+        }
+        if (opts.filter(x => x).length < 2) {
+            Swal.fire({ icon: 'warning', title: 'Incomplete Options', text: 'Please provide at least 2 distinct options.' });
+            return;
+        }
+
+        const selectedRadio = document.querySelector('input[name="editCorrectRadio"]:checked');
+        const selectedOptIdx = selectedRadio ? parseInt(selectedRadio.value) : 0;
+        const correctVal = opts[selectedOptIdx] || opts[0];
+
+        q.options = opts;
+        q.a = opts;
+        q.correct = correctVal;
+    } else {
+        q.answer_key = document.getElementById("editModelAnswer").value.trim();
+        q.model_answer = q.answer_key;
+        q.max_marks = parseInt(document.getElementById("editMaxMarks").value) || 5;
+    }
+
+    closeEditModal();
+    renderPreview();
+
+    Swal.fire({
+        icon: 'success',
+        title: 'Updated!',
+        text: 'Question updated in preview list.',
+        timer: 1500,
+        showConfirmButton: false,
+        background: '#0f172a',
+        color: '#fff'
+    });
+}
+
+// SAVE ALL TO QUESTION BANK
+async function saveAllQuestions() {
+    if (!generatedQuestions || generatedQuestions.length === 0) {
+        Swal.fire({ icon: 'warning', title: 'No Questions', text: 'There are no questions in the preview to save.' });
+        return;
+    }
+
+    // Confirmation dialog
+    const confirmRes = await Swal.fire({
+        title: 'Save Questions to Question Bank?',
+        text: `You are about to save ${generatedQuestions.length} AI-generated questions into the Question Bank under course ${generatedQuestions[0].course_code} - ${generatedQuestions[0].subject}.`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#10B981',
+        cancelButtonColor: '#64748b',
+        confirmButtonText: '✓ Yes, Save All',
+        cancelButtonText: 'Cancel',
+        background: '#0f172a',
+        color: '#fff'
+    });
+
+    if (!confirmRes.isConfirmed) return;
+
+    try {
+        Swal.fire({
+            title: 'Saving...',
+            text: 'Adding questions into the question bank...',
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); },
+            background: '#0f172a',
+            color: '#fff'
+        });
+
+        const response = await fetch("{{ url_for('admin.api_save_generated') }}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: JSON.stringify({
+                questions: generatedQuestions
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "Failed to save questions.");
+        }
+
+        const savedCount = data.saved_count || generatedQuestions.length;
+
+        // Reset state
+        generatedQuestions = [];
+        renderPreview();
+
+        await Swal.fire({
+            icon: 'success',
+            title: 'Saved Successfully! 🎉',
+            html: `<strong>${savedCount} question(s)</strong> have been successfully added to the Question Bank with <code>source: "AI"</code>.`,
+            showDenyButton: true,
+            confirmButtonText: '<i class="fa-solid fa-list-check"></i> View in Question Bank',
+            denyButtonText: '<i class="fa-solid fa-plus"></i> Generate More Questions',
+            confirmButtonColor: '#00F0FF',
+            denyButtonColor: '#10B981',
+            background: '#0f172a',
+            color: '#fff'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = "{{ url_for('admin.all_questions') }}";
+            } else {
+                // Reset form inputs for next batch
+                document.getElementById("topicInput").value = "";
+                updateTopicReadiness();
+                generatorCard.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+
+    } catch (err) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Save Failed',
+            text: err.message,
+            background: '#0f172a',
+            color: '#fff'
+        });
+    }
+}
+
+// Live Topic Readiness Indicator Logic
+const tInputEl = document.getElementById("topicInput");
+const rDot = document.querySelector("#topicReadiness .status-dot");
+const rText = document.getElementById("topicReadinessText");
+
+function updateTopicReadiness() {
+    if (!tInputEl || !rDot || !rText) return;
+    if (tInputEl.value.trim().length > 0) {
+        rDot.className = "status-dot ready";
+        rText.textContent = "Topic ready";
+        rText.style.color = "#10b981";
+    } else {
+        rDot.className = "status-dot waiting";
+        rText.textContent = "Waiting for topic";
+        rText.style.color = "#f59e0b";
+    }
+}
+
+if (tInputEl) {
+    tInputEl.addEventListener("input", updateTopicReadiness);
+    // Initialize immediately
+    updateTopicReadiness();
+}
+
+// Utility: Escape HTML for safe rendering
+function escapeHtml(str) {
+    if (str === null || str === undefined) return "";
+    return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+// Server-side preview rendering fallback if session contained preview_questions
+{% if preview_questions %}
+try {
+    generatedQuestions = {{ preview_questions | tojson }};
+    if (generatedQuestions && generatedQuestions.length > 0) {
+        renderPreview();
+    }
+} catch (e) {
+    console.error("Could not parse server preview_questions:", e);
+}
+{% endif %}
+</script>

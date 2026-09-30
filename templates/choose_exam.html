@@ -1,227 +1,2907 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Choose Exam</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Examination Portal • Choose Exam</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts: Poppins (Clean Modern UI) & Orbitron (Futuristic Accents) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+  <!-- SweetAlert2 CDN for modern notices -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <style>
+    /* =========================================================
+       CSS VARIABLES & THEME CONFIGURATION
+       ========================================================= */
+    :root {
+      --bg-dark: #030712;
+      --bg-surface: #0a0f1d;
+      --bg-glass: rgba(13, 20, 38, 0.72);
+      --bg-glass-hover: rgba(22, 33, 62, 0.85);
+      --bg-glass-card: rgba(15, 23, 42, 0.65);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-glass-bright: rgba(0, 240, 255, 0.35);
+
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.45);
+      --blue: #3b82f6;
+      --blue-glow: rgba(59, 130, 246, 0.4);
+      --purple: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.4);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.4);
+
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+
+      --font-body: 'Poppins', sans-serif;
+      --font-tech: 'Orbitron', sans-serif;
+
+      --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* =========================================================
+       RESET & BASE STYLING
+       ========================================================= */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Orbitron', sans-serif;
+      -webkit-font-smoothing: antialiased;
     }
 
     body {
-      height: 100vh;
-      background: #020617;
-      color: white;
+      min-height: 100vh;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      position: relative;
+      overflow-x: hidden;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      justify-content: flex-start;
       align-items: center;
+      padding: 20px 16px 60px 16px;
     }
 
-    .container {
+    /* =========================================================
+       BACKGROUND LAYERS (Digital Grid, Glow Orbs & Particle Canvas)
+       ========================================================= */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(0, 240, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.035) 1px, transparent 1px);
+      background-size: 55px 55px;
+      z-index: 1;
+      pointer-events: none;
+      mask-image: radial-gradient(circle at 50% 40%, black 25%, transparent 80%);
+      -webkit-mask-image: radial-gradient(circle at 50% 40%, black 25%, transparent 80%);
+    }
+
+    .ambient-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.28;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      top: 8%;
+      left: 15%;
+      width: 480px;
+      height: 480px;
+      background: radial-gradient(circle, var(--blue), transparent 70%);
+    }
+
+    .orb-2 {
+      top: 25%;
+      right: 12%;
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, var(--purple), transparent 70%);
+      animation-delay: -9s;
+    }
+
+    .orb-3 {
+      bottom: 5%;
+      left: 35%;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, var(--cyan), transparent 70%);
+      animation-delay: -4s;
+      opacity: 0.18;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(35px, 40px) scale(1.08); }
+      100% { transform: translate(-30px, 20px) scale(0.95); }
+    }
+
+    /* =========================================================
+       TOP NAV / STUDENT HEADER BAR
+       ========================================================= */
+    .top-navbar {
+      width: 100%;
+      max-width: 1200px;
+      margin-bottom: 25px;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      z-index: 10;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #030712;
+      font-size: 17px;
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .brand-text {
+      font-family: var(--font-tech);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-main);
+    }
+
+    .brand-text span {
+      color: var(--cyan);
+    }
+
+    .user-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .candidate-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .candidate-badge strong {
+      color: var(--cyan);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald-glow);
+      display: inline-block;
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .logout-btn {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .logout-btn:hover {
+      color: #f43f5e;
+      background: rgba(244, 63, 94, 0.1);
+    }
+
+    /* =========================================================
+       PAGE WRAPPER & HERO SECTION
+       ========================================================= */
+    .portal-container {
+      width: 100%;
+      max-width: 1140px;
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: pageEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pageEntrance {
+      0% { opacity: 0; transform: translateY(24px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-section {
       text-align: center;
-      width: 90%;
-      max-width: 800px;
+      margin-bottom: 28px;
+      position: relative;
+      width: 100%;
     }
 
-    h1 {
-      margin-bottom: 30px;
-      color: #38bdf8;
-      text-shadow: 0 0 20px #38bdf8;
+    /* Floating glowing badge */
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 30px;
+      font-family: var(--font-tech);
+      font-size: 11.5px;
+      letter-spacing: 1.8px;
+      color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+      margin-bottom: 16px;
     }
 
-    /* CARD GRID */
-    .cards {
+    .hero-badge i {
+      font-size: 10px;
+      animation: pulseDot 1.5s infinite;
+    }
+
+    /* Main Heading */
+    .hero-title {
+      font-family: var(--font-tech);
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      line-height: 1.2;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #ffffff 30%, #94a3b8 70%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 35px rgba(0, 240, 255, 0.25);
+    }
+
+    .hero-subtitle {
+      font-size: 15.5px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      max-width: 600px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* =========================================================
+       CENTRAL 3D EXAM CORE VISUAL (CSS 3D Holographic Cube & Rings)
+       ========================================================= */
+    .exam-core-wrap {
+      width: 170px;
+      height: 140px;
+      margin: 12px auto 16px auto;
+      perspective: 900px;
+      pointer-events: none;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .exam-core-scene {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cube-3d {
+      width: 62px;
+      height: 62px;
+      position: relative;
+      transform-style: preserve-3d;
+      animation: rotateExamCore 20s linear infinite;
+    }
+
+    @keyframes rotateExamCore {
+      0% { transform: rotateX(18deg) rotateY(0deg) rotateZ(0deg); }
+      50% { transform: rotateX(30deg) rotateY(180deg) rotateZ(12deg); }
+      100% { transform: rotateX(18deg) rotateY(360deg) rotateZ(0deg); }
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 62px;
+      height: 62px;
+      background: rgba(14, 165, 233, 0.08);
+      border: 1.5px solid rgba(0, 240, 255, 0.55);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.2) inset, 0 0 8px rgba(0, 240, 255, 0.15);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-tech);
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--cyan);
+      text-shadow: 0 0 8px rgba(0, 240, 255, 0.7);
+      user-select: none;
+    }
+
+    .face-front  { transform: translateZ(31px); }
+    .face-back   { transform: rotateY(180deg) translateZ(31px); }
+    .face-right  { transform: rotateY(90deg) translateZ(31px); }
+    .face-left   { transform: rotateY(-90deg) translateZ(31px); }
+    .face-top    { transform: rotateX(90deg) translateZ(31px); }
+    .face-bottom { transform: rotateX(-90deg) translateZ(31px); }
+
+    .orbital-ring {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .ring-1 {
+      width: 125px;
+      height: 125px;
+      border: 1px dashed rgba(0, 240, 255, 0.45);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+      transform: rotateX(68deg) rotateY(18deg);
+      animation: spinRing1 14s linear infinite;
+    }
+
+    .ring-2 {
+      width: 145px;
+      height: 145px;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      border-top-color: rgba(0, 240, 255, 0.85);
+      transform: rotateX(74deg) rotateY(-25deg);
+      animation: spinRing2 18s linear infinite reverse;
+    }
+
+    @keyframes spinRing1 {
+      0% { transform: rotateX(68deg) rotateY(18deg) rotateZ(0deg); }
+      100% { transform: rotateX(68deg) rotateY(18deg) rotateZ(360deg); }
+    }
+
+    @keyframes spinRing2 {
+      0% { transform: rotateX(74deg) rotateY(-25deg) rotateZ(0deg); }
+      100% { transform: rotateX(74deg) rotateY(-25deg) rotateZ(360deg); }
+    }
+
+    /* Floating Academic Glyphs */
+    .floating-glyph {
+      position: absolute;
+      font-family: var(--font-tech);
+      font-weight: 700;
+      font-size: 13px;
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.6);
+      pointer-events: none;
+      animation: floatGlyph 3.8s ease-in-out infinite alternate;
+      user-select: none;
+    }
+
+    .glyph-1 { top: 5px; left: 15px; animation-delay: 0s; color: #a78bfa; }
+    .glyph-2 { top: 18px; right: 20px; animation-delay: 0.9s; color: #38bdf8; }
+    .glyph-3 { bottom: 15px; left: 20px; animation-delay: 1.8s; color: #34d399; }
+    .glyph-4 { bottom: 10px; right: 18px; animation-delay: 2.6s; color: #f472b6; }
+    .glyph-5 { top: 50%; left: 0px; animation-delay: 1.3s; color: #fbbf24; }
+
+    @keyframes floatGlyph {
+      0% { transform: translateY(0px) scale(0.9); opacity: 0.45; }
+      100% { transform: translateY(-7px) scale(1.1); opacity: 0.9; }
+    }
+
+    /* =========================================================
+       FORM WRAPPER
+       ========================================================= */
+    .exam-selection-form {
+      width: 100%;
+    }
+
+    /* =========================================================
+       EXAM MODE CARDS (3D Tilt & Glassmorphism)
+       ========================================================= */
+    .cards-section-title {
+      font-family: var(--font-tech);
+      font-size: 13.5px;
+      letter-spacing: 1.5px;
+      color: var(--cyan);
+      text-align: left;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .cards-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      gap: 22px;
       margin-bottom: 30px;
     }
 
-    .card {
-      padding: 30px;
-      border-radius: 15px;
-      background: #0f172a;
-      border: 2px solid transparent;
+    .exam-card {
+      position: relative;
+      background: var(--bg-glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 18px;
+      padding: 26px 22px;
       cursor: pointer;
-      transition: 0.3s;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+      transition: box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+      outline: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 250px;
     }
 
-    .card:hover {
-      transform: scale(1.08);
-      border: 2px solid #22c55e;
-      box-shadow: 0 0 25px #22c55e;
+    /* Focus state for keyboard accessibility */
+    .exam-card:focus-visible {
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.4), 0 10px 35px rgba(0, 240, 255, 0.25);
     }
 
-    .selected {
-      border: 2px solid #facc15 !important;
-      box-shadow: 0 0 25px #facc15;
+    /* Ambient card glow behind */
+    .card-glow-layer {
+      position: absolute;
+      inset: -1px;
+      border-radius: 18px;
+      background: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.15), transparent 70%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 1;
     }
 
-    /* INPUTS */
-    select, input {
-      padding: 10px;
-      margin: 10px;
-      border-radius: 8px;
-      border: none;
-      background: #0f172a;
-      color: white;
+    .exam-card:hover .card-glow-layer {
+      opacity: 1;
     }
 
-    /* NEON BUTTON */
-    button {
-      padding: 15px 40px;
-      border-radius: 10px;
-      border: none;
-      background: #22c55e;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-      transition: 0.3s;
-      box-shadow: 0 0 15px #22c55e;
+    .card-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
-    button:hover {
-      transform: scale(1.1);
-      box-shadow: 0 0 40px #22c55e;
+    /* Header badges inside cards */
+    .card-header-badge {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
     }
 
-    /* PROGRESS BAR */
-    .progress {
-      width: 100%;
-      height: 10px;
-      background: #1e293b;
-      border-radius: 10px;
+    .mode-pill {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-glass);
+    }
+
+    .selection-indicator {
+      display: none;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--font-tech);
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.12);
+      padding: 3px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(0, 240, 255, 0.4);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+      animation: pulseSelected 2s infinite alternate;
+    }
+
+    @keyframes pulseSelected {
+      0% { opacity: 0.85; transform: scale(0.98); }
+      100% { opacity: 1; transform: scale(1.02); }
+    }
+
+    /* Card Icon */
+    .card-icon-box {
+      width: 58px;
+      height: 58px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 26px;
+      position: relative;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .exam-card:hover .card-icon-box {
+      transform: translateY(-4px) scale(1.08);
+    }
+
+    .icon-mcq {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(0, 240, 255, 0.2));
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+    }
+
+    .icon-desc {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      color: #c084fc;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.2);
+    }
+
+    .icon-mixed {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(59, 130, 246, 0.2));
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      color: #34d399;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+    }
+
+    .card-title {
+      font-family: var(--font-tech);
+      font-size: 21px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .card-desc {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 16px;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: auto;
+    }
+
+    .card-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.03);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    /* SELECTED STATE FOR EXAM CARDS */
+    .exam-card.selected {
+      background: rgba(14, 28, 56, 0.85);
+      border-color: var(--cyan);
+      box-shadow: 0 0 35px rgba(0, 240, 255, 0.35), 0 0 10px rgba(0, 240, 255, 0.2) inset;
+    }
+
+    .exam-card.selected .selection-indicator {
+      display: inline-flex;
+    }
+
+    .exam-card.selected .mode-pill {
+      border-color: rgba(0, 240, 255, 0.3);
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.08);
+    }
+
+    .exam-card.selected .card-title {
+      color: #ffffff;
+      text-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
+    }
+
+    /* Warning Shake Animation if user doesn't pick a card */
+    @keyframes warningPulse {
+      0%, 100% { transform: translateX(0); }
+      20%, 60% { transform: translateX(-8px); }
+      40%, 80% { transform: translateX(8px); }
+    }
+
+    .cards-grid.shake-warning {
+      animation: warningPulse 0.5s ease;
+    }
+
+    /* =========================================================
+       QUESTION SOURCE GRID & DRAWER (STEP 2)
+       ========================================================= */
+    .source-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
       margin-bottom: 20px;
+    }
+
+    .source-card {
+      position: relative;
+      background: var(--bg-glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 22px 18px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 240px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .source-card:hover {
+      border-color: rgba(0, 240, 255, 0.45);
+      box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(0, 240, 255, 0.18);
+    }
+
+    .source-card.selected {
+      background: rgba(14, 28, 56, 0.9);
+      border-color: var(--cyan);
+      box-shadow: 0 0 32px rgba(0, 240, 255, 0.35), 0 0 10px rgba(0, 240, 255, 0.2) inset;
+      transform: translateY(-6px);
+    }
+
+    .source-card .selection-indicator {
+      display: none;
+      font-family: var(--font-tech);
+      font-size: 10px;
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.12);
+      padding: 3px 8px;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 240, 255, 0.4);
+    }
+
+    .source-card.selected .selection-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .source-icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      transition: transform 0.3s ease;
+    }
+
+    .source-card:hover .source-icon-box {
+      transform: translateY(-4px) scale(1.08);
+    }
+
+    .source-title {
+      font-family: var(--font-tech);
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      color: var(--text-main);
+      margin-bottom: 6px;
+    }
+
+    .source-card.selected .source-title {
+      color: var(--cyan);
+      text-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .source-desc {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+      margin-bottom: 12px;
+    }
+
+    .source-tag {
+      font-size: 11px;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.04);
+      padding: 4px 10px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      display: inline-block;
+      margin-top: auto;
+    }
+
+    /* Source Sub-Drawer */
+    .source-drawer {
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(0, 240, 255, 0.28);
+      border-radius: 18px;
+      padding: 22px 24px;
+      margin-bottom: 26px;
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 240, 255, 0.1) inset;
+      animation: fadeInSlide 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-group-cyber {
+      margin-bottom: 16px;
+    }
+
+    .form-group-cyber:last-child {
+      margin-bottom: 0;
+    }
+
+    .cyber-label {
+      display: block;
+      font-family: var(--font-tech);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--cyan);
+      margin-bottom: 8px;
+    }
+
+    .cyber-select {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(10, 15, 29, 0.88);
+      border: 1px solid var(--border-glass);
+      border-radius: 10px;
+      color: var(--text-main);
+      font-family: var(--font-body);
+      font-size: 14px;
+      outline: none;
+      transition: var(--transition-smooth);
+      cursor: pointer;
+    }
+
+    .cyber-select:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .cyber-select option {
+      background: #0b1329;
+      color: #fff;
+    }
+
+    /* Multi-select Subject Checkbox Chips */
+    .subject-chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .subject-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition-smooth);
+      user-select: none;
+    }
+
+    .subject-chip:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(0, 240, 255, 0.4);
+      color: #fff;
+    }
+
+    .subject-chip.active {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.25);
+    }
+
+    .subject-chip input[type="checkbox"] {
+      display: none;
+    }
+
+    /* Live Question Availability Card */
+    .availability-card {
+      margin-top: 20px;
+      padding: 18px 22px;
+      border-radius: 14px;
+      background: rgba(10, 15, 29, 0.75);
+      border: 1px solid var(--border-glass);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .avail-info {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .avail-title {
+      font-family: var(--font-tech);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+    }
+
+    .avail-status-msg {
+      font-size: 13.5px;
+      font-weight: 600;
+    }
+
+    .avail-status-msg.ok { color: #10b981; }
+    .avail-status-msg.warn { color: #f59e0b; }
+    .avail-status-msg.error { color: #f43f5e; }
+
+    .avail-count-badge {
+      font-family: var(--font-tech);
+      font-size: 24px;
+      font-weight: 800;
+      padding: 8px 18px;
+      border-radius: 12px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.35);
+      color: var(--cyan);
+      box-shadow: 0 0 18px rgba(0, 240, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* =========================================================
+       CONTROL PANELS GRID (Difficulty & Question Count)
+       ========================================================= */
+    .controls-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 22px;
+      margin-bottom: 25px;
+    }
+
+    .glass-panel {
+      background: var(--bg-glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 18px;
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .panel-title {
+      font-family: var(--font-tech);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Difficulty Pills */
+    .difficulty-group {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .diff-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      border-radius: 12px;
+      padding: 12px 6px;
+      font-family: var(--font-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: var(--transition-smooth);
+      outline: none;
+    }
+
+    .diff-btn i {
+      font-size: 14px;
+      transition: transform 0.3s ease;
+    }
+
+    .diff-btn:hover {
+      background: rgba(0, 240, 255, 0.08);
+      border-color: rgba(0, 240, 255, 0.35);
+      color: var(--text-main);
+      transform: translateY(-2px);
+    }
+
+    .diff-btn:focus-visible {
+      box-shadow: 0 0 0 2px var(--cyan);
+    }
+
+    .diff-btn.selected {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(59, 130, 246, 0.2));
+      border-color: var(--cyan);
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.35), 0 0 8px rgba(0, 240, 255, 0.2) inset;
+      transform: translateY(-2px);
+    }
+
+    .diff-btn.selected i {
+      color: var(--cyan);
+      transform: scale(1.2);
+    }
+
+    /* Question Stepper Control */
+    .stepper-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .stepper-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      color: var(--text-main);
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition-smooth);
+      outline: none;
+    }
+
+    .stepper-btn:hover {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--cyan);
+      color: var(--cyan);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.25);
+      transform: scale(1.06);
+    }
+
+    .stepper-btn:active {
+      transform: scale(0.95);
+    }
+
+    .count-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .count-input {
+      width: 100px;
+      height: 48px;
+      background: rgba(3, 7, 18, 0.6);
+      border: 1.5px solid rgba(0, 240, 255, 0.35);
+      border-radius: 12px;
+      font-family: var(--font-tech);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--cyan);
+      text-align: center;
+      outline: none;
+      transition: var(--transition-smooth);
+      box-shadow: 0 0 15px rgba(0, 240, 255, 0.15) inset;
+      -moz-appearance: textfield;
+    }
+
+    .count-input::-webkit-outer-spin-button,
+    .count-input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .count-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.4), 0 0 15px rgba(0, 240, 255, 0.2) inset;
+    }
+
+    /* Quick Preset Chips */
+    .quick-chips {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .count-chip {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      color: var(--text-secondary);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition-smooth);
+    }
+
+    .count-chip:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.08);
+    }
+
+    .count-chip.active {
+      background: rgba(0, 240, 255, 0.15);
+      border-color: var(--cyan);
+      color: #ffffff;
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.25);
+    }
+
+    /* =========================================================
+       EXAM CONFIGURATION SUMMARY & READINESS PANEL
+       ========================================================= */
+    .summary-card {
+      background: var(--bg-glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 18px;
+      padding: 24px 26px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      margin-bottom: 25px;
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
       overflow: hidden;
     }
 
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: #38bdf8;
-      transition: width 0.5s;
-      box-shadow: 0 0 10px #38bdf8;
+    .summary-items {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
+    .summary-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      min-width: 0;
+      overflow: hidden;
+      box-sizing: border-box;
+      transition: var(--transition-fast);
+    }
+
+    .summary-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(0, 240, 255, 0.3);
+    }
+
+    .summary-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+
+    .summary-value {
+      font-family: var(--font-tech);
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+    }
+
+    .summary-value.highlight {
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.4);
+    }
+
+    /* SUBJECT CONFIG ITEM: Handles arbitrary long strings without expanding parent */
+    .summary-item-subject {
+      min-width: 0;
+    }
+
+    .config-subject-value,
+    .summary-item-subject .summary-value {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.35;
+      font-size: 13.5px;
+    }
+
+    /* STATUS MODULES: AVAILABILITY & READINESS */
+    .summary-grid,
+    .summary-status-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      margin-top: 18px;
+      align-items: stretch;
+      width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
+    }
+
+    .summary-status-grid .availability-card,
+    .availability-card {
+      margin-top: 0;
+      padding: 16px 20px;
+      border-radius: 14px;
+      background: rgba(10, 15, 29, 0.75);
+      border: 1px solid var(--border-glass);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Progress readiness */
+    .readiness-box {
+      padding: 16px 20px;
+      border-radius: 14px;
+      background: rgba(10, 15, 29, 0.75);
+      border: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+      min-width: 0;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .readiness-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .readiness-title {
+      font-family: var(--font-tech);
+      font-size: 12px;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      white-space: nowrap;
+    }
+
+    .readiness-pct {
+      font-family: var(--font-tech);
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--cyan);
+      text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+      white-space: nowrap;
+    }
+
+    .readiness-track {
+      width: 100%;
+      max-width: 100%;
+      height: 9px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+      min-width: 0;
+    }
+
+    .readiness-bar {
+      height: 100%;
+      width: 0%;
+      max-width: 100%;
+      background: linear-gradient(90deg, var(--blue), var(--cyan));
+      border-radius: 20px;
+      box-shadow: 0 0 16px var(--cyan);
+      transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .readiness-status-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
+    }
+
+    .readiness-status-text strong {
+      color: var(--text-secondary);
+    }
+
+    /* =========================================================
+       START EXAM ACTION BUTTON
+       ========================================================= */
+    .action-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .start-btn {
+      position: relative;
+      width: 100%;
+      max-width: 440px;
+      padding: 18px 40px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0284c7 0%, #00f0ff 50%, #6366f1 100%);
+      background-size: 200% 200%;
+      color: #030712;
+      font-family: var(--font-tech);
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 0 35px rgba(0, 240, 255, 0.4), 0 10px 25px rgba(0, 0, 0, 0.5);
+      transition: var(--transition-smooth);
+      overflow: hidden;
+      outline: none;
+      animation: gradientShift 6s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Shimmer Sweep */
+    .start-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(
+        60deg,
+        transparent,
+        rgba(255, 255, 255, 0.6),
+        transparent
+      );
+      transform: rotate(25deg);
+      transition: none;
+      animation: shimmerSweep 4s infinite cubic-bezier(0.19, 1, 0.22, 1);
+    }
+
+    @keyframes shimmerSweep {
+      0% { left: -60%; }
+      30%, 100% { left: 140%; }
+    }
+
+    .start-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 50px rgba(0, 240, 255, 0.65), 0 15px 30px rgba(0, 0, 0, 0.6);
+      color: #000000;
+    }
+
+    .start-btn:active {
+      transform: translateY(1px) scale(0.99);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);
+    }
+
+    .start-btn:disabled {
+      opacity: 0.85;
+      cursor: not-allowed;
+      transform: none !important;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.3);
+    }
+
+    .start-btn i {
+      font-size: 19px;
+      transition: transform 0.3s ease;
+    }
+
+    .start-btn:hover i {
+      transform: translateX(4px);
+    }
+
+    .btn-subnote {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Spinner for loading state */
+    .btn-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(0, 0, 0, 0.3);
+      border-top-color: #030712;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* =========================================================
+       RESPONSIVE ADAPTATIONS
+       ========================================================= */
+    @media (max-width: 992px) {
+      .cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+      }
+      .source-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+      }
+      .controls-grid {
+        grid-template-columns: 1fr;
+      }
+      .summary-items {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 12px;
+      }
+      .summary-grid,
+      .summary-status-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .top-navbar {
+        padding: 10px 16px;
+        margin-bottom: 20px;
+      }
+      .candidate-badge {
+        display: none;
+      }
+      .hero-title {
+        font-size: 27px;
+      }
+      .hero-subtitle {
+        font-size: 14px;
+      }
+      .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .source-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      .source-card {
+        min-height: auto;
+        padding: 18px;
+      }
+      .exam-card {
+        min-height: auto;
+        padding: 20px;
+      }
+      .difficulty-group {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .summary-card {
+        padding: 20px 16px;
+      }
+      .summary-items {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+      }
+      .summary-item-subject {
+        grid-column: span 2;
+      }
+      .summary-grid,
+      .summary-status-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .start-btn {
+        font-size: 15px;
+        padding: 16px 28px;
+      }
+      .exam-core-wrap {
+        width: 140px;
+        height: 110px;
+        margin: 8px auto 10px auto;
+      }
+      .cube-3d {
+        width: 50px;
+        height: 50px;
+      }
+      .cube-face {
+        width: 50px;
+        height: 50px;
+        font-size: 9px;
+      }
+      .face-front  { transform: translateZ(25px); }
+      .face-back   { transform: rotateY(180deg) translateZ(25px); }
+      .face-right  { transform: rotateY(90deg) translateZ(25px); }
+      .face-left   { transform: rotateY(-90deg) translateZ(25px); }
+      .face-top    { transform: rotateX(90deg) translateZ(25px); }
+      .face-bottom { transform: rotateX(-90deg) translateZ(25px); }
+      .ring-1 { width: 105px; height: 105px; }
+      .ring-2 { width: 120px; height: 120px; }
+    }
+
+    @media (max-width: 480px) {
+      .summary-card {
+        padding: 16px 12px;
+      }
+      .summary-items {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .summary-item-subject {
+        grid-column: span 1;
+      }
+      .availability-card {
+        padding: 14px 14px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .avail-count-badge {
+        align-self: flex-start;
+        font-size: 20px;
+        padding: 6px 14px;
+      }
+      .readiness-box {
+        padding: 14px 14px;
+      }
+    }
+
+    /* Accessibility: Respect Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 
 <body>
 
-<div class="container">
+  <!-- BACKGROUND LAYERS -->
+  <canvas id="bg-canvas"></canvas>
+  <div class="bg-grid"></div>
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
 
-  <h1>🎮 SELECT EXAM MODE</h1>
-
-  <!-- PROGRESS BAR -->
-  <div class="progress">
-    <div class="progress-bar" id="progressBar"></div>
-  </div>
-
-  <form action="/start_exam" method="POST">
-
-    <!-- CARD SELECTION -->
-    <div class="cards">
-      <div class="card" onclick="selectType('MCQ', this)">
-        📘<br>MCQ
+  <!-- TOP STATUS BAR -->
+  <header class="top-navbar">
+    <a href="#" class="brand-wrap">
+      <div class="brand-icon-box">
+        <i class="fa-solid fa-graduation-cap"></i>
       </div>
+      <div class="brand-text">AI <span>EXAM</span> PORTAL</div>
+    </a>
 
-      <div class="card" onclick="selectType('DESCRIPTIVE', this)">
-        📝<br>Descriptive
+    <div class="user-status-pill">
+      <div class="candidate-badge">
+        <span class="status-dot"></span>
+        Candidate: <strong>{{ session.get('username', 'Student') }}</strong>
       </div>
-
-      <div class="card" onclick="selectType('MIX', this)">
-        🎯<br>Mixed
-      </div>
+      <a href="{{ url_for('auth.logout_final') }}" class="logout-btn" title="Sign out">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
     </div>
+  </header>
 
-    <input type="hidden" name="type" id="typeInput">
+  <!-- MAIN PORTAL CONTENT -->
+  <main class="portal-container">
 
-    <!-- FILTERS -->
-    <select name="level" onchange="updateProgress()">
-      <option value="ALL">All Levels</option>
-      <option value="Easy">Easy</option>
-      <option value="Medium">Medium</option>
-      <option value="Hard">Hard</option>
-    </select>
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+      <div class="hero-badge">
+        <i class="fa-solid fa-brain"></i>
+        <span>SELF ASSESSMENT MODE</span>
+      </div>
 
-    <input type="number" name="count" min="1" max="50" value="5" oninput="updateProgress()">
+      <h1 class="hero-title">TEST YOURSELF</h1>
+      <p class="hero-subtitle">
+        Challenge your knowledge with a personalized AI-powered practice examination.
+      </p>
 
-    <br>
+      <!-- 3D EXAM CORE VISUAL -->
+      <div class="exam-core-wrap" aria-hidden="true">
+        <div class="exam-core-scene">
+          <div class="orbital-ring ring-1"></div>
+          <div class="orbital-ring ring-2"></div>
 
-    <button type="submit" onclick="handleStart(event, this)">🚀 START EXAM</button>
-  </form>
+          <div class="cube-3d">
+            <div class="cube-face face-front">MCQ</div>
+            <div class="cube-face face-back">AI</div>
+            <div class="cube-face face-right">EXAM</div>
+            <div class="cube-face face-left">TEST</div>
+            <div class="cube-face face-top">2026</div>
+            <div class="cube-face face-bottom">CORE</div>
+          </div>
 
-</div>
+          <div class="floating-glyph glyph-1">?</div>
+          <div class="floating-glyph glyph-2">A</div>
+          <div class="floating-glyph glyph-3">B</div>
+          <div class="floating-glyph glyph-4">C</div>
+          <div class="floating-glyph glyph-5">D</div>
+        </div>
+      </div>
+    </section>
 
-<!-- SOUND -->
-<audio id="clickSound" src="/static/click2.mp3" preload="auto"></audio>
+    <!-- EXAM FORM -->
+    <form id="examForm" action="/start_exam" method="POST" class="exam-selection-form">
 
-<script>
+      <!-- SECTION 1: CHOOSE YOUR EXAM TYPE -->
+      <div class="cards-section-title">
+        <i class="fa-solid fa-layer-group"></i> CHOOSE YOUR EXAM TYPE
+      </div>
 
-const sound = document.getElementById("clickSound");
+      <div class="cards-grid" id="cardsGrid">
 
-// unlock audio on first click
-window.addEventListener("click", () => {
-  sound.load();
-}, { once: true });
+        <!-- CARD 1: MCQ -->
+        <div class="exam-card"
+             tabindex="0"
+             role="radio"
+             aria-checked="false"
+             data-type="MCQ"
+             onclick="selectType('MCQ', this)"
+             onkeydown="handleCardKey(event, 'MCQ', this)">
+          <div class="card-glow-layer"></div>
+          <div class="card-content">
+            <div class="card-header-badge">
+              <span class="mode-pill">Objective Assessment</span>
+              <span class="selection-indicator">
+                <i class="fa-solid fa-check"></i> SELECTED
+              </span>
+            </div>
 
-let progress = 0;
+            <div class="card-icon-box icon-mcq">
+              <span>📘</span>
+            </div>
 
-// ✅ SOUND FUNCTION (OUTSIDE)
-function playSound() {
-  const sound = document.getElementById("clickSound");
+            <h3 class="card-title">MCQ</h3>
+            <p class="card-desc">Fast objective assessment with automated instantaneous grading.</p>
 
-  if (!sound) return;
+            <div class="card-tags">
+              <span class="card-tag">Objective</span>
+              <span class="card-tag">Instant Scoring</span>
+              <span class="card-tag">Timed</span>
+            </div>
+          </div>
+        </div>
 
-  sound.pause();
-  sound.currentTime = 0;
+        <!-- CARD 2: DESCRIPTIVE -->
+        <div class="exam-card"
+             tabindex="0"
+             role="radio"
+             aria-checked="false"
+             data-type="DESCRIPTIVE"
+             onclick="selectType('DESCRIPTIVE', this)"
+             onkeydown="handleCardKey(event, 'DESCRIPTIVE', this)">
+          <div class="card-glow-layer"></div>
+          <div class="card-content">
+            <div class="card-header-badge">
+              <span class="mode-pill">Written Assessment</span>
+              <span class="selection-indicator">
+                <i class="fa-solid fa-check"></i> SELECTED
+              </span>
+            </div>
 
-  sound.play().catch(err => console.log("Play blocked ❌", err));
-}
+            <div class="card-icon-box icon-desc">
+              <span>📝</span>
+            </div>
 
-// ✅ CARD SELECT
-function selectType(type, el) {
-  document.getElementById("typeInput").value = type;
+            <h3 class="card-title">DESCRIPTIVE</h3>
+            <p class="card-desc">Test conceptual understanding evaluated with semantic keyword checks.</p>
 
-  document.querySelectorAll(".card").forEach(c => c.classList.remove("selected"));
-  el.classList.add("selected");
+            <div class="card-tags">
+              <span class="card-tag">Written</span>
+              <span class="card-tag">Conceptual</span>
+              <span class="card-tag">AI Assisted</span>
+            </div>
+          </div>
+        </div>
 
-  progress = 40;
-  updateProgress();
-  playSound();
-}
+        <!-- CARD 3: MIXED -->
+        <div class="exam-card"
+             tabindex="0"
+             role="radio"
+             aria-checked="false"
+             data-type="MIX"
+             onclick="selectType('MIX', this)"
+             onkeydown="handleCardKey(event, 'MIX', this)">
+          <div class="card-glow-layer"></div>
+          <div class="card-content">
+            <div class="card-header-badge">
+              <span class="mode-pill">Complete Assessment</span>
+              <span class="selection-indicator">
+                <i class="fa-solid fa-check"></i> SELECTED
+              </span>
+            </div>
 
-// ✅ PROGRESS
-function updateProgress() {
-  let level = document.querySelector("select").value;
-  let count = document.querySelector("input").value;
+            <div class="card-icon-box icon-mixed">
+              <span>🎯</span>
+            </div>
 
-  let extra = 0;
+            <h3 class="card-title">MIXED</h3>
+            <p class="card-desc">Complete practice assessment with both MCQ and Descriptive questions.</p>
 
-  if (level !== "ALL") extra += 30;
-  if (count > 0) extra += 30;
+            <div class="card-tags">
+              <span class="card-tag">MCQ + Descriptive</span>
+              <span class="card-tag">Comprehensive</span>
+              <span class="card-tag">Timed</span>
+            </div>
+          </div>
+        </div>
 
-  document.getElementById("progressBar").style.width = (progress + extra) + "%";
-}
+      </div>
 
-// ✅ START BUTTON
-function handleStart(e, btn) {
-  e.preventDefault();
+      <!-- HIDDEN INPUTS REQUIRED BY BACKEND ROUTE -->
+      <input type="hidden" name="type" id="typeInput" value="">
+      <input type="hidden" name="source_mode" id="sourceModeInput" value="all">
 
-  btn.disabled = true;
-  playSound();
+      <!-- SECTION 2: CHOOSE YOUR QUESTION SOURCE -->
+      <div class="cards-section-title">
+        <i class="fa-solid fa-database"></i> CHOOSE YOUR QUESTION SOURCE
+      </div>
 
-  setTimeout(() => {
-    e.target.closest("form").submit();
-  }, 500);
-}
+      <div class="source-grid" id="sourceGrid">
 
-</script>
+        <!-- SOURCE CARD 1: ALL QUESTIONS -->
+        <div class="source-card selected"
+             tabindex="0"
+             role="radio"
+             aria-checked="true"
+             data-source="all"
+             onclick="selectSource('all', this)"
+             onkeydown="handleSourceKey(event, 'all', this)">
+          <div class="card-glow-layer"></div>
+          <div class="card-content">
+            <div class="card-header-badge">
+              <span class="mode-pill">Universal</span>
+              <span class="selection-indicator">
+                <i class="fa-solid fa-check"></i> SELECTED
+              </span>
+            </div>
+            <div class="source-icon-box">
+              <span>🌐</span>
+            </div>
+            <h3 class="source-title">ALL QUESTIONS</h3>
+            <p class="source-desc">Practice from the complete available question bank across all subjects.</p>
+            <span class="source-tag">Complete Question Bank</span>
+          </div>
+        </div>
+
+        <!-- SOURCE CARD 2: SELECT COURSE -->
+        <div class="source-card"
+             tabindex="0"
+             role="radio"
+             aria-checked="false"
+             data-source="course"
+             onclick="selectSource('course', this)"
+             onkeydown="handleSourceKey(event, 'course', this)">
+          <div class="card-glow-layer"></div>
+          <div class="card-content">
+            <div class="card-header-badge">
+              <span class="mode-pill">Course Wide</span>
+              <span class="selection-indicator">
+                <i class="fa-solid fa-check"></i> SELECTED
+              </span>
+            </div>
+            <div class="source-icon-box">
+              <span>📚</span>
+            </div>
+            <h3 class="source-title">SELECT COURSE</h3>
+            <p class="source-desc">Practice questions from a specific course.</p>
+            <span class="source-tag">Practice one complete course</span>
+          </div>
+        </div>
+
+        <!-- SOURCE CARD 3: SELECT SUBJECT -->
+        <div class="source-card"
+             tabindex="0"
+             role="radio"
+             aria-checked="false"
+             data-source="subject"
+             onclick="selectSource('subject', this)"
+             onkeydown="handleSourceKey(event, 'subject', this)">
+          <div class="card-glow-layer"></div>
+          <div class="card-content">
+            <div class="card-header-badge">
+              <span class="mode-pill">Subject Focused</span>
+              <span class="selection-indicator">
+                <i class="fa-solid fa-check"></i> SELECTED
+              </span>
+            </div>
+            <div class="source-icon-box">
+              <span>📖</span>
+            </div>
+            <h3 class="source-title">SELECT SUBJECT</h3>
+            <p class="source-desc">Practice questions from a specific subject.</p>
+            <span class="source-tag">Focus on one subject</span>
+          </div>
+        </div>
+
+        <!-- SOURCE CARD 4: COMBINE SUBJECTS -->
+        <div class="source-card"
+             tabindex="0"
+             role="radio"
+             aria-checked="false"
+             data-source="combine"
+             onclick="selectSource('combine', this)"
+             onkeydown="handleSourceKey(event, 'combine', this)">
+          <div class="card-glow-layer"></div>
+          <div class="card-content">
+            <div class="card-header-badge">
+              <span class="mode-pill">Multi-Subject</span>
+              <span class="selection-indicator">
+                <i class="fa-solid fa-check"></i> SELECTED
+              </span>
+            </div>
+            <div class="source-icon-box">
+              <span>🧩</span>
+            </div>
+            <h3 class="source-title">COMBINE SUBJECTS</h3>
+            <p class="source-desc">Create one practice exam using questions from multiple subjects.</p>
+            <span class="source-tag">Mix multiple subjects</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- DYNAMIC QUESTION SOURCE DRAWER -->
+      <div id="sourceDrawer" class="source-drawer" style="display: none;">
+        <!-- Course Dropdown -->
+        <div id="courseDropdownGroup" class="form-group-cyber">
+          <label class="cyber-label" for="courseSelect">
+            <i class="fa-solid fa-graduation-cap"></i> SELECT COURSE
+          </label>
+          <select name="course_code" id="courseSelect" class="cyber-select" onchange="handleCourseChange()">
+            <option value="">-- Choose Course --</option>
+            {% for c in course_list %}
+            <option value="{{ c.code }}">{{ c.display }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Single Subject Dropdown -->
+        <div id="subjectDropdownGroup" class="form-group-cyber" style="display: none;">
+          <label class="cyber-label" for="subjectSelect">
+            <i class="fa-solid fa-book"></i> SELECT SUBJECT
+          </label>
+          <select name="subject" id="subjectSelect" class="cyber-select" onchange="handleSubjectChange()">
+            <option value="">-- Choose Subject --</option>
+          </select>
+        </div>
+
+        <!-- Combine Multiple Subjects Checkboxes -->
+        <div id="combineSubjectsGroup" class="form-group-cyber" style="display: none;">
+          <label class="cyber-label">
+            <i class="fa-solid fa-cubes"></i> SELECT SUBJECTS TO COMBINE
+          </label>
+          <div id="subjectChipsContainer" class="subject-chips-grid">
+            <span style="color: var(--text-muted); font-size: 13px;">Please select a course above to view its available subjects.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3 & 4: DIFFICULTY & QUESTION COUNT CONTROLS -->
+      <div class="controls-grid">
+
+        <!-- SECTION 3: DIFFICULTY LEVEL -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-gauge-high"></i> DIFFICULTY LEVEL
+            </div>
+            <div class="panel-subtitle">Target Level</div>
+          </div>
+
+          <div class="difficulty-group">
+            <button type="button" class="diff-btn selected" data-value="ALL" onclick="selectDifficulty('ALL', this)">
+              <i class="fa-solid fa-layer-group"></i>
+              <span>ALL LEVELS</span>
+            </button>
+            <button type="button" class="diff-btn" data-value="Easy" onclick="selectDifficulty('Easy', this)">
+              <i class="fa-solid fa-seedling"></i>
+              <span>EASY</span>
+            </button>
+            <button type="button" class="diff-btn" data-value="Medium" onclick="selectDifficulty('Medium', this)">
+              <i class="fa-solid fa-bolt"></i>
+              <span>MEDIUM</span>
+            </button>
+            <button type="button" class="diff-btn" data-value="Hard" onclick="selectDifficulty('Hard', this)">
+              <i class="fa-solid fa-fire"></i>
+              <span>HARD</span>
+            </button>
+          </div>
+
+          <!-- Synchronized native select for backend compatibility -->
+          <select name="level" id="levelSelect" style="display:none;" onchange="updateProgress()">
+            <option value="ALL" selected>All Levels</option>
+            <option value="Easy">Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+
+        <!-- SECTION 4: NUMBER OF QUESTIONS -->
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              <i class="fa-solid fa-arrow-down-1-9"></i> NUMBER OF QUESTIONS
+            </div>
+            <div class="panel-subtitle">Min: 1 &bull; Max: 50</div>
+          </div>
+
+          <div class="stepper-container">
+            <button type="button" class="stepper-btn" onclick="adjustCount(-1)" aria-label="Decrease questions">
+              <i class="fa-solid fa-minus"></i>
+            </button>
+
+            <div class="count-input-wrap">
+              <input type="number"
+                     name="count"
+                     id="countInput"
+                     min="1"
+                     max="50"
+                     value="5"
+                     class="count-input"
+                     oninput="handleCountInput(this)">
+            </div>
+
+            <button type="button" class="stepper-btn" onclick="adjustCount(1)" aria-label="Increase questions">
+              <i class="fa-solid fa-plus"></i>
+            </button>
+          </div>
+
+          <!-- Quick Select Chips -->
+          <div class="quick-chips">
+            <span class="count-chip active" onclick="setCount(5, this)">5 Qs</span>
+            <span class="count-chip" onclick="setCount(10, this)">10 Qs</span>
+            <span class="count-chip" onclick="setCount(15, this)">15 Qs</span>
+            <span class="count-chip" onclick="setCount(25, this)">25 Qs</span>
+            <span class="count-chip" onclick="setCount(50, this)">50 Qs</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SECTION 5: EXAM CONFIGURATION PANEL & AVAILABILITY -->
+      <div class="summary-card">
+        <div class="panel-title" style="margin-bottom: 16px;">
+          <i class="fa-solid fa-sliders"></i> EXAM CONFIGURATION
+        </div>
+
+        <div class="summary-items">
+          <div class="summary-item">
+            <span class="summary-label">EXAM TYPE</span>
+            <span class="summary-value highlight" id="summaryMode">Not Selected</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">QUESTION SOURCE</span>
+            <span class="summary-value highlight" id="summarySource">All Questions</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">COURSE</span>
+            <span class="summary-value" id="summaryCourse">All Available</span>
+          </div>
+          <div class="summary-item summary-item-subject">
+            <span class="summary-label">SUBJECT</span>
+            <span class="summary-value config-subject-value" id="summarySubject">All Available</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">DIFFICULTY</span>
+            <span class="summary-value" id="summaryDiff">All Levels</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">QUESTIONS</span>
+            <span class="summary-value" id="summaryCount">5 Questions</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-label">ESTIMATED TIME</span>
+            <span class="summary-value highlight" id="summaryTime"><i class="fa-solid fa-stopwatch" style="font-size: 11.5px; margin-right: 4px;"></i>7m 30s</span>
+            <span id="summaryRate" style="font-size: 10px; color: var(--text-muted); font-weight: 500;">(1.5m / question)</span>
+          </div>
+        </div>
+
+        <!-- STATUS MODULES: AVAILABILITY & READINESS -->
+        <div class="summary-status-grid">
+          <!-- LIVE QUESTION AVAILABILITY INDICATOR -->
+          <div class="availability-card" id="availabilityBox">
+            <div class="avail-info">
+              <div class="avail-title"><i class="fa-solid fa-layer-group"></i> AVAILABLE QUESTIONS</div>
+              <div class="avail-status-msg ok" id="availStatusMsg">
+                <i class="fa-solid fa-circle-check"></i> Calculating question pool...
+              </div>
+            </div>
+            <div class="avail-count-badge" id="availCount">--</div>
+          </div>
+
+          <!-- Readiness Indicator -->
+          <div class="readiness-box">
+            <div class="readiness-header">
+              <div class="readiness-title">
+                <i class="fa-solid fa-circle-notch"></i> EXAM READINESS
+              </div>
+              <div class="readiness-pct" id="readinessPct">70%</div>
+            </div>
+
+            <div class="readiness-track">
+              <div class="readiness-bar" id="progressBar" style="width: 70%;"></div>
+            </div>
+
+            <div class="readiness-status-text" id="readinessStatus">
+              <i class="fa-solid fa-circle-info text-info"></i>
+              <span>Select an <strong>examination mode</strong> above to achieve 100% readiness.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 6: START PRACTICE EXAM CTA BUTTON -->
+      <div class="action-container">
+        <button type="submit"
+                id="startBtn"
+                class="start-btn"
+                onclick="handleStart(event, this)">
+          <span>🚀 START PRACTICE EXAM</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+
+        <div class="btn-subnote">
+          <i class="fa-solid fa-lock"></i>
+          <span>Secure assessment environment &bull; Anti-tamper telemetry enabled</span>
+        </div>
+      </div>
+
+    </form>
+
+  </main>
+
+  <!-- AUDIO ASSET (Kept exactly as existing system) -->
+  <audio id="clickSound" src="/static/click2.mp3" preload="auto"></audio>
+
+  <!-- JINJA FLASH MESSAGE SUPPORT -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <script>
+          document.addEventListener("DOMContentLoaded", function() {
+            Swal.fire({
+              icon: {{ ('success' if category == 'success' else 'error')|tojson }},
+              title: {{ ('Success' if category == 'success' else 'Attention')|tojson }},
+              text: {{ message|tojson }},
+              background: "#0f172a",
+              color: "#f8fafc",
+              confirmButtonColor: "#00f0ff"
+            });
+          });
+        </script>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- =========================================================
+       JAVASCRIPT: INTERACTION, 3D TILT, SOUND & VALIDATION
+       ========================================================= */ -->
+  <script>
+    /* ---------------------------------------------------------
+       0. SERVER-SUPPLIED DATASETS
+       --------------------------------------------------------- */
+    const COURSE_LIST = {{ course_list|tojson|safe if course_list is defined else '[]' }};
+    const QUESTIONS_META = {{ questions_meta_json|safe if questions_meta_json is defined else '[]' }};
+
+    /* ---------------------------------------------------------
+       1. AUDIO MANAGEMENT
+       --------------------------------------------------------- */
+    const sound = document.getElementById("clickSound");
+
+    // Unlock audio context on initial page click
+    window.addEventListener("click", () => {
+      if (sound) sound.load();
+    }, { once: true });
+
+    function playSound() {
+      if (!sound) return;
+      try {
+        sound.pause();
+        sound.currentTime = 0;
+        sound.play().catch(err => {
+          // Silent fallback if autoplay policy restricts
+        });
+      } catch (e) {}
+    }
+
+    /* ---------------------------------------------------------
+       2. EXAM MODE CARD SELECTION (STEP 1)
+       --------------------------------------------------------- */
+    let selectedMode = "";
+
+    function selectType(type, el) {
+      selectedMode = type;
+      document.getElementById("typeInput").value = type;
+
+      // Update active card styling & ARIA states
+      document.querySelectorAll(".exam-card").forEach(card => {
+        card.classList.remove("selected");
+        card.setAttribute("aria-checked", "false");
+      });
+
+      if (el) {
+        el.classList.add("selected");
+        el.setAttribute("aria-checked", "true");
+      }
+
+      // Remove warning shake if present
+      document.getElementById("cardsGrid").classList.remove("shake-warning");
+
+      playSound();
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    }
+
+    function handleCardKey(e, type, el) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        selectType(type, el);
+      }
+    }
+
+    /* ---------------------------------------------------------
+       3. 3D MOUSE TILT FOR EXAM & SOURCE CARDS
+       --------------------------------------------------------- */
+    function attachTiltEffect(selector) {
+      document.querySelectorAll(selector).forEach(card => {
+        card.addEventListener("mousemove", (e) => {
+          const rect = card.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+
+          const rotateX = ((y - centerY) / centerY) * -6.5; // max ~±6.5 deg
+          const rotateY = ((x - centerX) / centerX) * 6.5;
+
+          card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-8px)`;
+        });
+
+        card.addEventListener("mouseleave", () => {
+          card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)";
+        });
+      });
+    }
+
+    attachTiltEffect(".exam-card");
+    attachTiltEffect(".source-card");
+
+    /* ---------------------------------------------------------
+       4. QUESTION SOURCE SELECTION (STEP 2)
+       --------------------------------------------------------- */
+    let selectedSource = "all";
+
+    function selectSource(mode, el) {
+      selectedSource = mode;
+      document.getElementById("sourceModeInput").value = mode;
+
+      document.querySelectorAll(".source-card").forEach(card => {
+        card.classList.remove("selected");
+        card.setAttribute("aria-checked", "false");
+      });
+
+      if (el) {
+        el.classList.add("selected");
+        el.setAttribute("aria-checked", "true");
+      }
+
+      const drawer = document.getElementById("sourceDrawer");
+      const courseGroup = document.getElementById("courseDropdownGroup");
+      const subjectGroup = document.getElementById("subjectDropdownGroup");
+      const combineGroup = document.getElementById("combineSubjectsGroup");
+
+      if (mode === "all") {
+        drawer.style.display = "none";
+        courseGroup.style.display = "none";
+        subjectGroup.style.display = "none";
+        combineGroup.style.display = "none";
+      } else if (mode === "course") {
+        drawer.style.display = "block";
+        courseGroup.style.display = "block";
+        subjectGroup.style.display = "none";
+        combineGroup.style.display = "none";
+      } else if (mode === "subject") {
+        drawer.style.display = "block";
+        courseGroup.style.display = "block";
+        subjectGroup.style.display = "block";
+        combineGroup.style.display = "none";
+        populateSubjectDropdown();
+      } else if (mode === "combine") {
+        drawer.style.display = "block";
+        courseGroup.style.display = "block";
+        subjectGroup.style.display = "none";
+        combineGroup.style.display = "block";
+        populateCombineSubjectsChips();
+      }
+
+      playSound();
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    }
+
+    function handleSourceKey(e, mode, el) {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        selectSource(mode, el);
+      }
+    }
+
+    /* ---------------------------------------------------------
+       5. COURSE & SUBJECT DYNAMIC POPULATION
+       --------------------------------------------------------- */
+    function handleCourseChange() {
+      if (selectedSource === "subject") {
+        populateSubjectDropdown();
+      } else if (selectedSource === "combine") {
+        populateCombineSubjectsChips();
+      }
+      playSound();
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    }
+
+    function populateSubjectDropdown() {
+      const courseSelect = document.getElementById("courseSelect");
+      const subjectSelect = document.getElementById("subjectSelect");
+      const selectedCode = (courseSelect.value || "").toUpperCase();
+
+      subjectSelect.innerHTML = '<option value="">-- Choose Subject --</option>';
+
+      if (!selectedCode) return;
+
+      const courseObj = COURSE_LIST.find(c => c.code.toUpperCase() === selectedCode);
+      if (courseObj && courseObj.subjects && courseObj.subjects.length > 0) {
+        courseObj.subjects.forEach(sub => {
+          const opt = document.createElement("option");
+          opt.value = sub;
+          opt.textContent = sub;
+          subjectSelect.appendChild(opt);
+        });
+      }
+    }
+
+    function handleSubjectChange() {
+      playSound();
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    }
+
+    function populateCombineSubjectsChips() {
+      const courseSelect = document.getElementById("courseSelect");
+      const container = document.getElementById("subjectChipsContainer");
+      const selectedCode = (courseSelect.value || "").toUpperCase();
+
+      container.innerHTML = "";
+
+      if (!selectedCode) {
+        container.innerHTML = '<span style="color: var(--text-muted); font-size: 13px;">Please select a course above to view its available subjects.</span>';
+        return;
+      }
+
+      const courseObj = COURSE_LIST.find(c => c.code.toUpperCase() === selectedCode);
+      if (!courseObj || !courseObj.subjects || courseObj.subjects.length === 0) {
+        container.innerHTML = '<span style="color: var(--text-muted); font-size: 13px;">No subjects registered for this course yet.</span>';
+        return;
+      }
+
+      courseObj.subjects.forEach(sub => {
+        const label = document.createElement("label");
+        label.className = "subject-chip";
+
+        const input = document.createElement("input");
+        input.type = "checkbox";
+        input.name = "subjects";
+        input.value = sub;
+        input.onchange = function() {
+          handleCombineChipChange(this);
+        };
+
+        const icon = document.createElement("i");
+        icon.className = "fa-regular fa-square check-icon";
+
+        const text = document.createElement("span");
+        text.textContent = sub;
+
+        label.appendChild(input);
+        label.appendChild(icon);
+        label.appendChild(text);
+        container.appendChild(label);
+      });
+    }
+
+    function handleCombineChipChange(checkbox) {
+      const label = checkbox.closest(".subject-chip");
+      const icon = label.querySelector(".check-icon");
+      if (checkbox.checked) {
+        label.classList.add("active");
+        if (icon) icon.className = "fa-solid fa-square-check check-icon";
+      } else {
+        label.classList.remove("active");
+        if (icon) icon.className = "fa-regular fa-square check-icon";
+      }
+      playSound();
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    }
+
+    /* ---------------------------------------------------------
+       6. DIFFICULTY SELECTION (STEP 3)
+       --------------------------------------------------------- */
+    function selectDifficulty(levelVal, btn) {
+      document.querySelectorAll(".diff-btn").forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+
+      const selectEl = document.getElementById("levelSelect");
+      selectEl.value = levelVal;
+
+      playSound();
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    }
+
+    /* ---------------------------------------------------------
+       7. QUESTION COUNT CONTROLS (STEP 4)
+       --------------------------------------------------------- */
+    function adjustCount(delta) {
+      const input = document.getElementById("countInput");
+      let val = parseInt(input.value, 10) || 5;
+      val = Math.max(1, Math.min(50, val + delta));
+      input.value = val;
+
+      syncChips(val);
+      playSound();
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    }
+
+    function handleCountInput(input) {
+      let val = parseInt(input.value, 10);
+      if (isNaN(val)) return;
+      if (val > 50) val = 50;
+      if (val < 1) val = 1;
+      input.value = val;
+
+      syncChips(val);
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    }
+
+    function setCount(num, chip) {
+      const input = document.getElementById("countInput");
+      input.value = num;
+
+      syncChips(num);
+      playSound();
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    }
+
+    function syncChips(num) {
+      document.querySelectorAll(".count-chip").forEach(chip => {
+        if (parseInt(chip.textContent, 10) === num) {
+          chip.classList.add("active");
+        } else {
+          chip.classList.remove("active");
+        }
+      });
+    }
+
+    /* ---------------------------------------------------------
+       8. QUESTION AVAILABILITY CALCULATION ENGINE
+       --------------------------------------------------------- */
+    function getAvailableQuestionsCount() {
+      const typeVal = (document.getElementById("typeInput").value || "").toUpperCase();
+      const levelVal = (document.getElementById("levelSelect").value || "ALL").toUpperCase();
+      const courseVal = (document.getElementById("courseSelect").value || "").toUpperCase();
+      const subjectVal = (document.getElementById("subjectSelect").value || "").trim().toLowerCase();
+
+      // Gather checked subjects in combine mode
+      const checkedCombine = Array.from(
+        document.querySelectorAll('input[name="subjects"]:checked')
+      ).map(cb => cb.value.trim().toLowerCase());
+
+      // Check state prerequisites
+      if (selectedSource === "course" && !courseVal) {
+        return { count: 0, state: "needs_course" };
+      }
+      if (selectedSource === "subject") {
+        if (!courseVal) return { count: 0, state: "needs_course" };
+        if (!subjectVal) return { count: 0, state: "needs_subject" };
+      }
+      if (selectedSource === "combine") {
+        if (!courseVal) return { count: 0, state: "needs_course" };
+        if (checkedCombine.length === 0) return { count: 0, state: "needs_combine" };
+      }
+
+      let matching = QUESTIONS_META.filter(q => {
+        // 1. Source Filtering
+        if (selectedSource === "course") {
+          if ((q.course_code || "").toUpperCase() !== courseVal) return false;
+        } else if (selectedSource === "subject") {
+          if ((q.course_code || "").toUpperCase() !== courseVal) return false;
+          if ((q.subject || "").trim().toLowerCase() !== subjectVal) return false;
+        } else if (selectedSource === "combine") {
+          if ((q.course_code || "").toUpperCase() !== courseVal) return false;
+          if (!checkedCombine.includes((q.subject || "").trim().toLowerCase())) return false;
+        }
+        // 'all' source includes all questions in question bank
+
+        // 2. Exam Type Filtering
+        const qType = (q.type || "").toUpperCase();
+        if (typeVal === "MCQ") {
+          if (qType !== "MCQ") return false;
+        } else if (typeVal === "DESCRIPTIVE") {
+          if (qType !== "DESCRIPTIVE") return false;
+        }
+        // If typeVal is "MIX" or not selected yet, all question types qualify
+
+        // 3. Difficulty Level Filtering
+        if (levelVal !== "ALL") {
+          if ((q.level || "").toUpperCase() !== levelVal) return false;
+        }
+
+        return true;
+      });
+
+      return { count: matching.length, state: "ok" };
+    }
+
+    function updateAvailability() {
+      const availBadge = document.getElementById("availCount");
+      const statusMsg = document.getElementById("availStatusMsg");
+      const countInput = document.getElementById("countInput");
+      const reqCount = parseInt(countInput.value, 10) || 5;
+
+      const res = getAvailableQuestionsCount();
+
+      availBadge.textContent = res.count;
+
+      if (res.state === "needs_course") {
+        statusMsg.className = "avail-status-msg warn";
+        statusMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Select a course above to check question availability.';
+        availBadge.style.color = "var(--gold)";
+      } else if (res.state === "needs_subject") {
+        statusMsg.className = "avail-status-msg warn";
+        statusMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Select a subject to check question availability.';
+        availBadge.style.color = "var(--gold)";
+      } else if (res.state === "needs_combine") {
+        statusMsg.className = "avail-status-msg warn";
+        statusMsg.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i> Select at least one subject to combine.';
+        availBadge.style.color = "var(--gold)";
+      } else if (res.count === 0) {
+        statusMsg.className = "avail-status-msg danger";
+        statusMsg.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> No questions found for this selection.';
+        availBadge.style.color = "#ef4444";
+      } else if (reqCount > res.count) {
+        statusMsg.className = "avail-status-msg warn";
+        statusMsg.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> Only ${res.count} questions available. Count will be clamped to ${res.count}.`;
+        availBadge.style.color = "var(--gold)";
+      } else {
+        statusMsg.className = "avail-status-msg ok";
+        statusMsg.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${res.count} questions available in question bank.`;
+        availBadge.style.color = "var(--cyan)";
+      }
+    }
+
+    /* ---------------------------------------------------------
+       9. LIVE SUMMARY PANEL UPDATES
+       --------------------------------------------------------- */
+    function updateSummary() {
+      const typeVal = document.getElementById("typeInput").value;
+      const levelSelect = document.getElementById("levelSelect");
+      const countInput = document.getElementById("countInput");
+      const courseSelect = document.getElementById("courseSelect");
+      const subjectSelect = document.getElementById("subjectSelect");
+
+      // Exam Type
+      const summaryMode = document.getElementById("summaryMode");
+      if (typeVal === "MCQ") summaryMode.textContent = "MCQ (Objective)";
+      else if (typeVal === "DESCRIPTIVE") summaryMode.textContent = "Descriptive (Written)";
+      else if (typeVal === "MIX") summaryMode.textContent = "Mixed Assessment";
+      else summaryMode.textContent = "Not Selected";
+
+      // Question Source
+      const summarySource = document.getElementById("summarySource");
+      if (selectedSource === "course") summarySource.textContent = "Specific Course";
+      else if (selectedSource === "subject") summarySource.textContent = "Specific Subject";
+      else if (selectedSource === "combine") summarySource.textContent = "Combined Subjects";
+      else summarySource.textContent = "All Questions";
+
+      // Course
+      const summaryCourse = document.getElementById("summaryCourse");
+      if (selectedSource === "all") {
+        summaryCourse.textContent = "All Available";
+      } else {
+        const val = courseSelect.value;
+        if (val) {
+          const cObj = COURSE_LIST.find(c => c.code.toUpperCase() === val.toUpperCase());
+          summaryCourse.textContent = cObj ? cObj.code : val;
+        } else {
+          summaryCourse.textContent = "Not Selected";
+        }
+      }
+
+      // Subject
+      const summarySubject = document.getElementById("summarySubject");
+      if (selectedSource === "all" || selectedSource === "course") {
+        summarySubject.textContent = "All in Course / Bank";
+      } else if (selectedSource === "subject") {
+        summarySubject.textContent = subjectSelect.value || "Not Selected";
+      } else if (selectedSource === "combine") {
+        const checked = Array.from(document.querySelectorAll('input[name="subjects"]:checked')).map(cb => cb.value);
+        if (checked.length === 0) {
+          summarySubject.textContent = "None Selected";
+        } else if (checked.length === 1) {
+          summarySubject.textContent = checked[0];
+        } else {
+          summarySubject.textContent = `${checked.length} Subjects (${checked.join(", ")})`;
+        }
+      }
+      if (summarySubject) {
+        summarySubject.setAttribute("title", summarySubject.textContent);
+      }
+
+      // Difficulty
+      const summaryDiff = document.getElementById("summaryDiff");
+      summaryDiff.textContent = levelSelect.options[levelSelect.selectedIndex].text;
+
+      // Question Count
+      const count = parseInt(countInput.value, 10) || 5;
+      const summaryCount = document.getElementById("summaryCount");
+      summaryCount.textContent = count + (count === 1 ? " Question" : " Questions");
+
+      // Dynamic Exam Time Limit (Question-wise and Type-wise)
+      // MCQ: 1.5 mins (90s) / Q | Descriptive: 3 mins (180s) / Q | Mixed: ~2 mins (120s) avg / Q
+      let totalSecs = 0;
+      let rateStr = "";
+      if (typeVal === "DESCRIPTIVE") {
+        totalSecs = count * 180;
+        rateStr = "3m / question";
+      } else if (typeVal === "MIX") {
+        totalSecs = count * 120;
+        rateStr = "~2m / question";
+      } else {
+        totalSecs = count * 90;
+        rateStr = "1.5m / question";
+      }
+      totalSecs = Math.max(60, totalSecs);
+
+      const m = Math.floor(totalSecs / 60);
+      const s = totalSecs % 60;
+      const formattedTime = s > 0 ? `${m}m ${s}s` : `${m}:00 Mins`;
+
+      const summaryTime = document.getElementById("summaryTime");
+      if (summaryTime) {
+        summaryTime.innerHTML = `<i class="fa-solid fa-stopwatch" style="font-size: 11.5px; margin-right: 4px;"></i>${formattedTime}`;
+      }
+
+      const summaryRate = document.getElementById("summaryRate");
+      if (summaryRate) {
+        summaryRate.textContent = `(${rateStr})`;
+      }
+    }
+
+    /* ---------------------------------------------------------
+       10. PROGRESS & READINESS CALCULATION
+       --------------------------------------------------------- */
+    function updateProgress() {
+      const hasType = !!document.getElementById("typeInput").value;
+      const courseVal = document.getElementById("courseSelect").value;
+      const subjectVal = document.getElementById("subjectSelect").value;
+      const checkedCombine = document.querySelectorAll('input[name="subjects"]:checked');
+      const countVal = parseInt(document.getElementById("countInput").value, 10) || 0;
+
+      let sourceReady = false;
+      if (selectedSource === "all") {
+        sourceReady = true;
+      } else if (selectedSource === "course") {
+        sourceReady = !!courseVal;
+      } else if (selectedSource === "subject") {
+        sourceReady = !!courseVal && !!subjectVal;
+      } else if (selectedSource === "combine") {
+        sourceReady = !!courseVal && checkedCombine.length > 0;
+      }
+
+      let score = 0;
+      if (hasType) score += 35;
+      if (sourceReady) score += 35;
+      score += 15; // Difficulty level has default ALL
+      if (countVal >= 1 && countVal <= 50) score += 15;
+
+      const progressBar = document.getElementById("progressBar");
+      const readinessPct = document.getElementById("readinessPct");
+      const statusText = document.getElementById("readinessStatus");
+
+      progressBar.style.width = score + "%";
+      readinessPct.textContent = score + "%";
+
+      if (score === 100) {
+        progressBar.style.background = "linear-gradient(90deg, #10b981, #00f0ff)";
+        readinessPct.style.color = "#10b981";
+        statusText.innerHTML = '<i class="fa-solid fa-circle-check text-success"></i> All parameters configured! <strong>Ready to launch.</strong>';
+      } else if (!hasType) {
+        progressBar.style.background = "linear-gradient(90deg, #3b82f6, #00f0ff)";
+        readinessPct.style.color = "#00f0ff";
+        statusText.innerHTML = '<i class="fa-solid fa-circle-info text-info"></i> Please select an <strong>examination mode</strong> above.';
+      } else if (!sourceReady) {
+        progressBar.style.background = "linear-gradient(90deg, #f59e0b, #00f0ff)";
+        readinessPct.style.color = "#f59e0b";
+        statusText.innerHTML = '<i class="fa-solid fa-circle-exclamation text-warning"></i> Complete the <strong>question source selection</strong> above.';
+      } else {
+        progressBar.style.background = "linear-gradient(90deg, #3b82f6, #00f0ff)";
+        readinessPct.style.color = "#00f0ff";
+        statusText.innerHTML = '<i class="fa-solid fa-circle-info text-info"></i> Review your configuration and proceed.';
+      }
+    }
+
+    /* ---------------------------------------------------------
+       11. SUBMIT & FORM VALIDATION HANDLER
+       --------------------------------------------------------- */
+    function handleStart(e, btn) {
+      e.preventDefault();
+
+      const typeInput = document.getElementById("typeInput");
+      const courseSelect = document.getElementById("courseSelect");
+      const subjectSelect = document.getElementById("subjectSelect");
+      const form = document.getElementById("examForm");
+
+      // 1. Exam mode check
+      if (!typeInput.value) {
+        const cardsGrid = document.getElementById("cardsGrid");
+        cardsGrid.classList.remove("shake-warning");
+        void cardsGrid.offsetWidth; // Trigger reflow
+        cardsGrid.classList.add("shake-warning");
+
+        Swal.fire({
+          icon: "warning",
+          title: "Examination Mode Required",
+          text: "Please select an examination mode (MCQ, Descriptive, or Mixed) before launching your exam.",
+          background: "#0f172a",
+          color: "#f8fafc",
+          confirmButtonColor: "#00f0ff",
+          confirmButtonText: "Select Mode"
+        }).then(() => {
+          cardsGrid.scrollIntoView({ behavior: "smooth", block: "center" });
+        });
+        return;
+      }
+
+      // 2. Source checks
+      if (selectedSource === "course" && !courseSelect.value) {
+        Swal.fire({
+          icon: "warning",
+          title: "Course Required",
+          text: "Please select a course from the dropdown.",
+          background: "#0f172a",
+          color: "#f8fafc",
+          confirmButtonColor: "#00f0ff"
+        });
+        return;
+      }
+
+      if (selectedSource === "subject") {
+        if (!courseSelect.value) {
+          Swal.fire({
+            icon: "warning",
+            title: "Course Required",
+            text: "Please select a course first.",
+            background: "#0f172a",
+            color: "#f8fafc",
+            confirmButtonColor: "#00f0ff"
+          });
+          return;
+        }
+        if (!subjectSelect.value) {
+          Swal.fire({
+            icon: "warning",
+            title: "Subject Required",
+            text: "Please select a subject from the dropdown.",
+            background: "#0f172a",
+            color: "#f8fafc",
+            confirmButtonColor: "#00f0ff"
+          });
+          return;
+        }
+      }
+
+      if (selectedSource === "combine") {
+        if (!courseSelect.value) {
+          Swal.fire({
+            icon: "warning",
+            title: "Course Required",
+            text: "Please select a course first.",
+            background: "#0f172a",
+            color: "#f8fafc",
+            confirmButtonColor: "#00f0ff"
+          });
+          return;
+        }
+        const checked = document.querySelectorAll('input[name="subjects"]:checked');
+        if (checked.length === 0) {
+          Swal.fire({
+            icon: "warning",
+            title: "Select Subjects",
+            text: "Please select at least one subject to combine for this practice exam.",
+            background: "#0f172a",
+            color: "#f8fafc",
+            confirmButtonColor: "#00f0ff"
+          });
+          return;
+        }
+      }
+
+      // 3. Question availability check
+      const res = getAvailableQuestionsCount();
+      if (res.count === 0) {
+        Swal.fire({
+          icon: "error",
+          title: "No Matching Questions",
+          text: "There are currently 0 questions available for this specific combination in the question bank. Please adjust your criteria.",
+          background: "#0f172a",
+          color: "#f8fafc",
+          confirmButtonColor: "#00f0ff"
+        });
+        return;
+      }
+
+      // Auto-clamp requested count if larger than available questions
+      const countInput = document.getElementById("countInput");
+      let reqCount = parseInt(countInput.value, 10) || 5;
+      if (reqCount > res.count) {
+        countInput.value = res.count;
+      }
+
+      // Clear previous exam timer cache so new exam starts at fresh duration
+      try {
+        sessionStorage.removeItem("remainingTime");
+        sessionStorage.removeItem("warned");
+      } catch (err) {}
+
+      // 4. Prevent double click
+      btn.disabled = true;
+      playSound();
+
+      // 5. Button loading state: PREPARING YOUR EXAM...
+      btn.innerHTML = '<span class="btn-spinner"></span> <span>PREPARING YOUR EXAM...</span>';
+
+      // 6. Submit form
+      setTimeout(() => {
+        form.submit();
+      }, 450);
+    }
+
+    /* ---------------------------------------------------------
+       12. LIGHTWEIGHT PARTICLE CANVAS BACKGROUND
+       --------------------------------------------------------- */
+    (function initBackgroundCanvas() {
+      const canvas = document.getElementById("bg-canvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+
+      window.addEventListener("resize", () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      const particleCount = Math.min(42, Math.floor(width / 35));
+      const particles = [];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          radius: Math.random() * 1.6 + 0.6,
+          alpha: Math.random() * 0.5 + 0.2
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0, 240, 255, ${p.alpha})`;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = "#00f0ff";
+          ctx.fill();
+
+          // Connect nearby particles
+          for (let j = i + 1; j < particles.length; j++) {
+            const p2 = particles[j];
+            const dx = p.x - p2.x;
+            const dy = p.y - p2.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 110) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = `rgba(0, 240, 255, ${0.12 * (1 - dist / 110)})`;
+              ctx.lineWidth = 0.75;
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      draw();
+    })();
+
+    // Run initial progress calculation & reset leftover timer cache
+    document.addEventListener("DOMContentLoaded", () => {
+      try {
+        sessionStorage.removeItem("remainingTime");
+        sessionStorage.removeItem("warned");
+      } catch (err) {}
+      updateAvailability();
+      updateProgress();
+      updateSummary();
+    });
+  </script>
 
 </body>
 </html>

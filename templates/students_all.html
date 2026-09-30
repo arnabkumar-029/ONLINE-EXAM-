@@ -1,0 +1,51 @@
+<!-- ===================== ALL STUDENTS ===================== -->
+
+<h2>All Students</h2>
+<p>Total Students: {{ students|length }}</p>
+
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Username</th>
+<th>Email</th>
+<th>Attempts</th>
+<th>Latest Score</th>
+<th>Best %</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+
+{% for s in students %}
+<tr>
+<td>{{ loop.index }}</td>
+<td>{{ s.username }}</td>
+<td>{{ s.email }}</td>
+<td>{{ s.attempts }}</td>
+<td>
+  {% if s.latest_score is not none %}
+    {{ s.latest_score }} / {{ s.latest_total }}
+  {% else %}
+    N/A
+  {% endif %}
+</td>
+<td>{{ s.best_pct }}%</td>
+<td>
+  {% if s.attempts > 0 %}
+    <a href="{{ url_for('admin.admin_user_history', username=s.username) }}" class="btn">📜 View History</a>
+  {% else %}
+    &mdash;
+  {% endif %}
+</td>
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+
+{% if not students %}
+<p>No registered students yet.</p>
+{% endif %}
+
+<!-- ===================== END ===================== -->

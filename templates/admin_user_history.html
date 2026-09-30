@@ -1,197 +1,216 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>{{ username }}'s Exam History</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<!-- ===================== STUDENT USER HISTORY ===================== -->
 
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background: linear-gradient(135deg, #74ABE2, #5563DE);
-      color: white;
-      text-align: center;
-      padding: 40px;
-    }
+<!-- ✅ Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    h1 {
-      font-size: 32px;
-      margin-bottom: 20px;
-    }
+<div class="user-history-container">
 
-    table {
-      width: 90%;
-      max-width: 1000px;
-      margin: 30px auto;
-      border-collapse: collapse;
-      background: rgba(255,255,255,0.15);
-      backdrop-filter: blur(10px);
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
-    }
+    <!-- Header & Back Navigation -->
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <div>
+            <a href="{{ url_for('admin.students_page') }}" class="btn btn-outline-secondary btn-sm mb-2" style="border-radius: 8px; font-weight: 500;">
+                <i class="fa-solid fa-arrow-left me-1"></i> Back to All Students
+            </a>
+            <h2 class="mb-1" style="font-weight: 700; color: #1e293b;">
+                📊 {{ username }}'s Performance History
+            </h2>
+            <p class="text-secondary mb-0" style="font-size: 14px;">
+                Detailed examination scores, progression analytics, and evaluation history.
+            </p>
+        </div>
 
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid rgba(255,255,255,0.25);
-    }
+        <div class="d-flex align-items-center gap-2">
+            <span class="badge bg-white text-dark border p-2 px-3" style="font-size: 13.5px; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+                <i class="fa-solid fa-clock-rotate-left text-primary me-1"></i> Total Attempts: <strong>{{ history|length }}</strong>
+            </span>
+        </div>
+    </div>
 
-    th {
-      background: rgba(255,255,255,0.25);
-      text-transform: uppercase;
-    }
+    {% if history %}
 
-    .btn {
-      background: #fff;
-      color: #5563DE;
-      padding: 10px 20px;
-      border-radius: 10px;
-      text-decoration: none;
-      font-weight: 600;
-      margin-top: 25px;
-      display: inline-block;
-    }
+    <!-- ✅ Performance Chart Card -->
+    <div style="background: white; border-radius: 12px; padding: 22px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: 30px; border: 1px solid #e2e8f0;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 style="font-size: 16px; font-weight: 600; color: #334155; margin-bottom: 0;">
+                <i class="fa-solid fa-chart-line text-primary me-2"></i> Score Progression Over Time
+            </h5>
+            <span class="text-muted" style="font-size: 12px;">Points scored per exam attempt</span>
+        </div>
+        <div style="position: relative; height: 260px; width: 100%;">
+            <canvas id="scoreChart"></canvas>
+        </div>
+    </div>
 
-    .btn:hover {
-      background: #ffdd57;
-      color: #333;
-    }
+    <!-- ✅ Summary Table of Attempts -->
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h4 style="font-size: 17px; font-weight: 600; color: #1e293b; margin-bottom: 0;">
+            📜 Exam Attempts Summary
+        </h4>
+        <span class="text-secondary" style="font-size: 13px;">Most recent attempts shown first</span>
+    </div>
 
-    /* Chart Box */
-    #chartContainer {
-      width: 90%;
-      max-width: 900px;
-      margin: 40px auto;
-      background: rgba(255,255,255,0.15);
-      border-radius: 15px;
-      padding: 25px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.3);
-    }
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50px;">#</th>
+                <th>Date & Time</th>
+                <th>Exam</th>
+                <th>Score</th>
+                <th>Percentage</th>
+                <th>Time Taken</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in history|reverse %}
+            <tr>
+                <td><strong>{{ loop.index }}</strong></td>
+                <td>{{ record.date }}</td>
+                <td>
+                    <span style="font-weight: 600; color: #1e293b;">{{ record.exam_title or 'Practice Examination' }}</span>
+                    {% if record.course_code %}
+                    <br><small class="text-muted">{{ record.course_code }}</small>
+                    {% endif %}
+                </td>
+                <td><strong>{{ record.score }}</strong> / {{ record.total }}</td>
+                <td>
+                    {% set pct = (record.score / record.total * 100)|round(1) if record.total else 0 %}
+                    <span class="badge {% if pct >= 75 %}bg-success{% elif pct >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %}" style="font-size: 12px; padding: 5px 10px; border-radius: 6px;">
+                        {{ pct }}%
+                    </span>
+                </td>
+                <td>{{ record.time_taken or 'N/A' }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    canvas { max-width: 100%; }
-
-    /* Descriptive Table */
-    .desc-title {
-      margin-top: 35px;
-      font-size: 26px;
-      font-weight: bold;
-      color: #ffe680;
-    }
-  </style>
-</head>
-
-<body>
-
-  <h1>📊 {{ username }}'s Performance History</h1>
-
-  {% if history %}
-
-  <!-- ✅ Performance Chart -->
-  <div id="chartContainer">
-    <canvas id="scoreChart"></canvas>
-  </div>
-
-  <!-- ✅ Summary Table -->
-  <table>
-    <tr>
-      <th>Date</th>
-      <th>Score</th>
-      <th>Total</th>
-      <th>Time Taken</th>
-    </tr>
-
+    <!-- ✅ Descriptive Analysis Table (Per Attempt) -->
     {% for record in history|reverse %}
-    <tr>
-      <td>{{ record.date }}</td>
-      <td>{{ record.score }}</td>
-      <td>{{ record.total }}</td>
-      <td>{{ record.time_taken }}</td>
-    </tr>
+        {% if record.descriptive_reports %}
+        <div style="margin-top: 35px; margin-bottom: 25px;">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <h5 style="font-weight: 600; color: #334155; margin-bottom: 0; font-size: 16px;">
+                    📝 Descriptive Analysis &mdash; <span class="text-primary">{{ record.date }}</span>
+                </h5>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 45%;">Question</th>
+                        <th>Similarity</th>
+                        <th>Originality</th>
+                        <th>Grade</th>
+                        <th>Marks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in record.descriptive_reports %}
+                    <tr>
+                        <td style="text-align: left; font-size: 13.5px; line-height: 1.45;">{{ d.q }}</td>
+                        <td>{{ d.similarity }}%</td>
+                        <td>{{ d.originality }}%</td>
+                        <td>
+                            <span class="badge bg-secondary" style="font-size: 11.5px; padding: 4px 8px;">
+                                {{ d.grade }}
+                            </span>
+                        </td>
+                        <td><strong>{{ d.marks }}</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
     {% endfor %}
-  </table>
 
-  <!-- ✅ 🎓 Descriptive Analysis Table (Per Attempt) -->
-  {% for record in history|reverse %}
-    {% if record.descriptive_reports %}
-      <h2 class="desc-title">📝 Descriptive Analysis — {{ record.date }}</h2>
-
-      <table>
-        <tr>
-          <th>Question</th>
-          <th>Similarity</th>
-          <th>Originality</th>
-          <th>Grade</th>
-          <th>Marks</th>
-        </tr>
-
-        {% for d in record.descriptive_reports %}
-        <tr>
-          <td>{{ d.q }}</td>
-          <td>{{ d.similarity }}%</td>
-          <td>{{ d.originality }}%</td>
-          <td>{{ d.grade }}</td>
-          <td>{{ d.marks }}</td>
-        </tr>
-        {% endfor %}
-      </table>
+    {% else %}
+    <div class="text-center py-5" style="background: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <p class="text-secondary mb-3" style="font-size: 16px;">No exam history recorded yet for <strong>{{ username }}</strong>.</p>
+        <a href="{{ url_for('admin.students_page') }}" class="btn btn-primary btn-sm">
+            <i class="fa-solid fa-arrow-left me-1"></i> Return to All Students
+        </a>
+    </div>
     {% endif %}
-  {% endfor %}
 
-  {% else %}
-  <p>No exam history found for this user.</p>
-  {% endif %}
+</div>
 
-  <a href="{{ url_for('admin.admin_dashboard') }}" class="btn">⬅ Back to Dashboard</a>
+<!-- ✅ Initialize Chart.js safely -->
+<script>
+(function() {
+    const rawHistory = {{ history | tojson }};
 
-  <!-- ✅ Chart.js -->
-  <script>
-    const labels = {{ history | map(attribute='date') | list | tojson }};
-    const scores = {{ history | map(attribute='score') | list | tojson }};
+    if (Array.isArray(rawHistory) && rawHistory.length > 0) {
+        const labels = rawHistory.map(function(r) { return r.date; });
+        const scores = rawHistory.map(function(r) { return r.score; });
+        const totals = rawHistory.map(function(r) { return r.total; });
 
-    if (labels.length > 0) {
-      const ctx = document.getElementById("scoreChart").getContext("2d");
+        const canvas = document.getElementById("scoreChart");
+        if (canvas) {
+            const ctx = canvas.getContext("2d");
 
-      new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: labels,
-          datasets: [{
-            label: "Score",
-            data: scores,
-            borderColor: "#ffdd57",
-            backgroundColor: "rgba(255,221,87,0.25)",
-            borderWidth: 3,
-            tension: 0.3,
-            fill: true,
-            pointBackgroundColor: "#fff",
-            pointBorderColor: "#ffdd57",
-            pointRadius: 6
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { labels: { color: "white" } },
-            title: {
-              display: true,
-              text: "Exam Score Progress",
-              color: "white",
-              font: { size: 18 }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: "white" },
-              grid: { color: "rgba(255,255,255,0.1)" }
-            },
-            y: {
-              ticks: { color: "white" },
-              grid: { color: "rgba(255,255,255,0.1)" }
-            }
-          }
+            new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: "Score",
+                        data: scores,
+                        borderColor: "#5563DE",
+                        backgroundColor: "rgba(85, 99, 222, 0.12)",
+                        borderWidth: 2.5,
+                        tension: 0.35,
+                        fill: true,
+                        pointBackgroundColor: "#ffffff",
+                        pointBorderColor: "#5563DE",
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: "#1e293b",
+                            padding: 10,
+                            titleFont: { size: 12 },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    const idx = context.dataIndex;
+                                    const tot = totals[idx] !== undefined ? totals[idx] : "";
+                                    return " Score: " + context.parsed.y + (tot ? " / " + tot : "");
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: "#64748b",
+                                font: { size: 11 },
+                                maxRotation: 45,
+                                minRotation: 0
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: "#f1f5f9" },
+                            ticks: {
+                                color: "#64748b",
+                                font: { size: 11 },
+                                stepSize: 5
+                            }
+                        }
+                    }
+                }
+            });
         }
-      });
     }
-  </script>
-
-</body>
-</html>
+})();
+</script>
+<!-- ===================== END ===================== -->

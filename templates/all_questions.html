@@ -1,0 +1,1019 @@
+<!-- ==============================================================
+     ALL QUESTIONS / QUESTION BANK (templates/all_questions.html)
+     ============================================================== -->
+
+<style>
+  .qb-container {
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .qb-header-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 22px;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .qb-header-box h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1e1b4b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* 3D Filter Card */
+  .qb-filter-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px 24px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    margin-bottom: 24px;
+    transition: all 0.3s ease;
+  }
+
+  .qb-filter-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #4f46e5;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .qb-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 1200px) {
+    .qb-filter-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  @media (max-width: 768px) {
+    .qb-filter-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .qb-filter-item label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #475569;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .qb-filter-item select,
+  .qb-filter-search input {
+    width: 100%;
+    padding: 7px 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 13px;
+    background: #ffffff;
+    color: #1e293b;
+    margin-bottom: 0 !important;
+  }
+
+  .qb-filter-item select:focus,
+  .qb-filter-search input:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.15);
+  }
+
+  .qb-filter-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .qb-filter-search {
+    position: relative;
+    flex: 1;
+    max-width: 420px;
+  }
+
+  .qb-filter-search i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 13px;
+  }
+
+  .qb-filter-search input {
+    padding-left: 36px !important;
+  }
+
+  .btn-reset-filters {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-reset-filters:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+  }
+
+  /* Table Customizations */
+  .badge-course-code {
+    background: #ede9fe;
+    color: #6d28d9;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid #ddd6fe;
+    display: inline-block;
+  }
+
+  .badge-subject {
+    font-size: 11px;
+    color: #2563eb;
+    background: #eff6ff;
+    padding: 2px 7px;
+    border-radius: 6px;
+    border: 1px solid #dbeafe;
+    display: inline-block;
+    margin-top: 3px;
+  }
+
+  .badge-source {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .source-manual { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+  .source-ai { background: #fae8ff; color: #a21caf; border: 1px solid #f0abfc; }
+
+  .q-id-tag {
+    font-size: 10px;
+    color: #94a3b8;
+    font-family: monospace;
+    display: block;
+    margin-top: 3px;
+  }
+
+  /* ==============================================================
+     CUSTOM IN-PAGE DELETE CONFIRMATION MODAL (Dark Navy Glassmorphism)
+     ============================================================== */
+  .delete-modal-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    background: rgba(10, 15, 30, 0.75);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s ease;
+    padding: 16px;
+  }
+
+  .delete-modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .delete-modal-card {
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    background: linear-gradient(145deg, #0d1527, #0a0f1d);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    border-radius: 20px;
+    padding: 32px 28px 26px;
+    text-align: center;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(14, 165, 233, 0.15);
+    transform: scale(0.92);
+    opacity: 0;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease;
+    overflow: hidden;
+    box-sizing: border-box;
+  }
+
+  .delete-modal-overlay.active .delete-modal-card {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .delete-modal-overlay.closing .delete-modal-card {
+    transform: scale(0.92);
+    opacity: 0;
+  }
+
+  .delete-modal-glow-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, rgba(56, 189, 248, 0) 0%, rgba(56, 189, 248, 0.9) 30%, rgba(239, 68, 68, 0.9) 70%, rgba(56, 189, 248, 0) 100%);
+  }
+
+  .delete-modal-icon-wrap {
+    width: 68px;
+    height: 68px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.35);
+    box-shadow: 0 0 24px rgba(239, 68, 68, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .delete-modal-icon {
+    font-size: 30px;
+    color: #f87171;
+    filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.5));
+  }
+
+  .delete-modal-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #f8fafc;
+    letter-spacing: 0.6px;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+  }
+
+  .delete-modal-message {
+    font-size: 14.5px;
+    color: #cbd5e1;
+    line-height: 1.55;
+    margin: 0 0 10px 0;
+    word-break: break-word;
+  }
+
+  .delete-modal-subtext {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #fca5a5;
+    margin: 0 0 24px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .delete-modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .btn-delete-modal-cancel {
+    flex: 1;
+    padding: 11px 18px;
+    border-radius: 10px;
+    background: rgba(148, 163, 184, 0.12);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .btn-delete-modal-cancel:hover {
+    background: rgba(148, 163, 184, 0.22);
+    color: #ffffff;
+    border-color: rgba(148, 163, 184, 0.45);
+  }
+
+  .btn-delete-modal-confirm {
+    flex: 1;
+    padding: 11px 18px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-delete-modal-confirm:hover:not(:disabled) {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .btn-delete-modal-confirm:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  @media (max-width: 576px) {
+    .delete-modal-card {
+      padding: 24px 20px 20px;
+      max-width: 92%;
+    }
+    .delete-modal-title {
+      font-size: 18px;
+    }
+    .delete-modal-actions {
+      flex-direction: column-reverse;
+      gap: 10px;
+    }
+    .btn-delete-modal-cancel,
+    .btn-delete-modal-confirm {
+      width: 100%;
+      padding: 11px;
+    }
+  }
+</style>
+
+<div class="qb-container">
+
+  <!-- TOP HEADER -->
+  <div class="qb-header-box">
+    <div>
+      <h2><i class="fa-solid fa-book-open"></i> Question Bank Management</h2>
+      <p style="color: #64748b; font-size: 14px; margin: 4px 0 0 0;">
+        Filter, search, review, edit, and bulk-delete questions across all courses and subjects.
+      </p>
+    </div>
+    <div>
+      <a href="{{ url_for('admin.add_question_page') }}" class="btn btn-primary" style="font-weight: 600; font-size: 13.5px; border-radius: 10px; padding: 9px 18px;">
+        <i class="fa-solid fa-plus me-1"></i> Add Question
+      </a>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       CLASSIFICATION & FILTER CONTROLS
+       ========================================================= -->
+  <div class="qb-filter-card">
+    <div class="qb-filter-title">
+      <span><i class="fa-solid fa-filter me-1"></i> Course & Classification Filters</span>
+      <span class="badge bg-light text-primary border" id="filterStatsBadge" style="font-size: 11.5px;">
+        Showing all {{ questions|length }} questions
+      </span>
+    </div>
+
+    <div class="qb-filter-grid">
+      <!-- 1. Course Code -->
+      <div class="qb-filter-item">
+        <label>Course Code</label>
+        <select id="filterCourseCode" onchange="onCourseCodeChange()">
+          <option value="">All Courses</option>
+          {% for c in filter_courses|default([]) %}
+            <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- 2. Course Name -->
+      <div class="qb-filter-item">
+        <label>Course Name</label>
+        <select id="filterCourseName" onchange="applyFilters()">
+          <option value="">All Course Names</option>
+          {% for cn in filter_course_names|default([]) %}
+            <option value="{{ cn }}">{{ cn }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- 3. Subject -->
+      <div class="qb-filter-item">
+        <label>Subject</label>
+        <select id="filterSubject" onchange="applyFilters()">
+          <option value="">All Subjects</option>
+          {% for s in filter_subjects|default([]) %}
+            <option value="{{ s }}">{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- 4. Question Type -->
+      <div class="qb-filter-item">
+        <label>Question Type</label>
+        <select id="filterType" onchange="applyFilters()">
+          <option value="">All Types</option>
+          <option value="MCQ">MCQ</option>
+          <option value="DESCRIPTIVE">Descriptive</option>
+        </select>
+      </div>
+
+      <!-- 5. Difficulty -->
+      <div class="qb-filter-item">
+        <label>Difficulty</label>
+        <select id="filterDifficulty" onchange="applyFilters()">
+          <option value="">All Levels</option>
+          <option value="Easy">Easy</option>
+          <option value="Medium">Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+      </div>
+
+      <!-- 6. Source -->
+      <div class="qb-filter-item">
+        <label>Source</label>
+        <select id="filterSource" onchange="applyFilters()">
+          <option value="">All Sources</option>
+          <option value="MANUAL">Manual</option>
+          <option value="AI">AI Generated</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Live Search & Reset -->
+    <div class="qb-filter-bottom">
+      <div class="qb-filter-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="filterSearchInput" onkeyup="applyFilters()" placeholder="Search question statement, topic, or ID...">
+      </div>
+      <div>
+        <button type="button" class="btn-reset-filters" onclick="resetFilters()">
+          <i class="fa-solid fa-rotate-left me-1"></i> Reset Filters
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       BULK DELETE & TABLE
+       ========================================================= -->
+  <form id="bulkDeleteForm" action="{{ url_for('admin.delete_selected') }}" method="POST">
+
+    <div class="toolbar">
+      <div class="toolbar-left">
+        <div class="checkbox-wrapper">
+          <input type="checkbox" id="selectAll">
+          <label class="terms-label" for="selectAll">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 200 200" class="checkbox-svg">
+              <mask fill="white" id="path-1-inside-1">
+                <rect width="200" height="200"></rect>
+              </mask>
+              <rect class="checkbox-box" width="200" height="200" mask="url(#path-1-inside-1)"></rect>
+              <path class="checkbox-tick" d="M52 111.018L76.9867 136L149 64"></path>
+            </svg>
+            <span class="label-text">Select All Visible</span>
+          </label>
+        </div>
+
+        <span class="ms-3 text-secondary d-none d-sm-inline" style="font-size: 13px; font-weight: 500;">
+          💡 <em>Hold <kbd style="background: #e2e8f0; color: #1e293b; padding: 2px 7px; border-radius: 4px; font-size: 11px; border: 1px solid #cbd5e1;">Ctrl + Shift</kbd> to bulk-select a range</em>
+        </span>
+      </div>
+
+      <div class="toolbar-right">
+        <button type="submit" id="deleteSelected" class="btn btn-danger">
+          🗑 Delete Selected (0)
+        </button>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table" id="questionsTable">
+        <thead>
+          <tr>
+            <th style="width: 50px;">Select</th>
+            <th style="width: 45px;">#</th>
+            <th style="width: 190px;">Course & Subject</th>
+            <th>Question</th>
+            <th>Correct / Keywords</th>
+            <th style="width: 90px;">Type</th>
+            <th style="width: 110px;">Level</th>
+            <th style="width: 75px;">Source</th>
+            <th style="width: 100px;">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for q in questions %}
+          <tr data-course-code="{{ q.course_code|default('')|upper }}"
+              data-course-name="{{ q.course_name|default('')|lower }}"
+              data-subject="{{ q.subject|default('')|lower }}"
+              data-type="{{ q.type|default('MCQ')|upper }}"
+              data-level="{{ q.level|default('Easy') }}"
+              data-source="{{ q.source|default('MANUAL')|upper }}"
+              data-search="{{ (q.q|default('') ~ ' ' ~ q.question|default('') ~ ' ' ~ q.id|default('') ~ ' ' ~ q.topic|default('') ~ ' ' ~ q.unit|default(''))|lower }}">
+
+            <!-- Checkbox -->
+            <td>
+              <label class="neon-checkbox">
+                <input type="checkbox" class="questionCheck" name="selected" value="{{ loop.index0 }}">
+                <div class="neon-checkbox__frame">
+                  <div class="neon-checkbox__box">
+                    <div class="neon-checkbox__check-container">
+                      <svg viewBox="0 0 24 24" class="neon-checkbox__check" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 12.5L10 19.5L21 5" fill="none"></path>
+                      </svg>
+                    </div>
+                    <div class="neon-checkbox__glow"></div>
+                    <div class="neon-checkbox__borders">
+                      <span></span><span></span><span></span><span></span>
+                    </div>
+                  </div>
+                  <div class="neon-checkbox__effects">
+                    <div class="neon-checkbox__particles">
+                      <span></span><span></span><span></span><span></span>
+                      <span></span><span></span><span></span><span></span>
+                      <span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="neon-checkbox__rings">
+                      <div class="ring"></div><div class="ring"></div><div class="ring"></div>
+                    </div>
+                    <div class="neon-checkbox__sparks">
+                      <span></span><span></span><span></span><span></span>
+                    </div>
+                  </div>
+                </div>
+              </label>
+            </td>
+
+            <!-- Index -->
+            <td>{{ loop.index }}</td>
+
+            <!-- Course & Subject Classification -->
+            <td>
+              <span class="badge-course-code">{{ q.course_code|default('GEN101') }}</span>
+              <div style="font-size: 11.5px; font-weight: 600; color: #1e293b; margin-top: 3px;">
+                {{ q.course_name|default('General Studies') }}
+              </div>
+              <div>
+                <span class="badge-subject">{{ q.subject|default('General Knowledge') }}</span>
+              </div>
+              {% if q.topic or q.unit %}
+                <div style="font-size: 10.5px; color: #64748b; margin-top: 2px;">
+                  {% if q.unit %}<span>{{ q.unit }}</span>{% endif %}
+                  {% if q.unit and q.topic %} • {% endif %}
+                  {% if q.topic %}<span>{{ q.topic }}</span>{% endif %}
+                </div>
+              {% endif %}
+            </td>
+
+            <!-- Question Statement -->
+            <td>
+              <div style="font-weight: 600; color: #1e293b;">
+                {{ q.question|default(q.q) }}
+              </div>
+              <span class="q-id-tag">ID: {{ q.id|default('N/A') }}</span>
+            </td>
+
+            <!-- Correct Answer / Keywords -->
+            <td>
+              {% if q.type == "DESCRIPTIVE" %}
+                <div style="font-size: 12px; color: #475569; max-width: 250px;">
+                  {{ q.answer_key }}
+                </div>
+              {% else %}
+                <div style="font-weight: 600; color: #15803d; font-size: 12.5px;">
+                  <i class="fa-solid fa-circle-check me-1"></i>{{ q.correct }}
+                </div>
+              {% endif %}
+            </td>
+
+            <!-- Type -->
+            <td>
+              <span class="badge" style="background: {{ '#3b82f6' if q.type == 'MCQ' else '#8b5cf6' }}; font-size: 10.5px;">
+                {{ q.type }}
+              </span>
+            </td>
+
+            <!-- Level Edit -->
+            <td>
+              <form action="{{ url_for('admin.edit_question', index=loop.index0) }}" method="POST">
+                <select name="level" class="form-select form-select-sm mb-1" style="font-size: 12px;">
+                  <option value="Easy" {% if q.level == "Easy" %}selected{% endif %}>Easy</option>
+                  <option value="Medium" {% if q.level == "Medium" %}selected{% endif %}>Medium</option>
+                  <option value="Hard" {% if q.level == "Hard" %}selected{% endif %}>Hard</option>
+                </select>
+
+                {% if q.type == "DESCRIPTIVE" %}
+                  <input type="number" name="max_marks" class="form-control form-control-sm mb-1"
+                         value="{{ q.max_marks|default(5) }}" min="1" style="font-size: 11px;">
+                {% endif %}
+
+                <button type="submit" class="btn btn-success btn-sm w-100" style="padding: 2px 6px; font-size: 11px;">
+                  💾 Save
+                </button>
+              </form>
+            </td>
+
+            <!-- Source -->
+            <td>
+              <span class="badge-source {{ 'source-ai' if q.source == 'AI' else 'source-manual' }}">
+                {{ q.source|default('MANUAL') }}
+              </span>
+            </td>
+
+            <!-- Actions -->
+            <td>
+              <a href="{{ url_for('admin.delete_question', index=loop.index0) }}"
+                 class="btn btn-danger btn-sm"
+                 style="font-size: 11.5px; padding: 4px 8px; width: 100%; display: block; text-align: center;"
+                 onclick="openSingleDeleteModal(event, this.href)">
+                <i class="fa-solid fa-trash-can"></i> Delete
+              </a>
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+  </form>
+
+</div>
+
+<!-- ==============================================================
+     CUSTOM IN-PAGE DELETE CONFIRMATION MODAL
+     ============================================================== -->
+<div id="customDeleteModal" class="delete-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+  <div class="delete-modal-card">
+    <div class="delete-modal-glow-top"></div>
+
+    <!-- Warning Icon -->
+    <div class="delete-modal-icon-wrap">
+      <div class="delete-modal-icon">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h3 id="deleteModalTitle" class="delete-modal-title">DELETE QUESTION?</h3>
+
+    <!-- Dynamic Message -->
+    <p id="deleteModalMessage" class="delete-modal-message">
+      Are you sure you want to permanently delete this question?
+    </p>
+
+    <!-- Subtext -->
+    <div class="delete-modal-subtext">
+      <i class="fa-solid fa-circle-exclamation"></i>
+      <span>This action cannot be undone.</span>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="delete-modal-actions">
+      <button type="button" id="cancelDeleteModalBtn" class="btn-delete-modal-cancel" onclick="closeCustomDeleteModal()">
+        CANCEL
+      </button>
+      <button type="button" id="confirmDeleteSubmitBtn" class="btn-delete-modal-confirm" onclick="executePendingDelete()">
+        <span id="confirmDeleteBtnText">DELETE QUESTION</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================================
+     FILTER & SELECTION JAVASCRIPT LOGIC
+     ============================================================== -->
+<script>
+  // Dynamic Cascading on Course Code selection
+  function onCourseCodeChange() {
+    const selectedCourse = document.getElementById('filterCourseCode').value.toUpperCase().trim();
+    const rows = document.querySelectorAll('#questionsTable tbody tr');
+
+    // Extract subjects and course names associated with this course code
+    const subjectDropdown = document.getElementById('filterSubject');
+    const courseNameDropdown = document.getElementById('filterCourseName');
+
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const codeVal = document.getElementById('filterCourseCode').value.toUpperCase().trim();
+    const nameVal = document.getElementById('filterCourseName').value.toLowerCase().trim();
+    const subjectVal = document.getElementById('filterSubject').value.toLowerCase().trim();
+    const typeVal = document.getElementById('filterType').value.toUpperCase().trim();
+    const diffVal = document.getElementById('filterDifficulty').value.toLowerCase().trim();
+    const sourceVal = document.getElementById('filterSource').value.toUpperCase().trim();
+    const searchVal = document.getElementById('filterSearchInput').value.toLowerCase().trim();
+
+    const rows = document.querySelectorAll('#questionsTable tbody tr');
+    let visibleCount = 0;
+    const totalCount = rows.length;
+
+    rows.forEach(r => {
+      const rCode = (r.getAttribute('data-course-code') || '').toUpperCase();
+      const rName = (r.getAttribute('data-course-name') || '').toLowerCase();
+      const rSubject = (r.getAttribute('data-subject') || '').toLowerCase();
+      const rType = (r.getAttribute('data-type') || '').toUpperCase();
+      const rLevel = (r.getAttribute('data-level') || '').toLowerCase();
+      const rSource = (r.getAttribute('data-source') || '').toUpperCase();
+      const rSearch = (r.getAttribute('data-search') || '').toLowerCase();
+
+      let match = true;
+
+      if (codeVal && rCode !== codeVal) match = false;
+      if (nameVal && !rName.includes(nameVal)) match = false;
+      if (subjectVal && !rSubject.includes(subjectVal)) match = false;
+      if (typeVal && rType !== typeVal) match = false;
+      if (diffVal && rLevel !== diffVal) match = false;
+      if (sourceVal && rSource !== sourceVal) match = false;
+      if (searchVal && !rSearch.includes(searchVal)) match = false;
+
+      if (match) {
+        r.style.display = '';
+        visibleCount++;
+      } else {
+        r.style.display = 'none';
+        // Uncheck row if it was hidden
+        const cb = r.querySelector('.questionCheck');
+        if (cb && cb.checked) {
+          cb.checked = false;
+          r.classList.remove('selected-row');
+        }
+      }
+    });
+
+    // Update filter stats
+    const badge = document.getElementById('filterStatsBadge');
+    if (badge) {
+      if (visibleCount === totalCount) {
+        badge.textContent = `Showing all ${totalCount} questions`;
+      } else {
+        badge.textContent = `Filtered: ${visibleCount} of ${totalCount} questions`;
+      }
+    }
+
+    // Refresh bulk selection counter
+    updateBulkDeleteCount();
+  }
+
+  function resetFilters() {
+    document.getElementById('filterCourseCode').value = '';
+    document.getElementById('filterCourseName').value = '';
+    document.getElementById('filterSubject').value = '';
+    document.getElementById('filterType').value = '';
+    document.getElementById('filterDifficulty').value = '';
+    document.getElementById('filterSource').value = '';
+    document.getElementById('filterSearchInput').value = '';
+    applyFilters();
+  }
+
+  function updateBulkDeleteCount() {
+    const checked = document.querySelectorAll('#questionsTable tbody tr:not([style*="display: none"]) .questionCheck:checked');
+    const deleteBtn = document.getElementById('deleteSelected');
+    if (deleteBtn) {
+      deleteBtn.textContent = `🗑 Delete Selected (${checked.length})`;
+    }
+  }
+
+  // Intercept checkboxes for count update
+  document.addEventListener('change', function(e) {
+    if (e.target && e.target.classList.contains('questionCheck')) {
+      updateBulkDeleteCount();
+    }
+  });
+
+  // Select all visible rows only
+  const selectAllBox = document.getElementById('selectAll');
+  if (selectAllBox) {
+    selectAllBox.addEventListener('change', function() {
+      const isChecked = this.checked;
+      const visibleRows = document.querySelectorAll('#questionsTable tbody tr:not([style*="display: none"])');
+      visibleRows.forEach(r => {
+        const cb = r.querySelector('.questionCheck');
+        if (cb) {
+          cb.checked = isChecked;
+          if (isChecked) r.classList.add('selected-row');
+          else r.classList.remove('selected-row');
+        }
+      });
+      updateBulkDeleteCount();
+    });
+  }
+
+  // ==============================================================
+  // CUSTOM IN-PAGE DELETE CONFIRMATION SYSTEM
+  // ==============================================================
+  let pendingDeleteAction = null;
+  let isDeleteProcessing = false;
+
+  function openCustomDeleteModal() {
+    const modal = document.getElementById('customDeleteModal');
+    if (!modal) return;
+    isDeleteProcessing = false;
+    modal.classList.remove('closing');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeCustomDeleteModal() {
+    if (isDeleteProcessing) return; // Prevent closing while deletion is in flight
+    const modal = document.getElementById('customDeleteModal');
+    if (!modal) return;
+    modal.classList.add('closing');
+    setTimeout(() => {
+      modal.classList.remove('active', 'closing');
+      document.body.style.overflow = '';
+      pendingDeleteAction = null;
+    }, 180);
+  }
+
+  function openSingleDeleteModal(event, url) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+    pendingDeleteAction = {
+      type: 'single',
+      url: url
+    };
+
+    const titleEl = document.getElementById('deleteModalTitle');
+    const msgEl = document.getElementById('deleteModalMessage');
+    const confirmBtn = document.getElementById('confirmDeleteSubmitBtn');
+    const cancelBtn = document.getElementById('cancelDeleteModalBtn');
+    const btnText = document.getElementById('confirmDeleteBtnText');
+
+    if (titleEl) titleEl.textContent = 'DELETE QUESTION?';
+    if (msgEl) msgEl.textContent = 'Are you sure you want to permanently delete this question?';
+    if (confirmBtn) confirmBtn.disabled = false;
+    if (cancelBtn) {
+      cancelBtn.disabled = false;
+      cancelBtn.style.opacity = '1';
+      cancelBtn.style.pointerEvents = 'auto';
+    }
+    if (btnText) btnText.textContent = 'DELETE QUESTION';
+
+    openCustomDeleteModal();
+  }
+
+  function confirmBulkDelete(event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    // Count checked questions from visible rows
+    const checkedBoxes = Array.from(document.querySelectorAll('#questionsTable tbody tr:not([style*="display: none"]) .questionCheck:checked'));
+    const count = checkedBoxes.length;
+
+    if (count === 0) {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'warning',
+          title: 'NO QUESTIONS SELECTED',
+          text: 'Please select at least one question to delete.',
+          timer: 2200,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: '#0d1527',
+          color: '#f8fafc',
+          iconColor: '#f59e0b'
+        });
+      }
+      return;
+    }
+
+    pendingDeleteAction = {
+      type: 'bulk',
+      form: document.getElementById('bulkDeleteForm')
+    };
+
+    const titleEl = document.getElementById('deleteModalTitle');
+    const msgEl = document.getElementById('deleteModalMessage');
+    const confirmBtn = document.getElementById('confirmDeleteSubmitBtn');
+    const cancelBtn = document.getElementById('cancelDeleteModalBtn');
+    const btnText = document.getElementById('confirmDeleteBtnText');
+
+    if (titleEl) titleEl.textContent = count > 1 ? 'DELETE QUESTIONS?' : 'DELETE QUESTION?';
+    if (msgEl) {
+      if (count === 1) {
+        msgEl.textContent = 'Are you sure you want to permanently delete this selected question?';
+      } else {
+        msgEl.textContent = `Are you sure you want to permanently delete ${count} selected questions?`;
+      }
+    }
+    if (confirmBtn) confirmBtn.disabled = false;
+    if (cancelBtn) {
+      cancelBtn.disabled = false;
+      cancelBtn.style.opacity = '1';
+      cancelBtn.style.pointerEvents = 'auto';
+    }
+    if (btnText) btnText.textContent = 'DELETE QUESTION';
+
+    openCustomDeleteModal();
+  }
+
+  function executePendingDelete() {
+    if (isDeleteProcessing) return;
+    if (!pendingDeleteAction) return;
+
+    isDeleteProcessing = true;
+    const confirmBtn = document.getElementById('confirmDeleteSubmitBtn');
+    const cancelBtn = document.getElementById('cancelDeleteModalBtn');
+    const btnText = document.getElementById('confirmDeleteBtnText');
+
+    // Double-click protection: disable button, show "DELETING...", prevent duplicate requests
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+    }
+    if (btnText) {
+      btnText.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> DELETING...';
+    }
+    if (cancelBtn) {
+      cancelBtn.disabled = true;
+      cancelBtn.style.opacity = '0.4';
+      cancelBtn.style.pointerEvents = 'none';
+    }
+
+    if (pendingDeleteAction.type === 'single') {
+      window.location.href = pendingDeleteAction.url;
+    } else if (pendingDeleteAction.type === 'bulk') {
+      if (pendingDeleteAction.form) {
+        HTMLFormElement.prototype.submit.call(pendingDeleteAction.form);
+      }
+    }
+  }
+
+  // Bind bulk delete button and form submit
+  function initDeleteModalEvents() {
+    const bulkDeleteBtn = document.getElementById('deleteSelected');
+    if (bulkDeleteBtn) {
+      bulkDeleteBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        confirmBulkDelete(e);
+      });
+    }
+
+    const bulkForm = document.getElementById('bulkDeleteForm');
+    if (bulkForm) {
+      bulkForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        confirmBulkDelete(e);
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDeleteModalEvents);
+  } else {
+    initDeleteModalEvents();
+  }
+
+  // Close modal when clicking outside the card
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('customDeleteModal');
+    if (modal && modal.classList.contains('active') && e.target === modal) {
+      closeCustomDeleteModal();
+    }
+  });
+
+  // Close modal on Escape key press
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('customDeleteModal');
+      if (modal && modal.classList.contains('active')) {
+        closeCustomDeleteModal();
+      }
+    }
+  });
+</script>

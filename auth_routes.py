@@ -87,7 +87,19 @@ def login():
     session["index"] = 0
     session["answers"] = {}
     session["start_time"] = int(time.time())
-    return redirect(url_for("auth.choose_exam"))
+    return redirect(url_for("auth.exam_options"))
+
+@auth_bp.route("/exam-options")
+@auth_bp.route("/exam_options")
+def exam_options():
+    if "username" not in session:
+        return redirect(url_for("auth.auth_page"))
+    return render_template("exam_options.html")
+
+@auth_bp.route("/course-exams")
+def course_exams():
+    from exam_routes import course_exams as _exam_course_exams
+    return _exam_course_exams()
 
 @auth_bp.route("/logout_final")
 def logout_final():
@@ -99,5 +111,53 @@ def logout_final():
 def choose_exam():
     if "username" not in session:
         return redirect(url_for("auth.auth_page"))
-    return render_template("choose_exam.html")
+
+    import json
+    from utils import load_questions
+
+    all_qs = load_questions()
+    courses_dict = {}
+    questions_meta = []
+
+    for q in all_qs:
+        cc = str(q.get("course_code") or "").strip().upper()
+        cn = str(q.get("course_name") or "").strip()
+        sub = str(q.get("subject") or "").strip()
+        qtype = str(q.get("type") or "MCQ").strip().upper()
+        level = str(q.get("level") or "Easy").strip()
+
+        if cc:
+            if cc not in courses_dict:
+                courses_dict[cc] = {
+                    "code": cc,
+                    "name": cn or cc,
+                    "subjects": set()
+                }
+            if sub:
+                courses_dict[cc]["subjects"].add(sub)
+
+        questions_meta.append({
+            "course_code": cc,
+            "subject": sub,
+            "type": qtype,
+            "level": level
+        })
+
+    course_list = []
+    for cc, info in sorted(courses_dict.items()):
+        name_str = info["name"]
+        display_label = f"{cc} — {name_str}" if name_str and name_str != cc else cc
+        course_list.append({
+            "code": cc,
+            "name": name_str,
+            "display": display_label,
+            "subjects": sorted(list(info["subjects"]))
+        })
+
+    return render_template(
+        "choose_exam.html",
+        course_list=course_list,
+        questions_meta_json=json.dumps(questions_meta)
+    )
+
 

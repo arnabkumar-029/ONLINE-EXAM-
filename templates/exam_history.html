@@ -1,0 +1,42 @@
+<!-- ===================== ALL STUDENT EXAM HISTORY ===================== -->
+
+<h2>📜 Student Exam History</h2>
+<p>Every exam attempt, across all students, most recent first.</p>
+
+<table>
+<thead>
+<tr>
+<th>Date</th>
+<th>Student</th>
+<th>Exam</th>
+<th>Score</th>
+<th>Total</th>
+<th>Time Taken</th>
+</tr>
+</thead>
+<tbody>
+
+{% for r in history_rows %}
+<tr>
+<td>{{ r.date }}</td>
+<td><strong>{{ r.username }}</strong></td>
+<td>
+  <span>{{ r.exam_title or 'Practice Examination' }}</span>
+  {% if r.course_code %}
+  <br><small style="color: #64748b;">{{ r.course_code }}</small>
+  {% endif %}
+</td>
+<td>{{ r.score }}</td>
+<td>{{ r.total }}</td>
+<td>{{ r.time_taken or 'N/A' }}</td>
+</tr>
+{% endfor %}
+
+</tbody>
+</table>
+
+{% if not history_rows %}
+<p>No exam attempts recorded yet.</p>
+{% endif %}
+
+<!-- ===================== END ===================== -->

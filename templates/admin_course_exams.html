@@ -1,0 +1,1478 @@
+<!-- ==============================================================
+     COURSE EXAM MANAGEMENT DASHBOARD (templates/admin_course_exams.html)
+     ============================================================== -->
+
+<style>
+  /* Root & 3D Dashboard Theme */
+  :root {
+    --cem-primary: #6366f1;
+    --cem-primary-glow: rgba(99, 102, 241, 0.4);
+    --cem-cyan: #06b6d4;
+    --cem-cyan-glow: rgba(6, 182, 212, 0.4);
+    --cem-emerald: #10b981;
+    --cem-emerald-glow: rgba(16, 185, 129, 0.4);
+    --cem-amber: #f59e0b;
+    --cem-amber-glow: rgba(245, 158, 11, 0.4);
+    --cem-rose: #f43f5e;
+    --cem-rose-glow: rgba(244, 63, 94, 0.4);
+    --cem-dark: #0f172a;
+    --cem-card-bg: rgba(255, 255, 255, 0.94);
+    --cem-border: rgba(226, 232, 240, 0.9);
+  }
+
+  .cem-wrapper {
+    position: relative;
+    padding-bottom: 50px;
+    animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Header Section */
+  .cem-header-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .cem-title-area h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #1e1b4b;
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .cem-title-area h2 i {
+    color: var(--cem-primary);
+  }
+
+  .cem-title-area p {
+    color: #64748b;
+    font-size: 14.5px;
+    margin: 0;
+  }
+
+  /* 3D Dashboard Cards Grid */
+  .cem-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 18px;
+    margin-bottom: 32px;
+  }
+
+  @media (max-width: 1200px) {
+    .cem-cards-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  @media (max-width: 768px) {
+    .cem-cards-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .cem-stat-card {
+    background: var(--cem-card-bg);
+    border-radius: 18px;
+    padding: 22px 18px;
+    border: 1px solid var(--cem-border);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 145px;
+  }
+
+  .cem-stat-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 30px -10px rgba(99, 102, 241, 0.2);
+  }
+
+  /* Card 1: Action Create Card */
+  .cem-card-create {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: #ffffff;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 12px 28px rgba(79, 70, 229, 0.35);
+  }
+
+  .cem-card-create:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 18px 36px rgba(79, 70, 229, 0.5);
+  }
+
+  .cem-create-inner {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .cem-create-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .cem-create-top i {
+    font-size: 26px;
+    background: rgba(255, 255, 255, 0.2);
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cem-create-btn {
+    background: #ffffff;
+    color: #4f46e5;
+    font-weight: 700;
+    font-size: 13.5px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: all 0.25s ease;
+    text-decoration: none !important;
+  }
+
+  .cem-create-btn:hover {
+    background: #f8fafc;
+    transform: scale(1.03);
+    color: #4338ca;
+  }
+
+  /* Stat Number Cards */
+  .cem-stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .cem-stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .icon-scheduled { background: rgba(99, 102, 241, 0.12); color: var(--cem-primary); }
+  .icon-active    { background: rgba(16, 185, 129, 0.12); color: var(--cem-emerald); }
+  .icon-upcoming  { background: rgba(6, 182, 212, 0.12); color: var(--cem-cyan); }
+  .icon-completed { background: rgba(100, 116, 139, 0.12); color: #64748b; }
+
+  .cem-stat-pulse {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--cem-emerald);
+    box-shadow: 0 0 10px var(--cem-emerald);
+    animation: livePulse 1.8s infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 0.5; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
+  .cem-stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .cem-stat-label {
+    font-size: 12.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  /* Table Container */
+  .cem-table-card {
+    background: var(--cem-card-bg);
+    border-radius: 18px;
+    border: 1px solid var(--cem-border);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+  }
+
+  .cem-table-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--cem-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+    background: #fafbff;
+  }
+
+  .cem-table-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #1e1b4b;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cem-table-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .cem-filter-btn {
+    border: 1px solid var(--cem-border);
+    background: #ffffff;
+    color: #64748b;
+    font-size: 12.5px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .cem-filter-btn.active, .cem-filter-btn:hover {
+    background: #4f46e5;
+    color: #ffffff;
+    border-color: #4f46e5;
+  }
+
+  .cem-search-box {
+    position: relative;
+  }
+
+  .cem-search-box input {
+    padding: 7px 12px 7px 34px;
+    border-radius: 8px;
+    border: 1px solid var(--cem-border);
+    font-size: 13px;
+    width: 210px;
+    margin-bottom: 0 !important;
+  }
+
+  .cem-search-box i {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 13px;
+  }
+
+  /* Table Style */
+  .cem-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 0;
+  }
+
+  .cem-table th {
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.7px;
+    font-weight: 700;
+    padding: 14px 16px;
+    border: none;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .cem-table td {
+    padding: 16px;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 13.5px;
+    color: #334155;
+    vertical-align: middle;
+  }
+
+  .cem-table tbody tr {
+    transition: background 0.15s ease;
+  }
+
+  .cem-table tbody tr:hover {
+    background: #f8faff;
+  }
+
+  /* Status Badges */
+  .badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border-radius: 20px;
+    font-size: 11.5px;
+    font-weight: 600;
+  }
+
+  .badge-live {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+  }
+
+  .badge-upcoming {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #7dd3fc;
+  }
+
+  .badge-draft {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+
+  .badge-closed, .badge-completed {
+    background: #f1f5f9;
+    color: #64748b;
+    border: 1px solid #cbd5e1;
+  }
+
+  .course-badge {
+    background: #ede9fe;
+    color: #6d28d9;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 12px;
+    border: 1px solid #ddd6fe;
+    display: inline-block;
+  }
+
+  /* Action Buttons in Table */
+  .cem-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .cem-btn-action {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+  }
+
+  .cem-btn-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .cem-btn-edit:hover { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  .cem-btn-pub:hover  { background: #10b981; color: #fff; border-color: #10b981; }
+  .cem-btn-unpub:hover{ background: #f59e0b; color: #fff; border-color: #f59e0b; }
+  .cem-btn-del:hover  { background: #ef4444; color: #fff; border-color: #ef4444; }
+  .cem-btn-view:hover { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
+
+  /* Modal Windows */
+  .cem-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .cem-modal-content {
+    background: #ffffff;
+    border-radius: 20px;
+    width: 100%;
+    max-width: 680px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: modalIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(15px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .cem-modal-header {
+    background: linear-gradient(135deg, #1e1b4b, #312e81);
+    color: #ffffff;
+    padding: 20px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .cem-modal-header h3 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cem-close-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 20px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .cem-close-btn:hover { color: #ffffff; }
+
+  .cem-modal-body {
+    padding: 24px 26px;
+    max-height: 75vh;
+    overflow-y: auto;
+  }
+
+  .form-section-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #6366f1;
+    margin: 18px 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .form-section-title:first-of-type {
+    margin-top: 0;
+  }
+
+  .form-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .form-row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  .cem-form-group {
+    margin-bottom: 12px;
+  }
+
+  .cem-form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 5px;
+  }
+
+  .cem-form-group input,
+  .cem-form-group select,
+  .cem-form-group textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    color: #0f172a;
+    background: #ffffff;
+    margin-bottom: 0 !important;
+  }
+
+  .cem-form-group input:focus,
+  .cem-form-group select:focus,
+  .cem-form-group textarea:focus {
+    border-color: #6366f1;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  .cem-modal-footer {
+    padding: 16px 26px 22px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: #fafbff;
+  }
+
+  .btn-secondary {
+    background: #e2e8f0;
+    color: #475569;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 13.5px;
+    cursor: pointer;
+  }
+
+  .btn-primary-cem {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #ffffff;
+    border: none;
+    padding: 9px 22px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+    transition: all 0.25s ease;
+  }
+
+  .btn-primary-cem:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(79, 70, 229, 0.45);
+  }
+
+  /* Matching question prompt alert */
+  .qb-match-info {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 12.5px;
+    color: #166534;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  /* Question Configuration - Select Questions Button & Badge */
+  .cem-select-q-card {
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    margin-bottom: 16px;
+    text-align: center;
+    transition: all 0.25s ease;
+  }
+  .cem-select-q-card:hover {
+    border-color: #6366f1;
+    background: #f1f5f9;
+  }
+  .btn-cem-select-questions {
+    background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    border: none;
+    border-radius: 10px;
+    padding: 12px 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.3);
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 320px;
+  }
+  .btn-cem-select-questions:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(14, 165, 233, 0.45);
+    background: linear-gradient(135deg, #4338ca, #0284c7);
+  }
+  .cem-select-q-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: #eff6ff;
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.25s ease;
+  }
+  .cem-select-q-pill.ready {
+    background: #ecfdf5;
+    color: #065f46;
+    border-color: #a7f3d0;
+  }
+</style>
+
+<div class="cem-wrapper">
+
+  <!-- TOP HEADER -->
+  <div class="cem-header-box">
+    <div class="cem-title-area">
+      <h2><i class="fa-solid fa-graduation-cap"></i> COURSE EXAM MANAGEMENT</h2>
+      <p>Configure official scheduled examinations linked strictly to Course Codes and Subjects.</p>
+    </div>
+  </div>
+
+  <!-- 3D CARDS ROW -->
+  <div class="cem-cards-grid">
+
+    <!-- CARD 1: CREATE EXAM -->
+    <div class="cem-stat-card cem-card-create" onclick="openCreateModal()">
+      <div class="cem-create-inner">
+        <div class="cem-create-top">
+          <div>
+            <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.85;">Instructor Portal</div>
+            <div style="font-size: 20px; font-weight: 800; margin-top: 2px;">CREATE EXAM</div>
+          </div>
+          <i class="fa-solid fa-file-circle-plus"></i>
+        </div>
+        <button type="button" class="cem-create-btn">
+          <i class="fa-solid fa-plus"></i>
+          <span>Schedule New Exam</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CARD 2: SCHEDULED EXAMS -->
+    <div class="cem-stat-card">
+      <div class="cem-stat-top">
+        <div class="cem-stat-icon icon-scheduled">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <span style="font-size: 11px; font-weight: 700; color: var(--cem-primary);">ALL</span>
+      </div>
+      <div>
+        <div class="cem-stat-value">{{ stats.total_scheduled }}</div>
+        <div class="cem-stat-label">SCHEDULED EXAMS</div>
+      </div>
+    </div>
+
+    <!-- CARD 3: ACTIVE EXAMS -->
+    <div class="cem-stat-card">
+      <div class="cem-stat-top">
+        <div class="cem-stat-icon icon-active">
+          <i class="fa-solid fa-circle-play"></i>
+        </div>
+        <div class="cem-stat-pulse" title="Live Running"></div>
+      </div>
+      <div>
+        <div class="cem-stat-value" style="color: #15803d;">{{ stats.active_exams }}</div>
+        <div class="cem-stat-label">ACTIVE EXAMS</div>
+      </div>
+    </div>
+
+    <!-- CARD 4: UPCOMING EXAMS -->
+    <div class="cem-stat-card">
+      <div class="cem-stat-top">
+        <div class="cem-stat-icon icon-upcoming">
+          <i class="fa-solid fa-clock"></i>
+        </div>
+        <i class="fa-solid fa-lock" style="font-size: 13px; color: #0284c7;" title="Locked for students"></i>
+      </div>
+      <div>
+        <div class="cem-stat-value" style="color: #0369a1;">{{ stats.upcoming_exams }}</div>
+        <div class="cem-stat-label">UPCOMING (LOCKED)</div>
+      </div>
+    </div>
+
+    <!-- CARD 5: COMPLETED EXAMS -->
+    <div class="cem-stat-card">
+      <div class="cem-stat-top">
+        <div class="cem-stat-icon icon-completed">
+          <i class="fa-solid fa-flag-checkered"></i>
+        </div>
+        <span style="font-size: 11px; font-weight: 600; color: #64748b;">ENDED</span>
+      </div>
+      <div>
+        <div class="cem-stat-value" style="color: #64748b;">{{ stats.completed_exams }}</div>
+        <div class="cem-stat-label">COMPLETED EXAMS</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SCHEDULED EXAMS TABLE CARD -->
+  <div class="cem-table-card">
+
+    <div class="cem-table-header">
+      <div class="cem-table-title">
+        <i class="fa-solid fa-table-list" style="color: var(--cem-primary);"></i>
+        <span>SCHEDULED EXAMINATIONS</span>
+        <span class="badge rounded-pill bg-light text-dark ms-2" style="font-size: 12px; border: 1px solid #cbd5e1;">
+          {{ exams|length }}
+        </span>
+      </div>
+
+      <div class="cem-table-filters">
+        <button type="button" class="cem-filter-btn active" onclick="filterTable('all')">All</button>
+        <button type="button" class="cem-filter-btn" onclick="filterTable('live')">Live ({{ stats.active_exams }})</button>
+        <button type="button" class="cem-filter-btn" onclick="filterTable('upcoming')">Upcoming ({{ stats.upcoming_exams }})</button>
+        <button type="button" class="cem-filter-btn" onclick="filterTable('draft')">Draft ({{ stats.draft_exams }})</button>
+        <button type="button" class="cem-filter-btn" onclick="filterTable('completed')">Closed ({{ stats.completed_exams }})</button>
+
+        <div class="cem-search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="examSearchInput" onkeyup="searchExams()" placeholder="Search title, course...">
+        </div>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="cem-table" id="examsTable">
+        <thead>
+          <tr>
+            <th>Exam Title</th>
+            <th>Course Code</th>
+            <th>Subject</th>
+            <th>Date</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Questions</th>
+            <th>Status</th>
+            <th style="text-align: right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if exams %}
+            {% for exam in exams %}
+            <tr data-state="{{ exam.live.time_state }}" data-status="{{ exam.status|lower }}">
+              <td>
+                <div style="font-weight: 700; color: #0f172a;">{{ exam.title }}</div>
+                <div style="font-size: 11.5px; color: #64748b;">
+                  {{ exam.course_name }} • ID: <code style="font-size: 10.5px; color: #4338ca;">{{ exam.id }}</code>
+                </div>
+              </td>
+              <td>
+                <span class="course-badge">{{ exam.course_code }}</span>
+              </td>
+              <td>
+                <span style="font-weight: 600; color: #334155;">{{ exam.subject }}</span>
+              </td>
+              <td>
+                <span style="white-space: nowrap;"><i class="fa-regular fa-calendar me-1 text-muted"></i>{{ exam.exam_date }}</span>
+              </td>
+              <td>
+                <span style="white-space: nowrap;"><i class="fa-regular fa-clock me-1 text-muted"></i>{{ exam.start_time }}</span>
+              </td>
+              <td>
+                <span style="white-space: nowrap;"><i class="fa-regular fa-clock me-1 text-muted"></i>{{ exam.end_time }}</span>
+              </td>
+              <td>
+                <div style="font-weight: 600;">{{ exam.num_questions }} Qs</div>
+                {% if exam.question_ids and exam.question_ids|length > 0 %}
+                  <div style="font-size: 11px; color: #059669; font-weight: 700; margin-top: 2px;">
+                    <i class="fa-solid fa-circle-check"></i> {{ exam.question_ids|length }} Assigned
+                  </div>
+                {% else %}
+                  <div style="font-size: 10.5px; color: #94a3b8; margin-top: 2px;">
+                    0 / {{ exam.num_questions }} Assigned
+                  </div>
+                {% endif %}
+                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">{{ exam.exam_type }} • {{ exam.difficulty }}</div>
+              </td>
+              <td>
+                <!-- Primary Status & Live Tag -->
+                <div>
+                  <span class="badge-status {{ exam.live.badge_class }}">
+                    {% if exam.live.is_live %}
+                      <span class="status-dot-mini" style="width: 7px; height: 7px; background: #16a34a; border-radius: 50%;"></span>
+                    {% elif exam.live.is_upcoming %}
+                      <i class="fa-solid fa-lock" style="font-size: 9px;"></i>
+                    {% endif %}
+                    {{ exam.live.badge_label }}
+                  </span>
+                </div>
+                {% if exam.status == 'Draft' %}
+                  <div style="font-size: 10.5px; color: #b45309; margin-top: 3px;">Unpublished</div>
+                {% elif exam.status == 'Closed' %}
+                  <div style="font-size: 10.5px; color: #64748b; margin-top: 3px;">Archived</div>
+                {% endif %}
+              </td>
+              <td>
+                <div class="cem-actions" style="justify-content: flex-end;">
+
+                  <!-- Select & Assign Questions -->
+                  <a href="{{ url_for('admin.select_course_exam_questions', exam_id=exam.id) }}"
+                     class="cem-btn-action"
+                     style="color: #0284c7;"
+                     title="Select Questions for this Exam ({{ (exam.question_ids|length) if exam.question_ids else 0 }} / {{ exam.num_questions }})">
+                    <i class="fa-solid fa-square-check"></i>
+                  </a>
+
+                  <!-- View Questions in Question Bank for this course -->
+                  <button type="button" class="cem-btn-action cem-btn-view"
+                          title="View Questions Matching Course + Subject"
+                          onclick="viewQuestionsModal('{{ exam.id }}')">
+                    <i class="fa-solid fa-eye"></i>
+                  </button>
+
+                  <!-- Edit Exam -->
+                  <button type="button" class="cem-btn-action cem-btn-edit"
+                          title="Edit Exam Configuration"
+                          onclick='openEditModal({{ exam|tojson|safe }})'>
+                    <i class="fa-solid fa-pen-to-square"></i>
+                  </button>
+
+                  <!-- Publish / Unpublish Toggle -->
+                  {% if exam.status == 'Published' %}
+                    <a href="{{ url_for('admin.unpublish_course_exam', exam_id=exam.id) }}"
+                       class="cem-btn-action cem-btn-unpub" title="Unpublish (Set to Draft)">
+                      <i class="fa-solid fa-pause"></i>
+                    </a>
+                  {% else %}
+                    <a href="{{ url_for('admin.publish_course_exam', exam_id=exam.id) }}"
+                       class="cem-btn-action cem-btn-pub" title="Publish Examination">
+                      <i class="fa-solid fa-upload"></i>
+                    </a>
+                  {% endif %}
+
+                  <!-- Delete Exam -->
+                  <button type="button" class="cem-btn-action cem-btn-del"
+                          title="Delete Exam"
+                          onclick="confirmDeleteExam('{{ exam.id }}', '{{ exam.title|replace('\'', '\\\'') }}')">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="9" style="text-align: center; padding: 45px 20px; color: #64748b;">
+                <i class="fa-solid fa-calendar-xmark" style="font-size: 32px; color: #cbd5e1; margin-bottom: 12px; display: block;"></i>
+                <div style="font-size: 16px; font-weight: 600;">No Course Examinations Created Yet</div>
+                <p style="font-size: 13px; margin-top: 4px;">Click "+ Schedule New Exam" above to create an official examination.</p>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ==============================================================
+     CREATE / EDIT EXAMINATION MODAL
+     ============================================================== -->
+<div class="cem-modal-overlay" id="examModal">
+  <div class="cem-modal-content">
+    <div class="cem-modal-header">
+      <h3 id="modalHeading"><i class="fa-solid fa-calendar-plus"></i> Schedule Course Exam</h3>
+      <button type="button" class="cem-close-btn" onclick="closeExamModal()">&times;</button>
+    </div>
+
+    <form id="examFormAction" action="{{ url_for('admin.create_course_exam') }}" method="POST">
+      <div class="cem-modal-body">
+
+        <!-- SECTION 1: EXAM INFORMATION -->
+        <div class="form-section-title">
+          <i class="fa-solid fa-circle-info me-1"></i> 1. Exam Information
+        </div>
+
+        <div class="cem-form-group">
+          <label>Exam Title *</label>
+          <input type="text" name="title" id="m_title" required
+                 placeholder="e.g. Midterm: Artificial Intelligence & Search Algorithms">
+        </div>
+
+        <div class="form-row-2">
+          <div class="cem-form-group">
+            <label>Course Code *</label>
+            <input type="text" name="course_code" id="m_course_code" list="courseCodeList" required
+                   placeholder="e.g. CS301" style="text-transform: uppercase;">
+            <datalist id="courseCodeList">
+              {% for c in existing_courses %}
+                <option value="{{ c }}"></option>
+              {% endfor %}
+            </datalist>
+          </div>
+
+          <div class="cem-form-group">
+            <label>Subject *</label>
+            <input type="text" name="subject" id="m_subject" list="subjectList" required
+                   placeholder="e.g. Artificial Intelligence">
+            <datalist id="subjectList">
+              {% for s in existing_subjects %}
+                <option value="{{ s }}"></option>
+              {% endfor %}
+            </datalist>
+          </div>
+        </div>
+
+        <div class="cem-form-group">
+          <label>Course Name (Program / Faculty)</label>
+          <input type="text" name="course_name" id="m_course_name"
+                 placeholder="e.g. B.Tech Computer Science & Engineering">
+        </div>
+
+        <div class="cem-form-group">
+          <label>Exam Description</label>
+          <textarea name="description" id="m_description" rows="2"
+                    placeholder="Brief description or guidelines for students..."></textarea>
+        </div>
+
+        <div class="form-row-2">
+          <div class="cem-form-group">
+            <label>Exam Type *</label>
+            <select name="exam_type" id="m_exam_type" required>
+              <option value="MCQ">MCQ (Multiple Choice Questions)</option>
+              <option value="Descriptive">Descriptive (Long / Subjective)</option>
+              <option value="Mixed">Mixed (MCQ + Descriptive)</option>
+            </select>
+          </div>
+
+          <div class="cem-form-group">
+            <label>Status *</label>
+            <select name="status" id="m_status" required>
+              <option value="Published">Published (Active/Visible to Students)</option>
+              <option value="Draft">Draft (Hidden from Students)</option>
+              <option value="Closed">Closed (Ended / Archived)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SECTION 2: SCHEDULE -->
+        <div class="form-section-title">
+          <i class="fa-regular fa-calendar-days me-1"></i> 2. Schedule & Duration
+        </div>
+
+        <div class="form-row-3">
+          <div class="cem-form-group">
+            <label>Exam Date *</label>
+            <input type="date" name="exam_date" id="m_exam_date" required>
+          </div>
+
+          <div class="cem-form-group">
+            <label>Start Time *</label>
+            <input type="time" name="start_time" id="m_start_time" required>
+          </div>
+
+          <div class="cem-form-group">
+            <label>End Time *</label>
+            <input type="time" name="end_time" id="m_end_time" required>
+          </div>
+        </div>
+
+        <div class="form-row-2">
+          <div class="cem-form-group">
+            <label>Duration (Minutes) *</label>
+            <input type="number" name="duration" id="m_duration" min="5" max="360" value="60" required
+                   placeholder="e.g. 60">
+          </div>
+
+          <div class="cem-form-group">
+            <label>Target Difficulty *</label>
+            <select name="difficulty" id="m_difficulty" required>
+              <option value="All">All Difficulties</option>
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- SECTION 3: QUESTION CONFIGURATION -->
+        <div class="form-section-title">
+          <i class="fa-solid fa-sliders me-1"></i> 3. Question Configuration
+        </div>
+
+        <div class="cem-form-group">
+          <label>Number of Questions to Present *</label>
+          <input type="number" name="num_questions" id="m_num_questions" min="1" max="100" value="10" required oninput="syncNumQuestionsDisplay()">
+        </div>
+
+        <!-- Hidden input for question IDs -->
+        <input type="hidden" name="question_ids" id="m_question_ids" value="[]">
+
+        <!-- Question Selection Action Card -->
+        <div class="cem-select-q-card">
+          <button type="button" class="btn-cem-select-questions" onclick="goToSelectQuestions()">
+            <i class="fa-solid fa-square-check"></i> SELECT QUESTIONS
+          </button>
+          <div id="selectedQuestionsStatusBox">
+            <span class="cem-select-q-pill" id="selectedQuestionsBadge">
+              <i class="fa-regular fa-circle me-1"></i>
+              <span id="selectedCountText">Selected Questions: 0 / 10</span>
+            </span>
+          </div>
+        </div>
+
+        <!-- Question bank matching advisory -->
+        <div class="qb-match-info">
+          <i class="fa-solid fa-circle-question"></i>
+          <span>
+            <strong>Question Source Note:</strong> Click <strong>SELECT QUESTIONS</strong> above to explicitly select questions from the question bank. If left unconfigured, the exam will pull questions strictly where <code>course_code</code> and <code>subject</code> match.
+          </span>
+        </div>
+
+      </div>
+
+      <div class="cem-modal-footer">
+        <button type="button" class="btn-secondary" onclick="closeExamModal()">Cancel</button>
+        <button type="submit" class="btn-primary-cem" id="modalSubmitBtn">Save Examination</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==============================================================
+     VIEW MATCHING QUESTIONS MODAL
+     ============================================================== -->
+<div class="cem-modal-overlay" id="questionsModal">
+  <div class="cem-modal-content" style="max-width: 760px;">
+    <div class="cem-modal-header">
+      <div>
+        <h3 id="viewQModalTitle"><i class="fa-solid fa-list-check"></i> Questions for Course Exam</h3>
+        <div id="viewQModalSubtitle" style="font-size: 12px; color: #c7d2fe; margin-top: 3px;"></div>
+      </div>
+      <button type="button" class="cem-close-btn" onclick="closeQuestionsModal()">&times;</button>
+    </div>
+
+    <div class="cem-modal-body" id="questionsModalBody" style="max-height: 70vh;">
+      <div style="text-align: center; padding: 40px; color: #64748b;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 26px;"></i>
+        <div style="margin-top: 10px;">Loading questions from Question Bank...</div>
+      </div>
+    </div>
+
+    <div class="cem-modal-footer">
+      <button type="button" class="btn-secondary" onclick="closeQuestionsModal()">Close</button>
+      <a href="{{ url_for('admin.add_question_page') }}" class="btn-primary-cem" style="text-decoration: none;">
+        <i class="fa-solid fa-plus me-1"></i> Add More Questions
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- ==============================================================
+     JAVASCRIPT LOGIC
+     ============================================================== -->
+<script>
+  // Filter Table
+  function filterTable(state) {
+    const buttons = document.querySelectorAll('.cem-filter-btn');
+    buttons.forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+
+    const rows = document.querySelectorAll('#examsTable tbody tr');
+    rows.forEach(r => {
+      const rState = r.getAttribute('data-state');
+      const rStatus = r.getAttribute('data-status');
+
+      if (state === 'all') {
+        r.style.display = '';
+      } else if (state === 'live' && rState === 'live') {
+        r.style.display = '';
+      } else if (state === 'upcoming' && rState === 'upcoming') {
+        r.style.display = '';
+      } else if (state === 'draft' && rStatus === 'draft') {
+        r.style.display = '';
+      } else if (state === 'completed' && (rState === 'completed' || rStatus === 'closed')) {
+        r.style.display = '';
+      } else {
+        r.style.display = 'none';
+      }
+    });
+  }
+
+  // Search Table
+  function searchExams() {
+    const val = document.getElementById('examSearchInput').value.toLowerCase();
+    const rows = document.querySelectorAll('#examsTable tbody tr');
+    rows.forEach(r => {
+      const text = r.textContent.toLowerCase();
+      r.style.display = text.includes(val) ? '' : 'none';
+    });
+  }
+
+  let currentEditingExamId = null;
+
+  // Synchronize question counts in modal
+  function syncNumQuestionsDisplay() {
+    const numQ = parseInt(document.getElementById('m_num_questions').value) || 10;
+    let count = 0;
+    try {
+      const qids = JSON.parse(document.getElementById('m_question_ids').value || '[]');
+      count = Array.isArray(qids) ? qids.length : 0;
+    } catch(e) {
+      count = 0;
+    }
+    updateSelectedCountDisplay(count, numQ);
+  }
+
+  function updateSelectedCountDisplay(count, total) {
+    const textEl = document.getElementById('selectedCountText');
+    const badge = document.getElementById('selectedQuestionsBadge');
+    if (!textEl || !badge) return;
+
+    if (count >= total && total > 0) {
+      badge.className = 'cem-select-q-pill ready';
+      badge.innerHTML = `<i class="fa-solid fa-circle-check text-success me-1"></i> <span id="selectedCountText">Selected Questions: <strong>${count} / ${total}</strong> (Ready)</span>`;
+    } else if (count > 0) {
+      badge.className = 'cem-select-q-pill';
+      badge.innerHTML = `<i class="fa-solid fa-list-check me-1"></i> <span id="selectedCountText">Selected Questions: <strong>${count} / ${total}</strong></span>`;
+    } else {
+      badge.className = 'cem-select-q-pill';
+      badge.innerHTML = `<i class="fa-regular fa-circle me-1"></i> <span id="selectedCountText">Selected Questions: <strong>0 / ${total}</strong></span>`;
+    }
+  }
+
+  // Open Create Modal
+  function openCreateModal() {
+    currentEditingExamId = "new";
+    document.getElementById('modalHeading').innerHTML = '<i class="fa-solid fa-calendar-plus"></i> Schedule New Course Exam';
+    document.getElementById('examFormAction').action = "{{ url_for('admin.create_course_exam') }}";
+    document.getElementById('modalSubmitBtn').textContent = "Create Exam";
+
+    // Set today as default date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('m_title').value = '';
+    document.getElementById('m_course_code').value = '';
+    document.getElementById('m_course_name').value = '';
+    document.getElementById('m_subject').value = '';
+    document.getElementById('m_description').value = '';
+    document.getElementById('m_exam_type').value = 'MCQ';
+    document.getElementById('m_status').value = 'Published';
+    document.getElementById('m_exam_date').value = today;
+    document.getElementById('m_start_time').value = '10:00';
+    document.getElementById('m_end_time').value = '12:00';
+    document.getElementById('m_duration').value = '60';
+    document.getElementById('m_num_questions').value = '10';
+    document.getElementById('m_difficulty').value = 'All';
+    document.getElementById('m_question_ids').value = '[]';
+    updateSelectedCountDisplay(0, 10);
+
+    document.getElementById('examModal').style.display = 'flex';
+  }
+
+  // Open Create Modal with restored draft data
+  function openCreateModalWithDraft(draft) {
+    currentEditingExamId = "new";
+    document.getElementById('modalHeading').innerHTML = '<i class="fa-solid fa-calendar-plus"></i> Schedule New Course Exam';
+    document.getElementById('examFormAction').action = "{{ url_for('admin.create_course_exam') }}";
+    document.getElementById('modalSubmitBtn').textContent = "Create Exam";
+
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('m_title').value = draft.title || '';
+    document.getElementById('m_course_code').value = draft.course_code || '';
+    document.getElementById('m_course_name').value = draft.course_name || '';
+    document.getElementById('m_subject').value = draft.subject || '';
+    document.getElementById('m_description').value = draft.description || '';
+    document.getElementById('m_exam_type').value = draft.exam_type || 'MCQ';
+    document.getElementById('m_status').value = draft.status || 'Published';
+    document.getElementById('m_exam_date').value = draft.exam_date || today;
+    document.getElementById('m_start_time').value = draft.start_time || '10:00';
+    document.getElementById('m_end_time').value = draft.end_time || '12:00';
+    document.getElementById('m_duration').value = draft.duration || 60;
+    const numQ = draft.num_questions || 10;
+    document.getElementById('m_num_questions').value = numQ;
+    document.getElementById('m_difficulty').value = draft.difficulty || 'All';
+
+    const qids = Array.isArray(draft.question_ids) ? draft.question_ids : [];
+    document.getElementById('m_question_ids').value = JSON.stringify(qids);
+    updateSelectedCountDisplay(qids.length, numQ);
+
+    document.getElementById('examModal').style.display = 'flex';
+  }
+
+  // Open Edit Modal
+  function openEditModal(exam) {
+    currentEditingExamId = exam.id;
+    document.getElementById('modalHeading').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit Course Exam';
+    document.getElementById('examFormAction').action = "/admin/course-exams/edit/" + exam.id;
+    document.getElementById('modalSubmitBtn').textContent = "Update Exam";
+
+    document.getElementById('m_title').value = exam.title || '';
+    document.getElementById('m_course_code').value = exam.course_code || '';
+    document.getElementById('m_course_name').value = exam.course_name || '';
+    document.getElementById('m_subject').value = exam.subject || '';
+    document.getElementById('m_description').value = exam.description || '';
+    document.getElementById('m_exam_type').value = exam.exam_type || 'MCQ';
+    document.getElementById('m_status').value = exam.status || 'Draft';
+    document.getElementById('m_exam_date').value = exam.exam_date || '';
+    document.getElementById('m_start_time').value = exam.start_time || '';
+    document.getElementById('m_end_time').value = exam.end_time || '';
+    document.getElementById('m_duration').value = exam.duration || 60;
+    const numQ = exam.num_questions || 10;
+    document.getElementById('m_num_questions').value = numQ;
+    document.getElementById('m_difficulty').value = exam.difficulty || 'All';
+
+    const qids = Array.isArray(exam.question_ids) ? exam.question_ids : [];
+    document.getElementById('m_question_ids').value = JSON.stringify(qids);
+    updateSelectedCountDisplay(qids.length, numQ);
+
+    document.getElementById('examModal').style.display = 'flex';
+  }
+
+  // Navigate to Question Selection page while preserving form context
+  function goToSelectQuestions() {
+    const title = (document.getElementById('m_title').value || '').trim();
+    const cCode = (document.getElementById('m_course_code').value || '').trim();
+    const cName = (document.getElementById('m_course_name').value || '').trim();
+    const subj = (document.getElementById('m_subject').value || '').trim();
+    const desc = (document.getElementById('m_description').value || '').trim();
+    const qtype = (document.getElementById('m_exam_type').value || 'MCQ').trim();
+    const status = (document.getElementById('m_status').value || 'Draft').trim();
+    const dt = (document.getElementById('m_exam_date').value || '').trim();
+    const st = (document.getElementById('m_start_time').value || '').trim();
+    const et = (document.getElementById('m_end_time').value || '').trim();
+    const duration = (document.getElementById('m_duration').value || '60').trim();
+    const numQ = (document.getElementById('m_num_questions').value || '10').trim();
+    const diff = (document.getElementById('m_difficulty').value || 'All').trim();
+    const rawQids = document.getElementById('m_question_ids').value || '[]';
+
+    if (!cCode || !subj) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'COURSE & SUBJECT REQUIRED',
+        text: 'Please select Course Code and Subject before choosing questions.',
+        confirmButtonColor: '#4f46e5',
+        background: '#0d1527',
+        color: '#f8fafc',
+        iconColor: '#f59e0b'
+      });
+      return;
+    }
+
+    let parsedQids = [];
+    try {
+      parsedQids = JSON.parse(rawQids);
+    } catch(e) {
+      parsedQids = [];
+    }
+
+    const examId = currentEditingExamId || 'new';
+
+    const draftPayload = {
+      exam_id: examId,
+      title: title || (cCode + ' ' + subj + ' Examination'),
+      course_code: cCode,
+      course_name: cName || cCode,
+      subject: subj,
+      description: desc,
+      exam_type: qtype,
+      status: status,
+      exam_date: dt,
+      start_time: st,
+      end_time: et,
+      duration: duration,
+      num_questions: numQ,
+      difficulty: diff,
+      question_ids: parsedQids
+    };
+
+    fetch('/admin/course-exams/prepare-selection', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(draftPayload)
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success && data.redirect_url) {
+        window.location.href = data.redirect_url;
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.error || 'Failed to prepare question selection.'
+        });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      window.location.href = '/admin/course-exams/select-questions/' + examId;
+    });
+  }
+
+  function closeExamModal() {
+    document.getElementById('examModal').style.display = 'none';
+  }
+
+  // Close modal when clicking outside
+  window.addEventListener('click', function(e) {
+    const m1 = document.getElementById('examModal');
+    const m2 = document.getElementById('questionsModal');
+    if (e.target === m1) m1.style.display = 'none';
+    if (e.target === m2) m2.style.display = 'none';
+  });
+
+  // Confirm Delete Exam
+  function confirmDeleteExam(examId, examTitle) {
+    Swal.fire({
+      title: "Delete Examination?",
+      text: `Are you sure you want to permanently delete "${examTitle}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#64748b",
+      confirmButtonText: "Yes, delete it!"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href = "/admin/course-exams/delete/" + examId;
+      }
+    });
+  }
+
+  // View Questions Modal via API
+  function viewQuestionsModal(examId) {
+    const modal = document.getElementById('questionsModal');
+    const body = document.getElementById('questionsModalBody');
+    const title = document.getElementById('viewQModalTitle');
+    const sub = document.getElementById('viewQModalSubtitle');
+
+    modal.style.display = 'flex';
+    body.innerHTML = `
+      <div style="text-align: center; padding: 40px; color: #64748b;">
+        <i class="fa-solid fa-spinner fa-spin" style="font-size: 26px;"></i>
+        <div style="margin-top: 10px;">Searching Question Bank for matching Course Code & Subject...</div>
+      </div>
+    `;
+
+    fetch('/admin/course-exams/questions/' + examId)
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) {
+          body.innerHTML = `<div class="alert alert-danger">${data.error}</div>`;
+          return;
+        }
+
+        title.innerHTML = `<i class="fa-solid fa-graduation-cap"></i> ${data.title}`;
+        sub.textContent = `Course: ${data.course_code} • Subject: ${data.subject} • Type: ${data.exam_type}`;
+
+        const isOk = data.is_sufficient;
+        const alertClass = isOk ? 'alert-success' : 'alert-warning';
+        const alertIcon = isOk ? 'fa-circle-check text-success' : 'fa-triangle-exclamation text-warning';
+
+        let html = `
+          <div class="alert ${alertClass} d-flex align-items-center justify-content-between p-3 mb-4 rounded-3">
+            <div>
+              <i class="fa-solid ${alertIcon} me-2 font-size-lg"></i>
+              <strong>${data.total_available} Questions Available</strong> in Question Bank
+              (Required: <strong>${data.required_questions}</strong>)
+            </div>
+            <div>
+              <span class="badge ${isOk ? 'bg-success' : 'bg-warning text-dark'} px-3 py-2">
+                ${isOk ? 'Sufficient Questions' : 'Needs More Questions'}
+              </span>
+            </div>
+          </div>
+        `;
+
+        if (data.questions.length === 0) {
+          html += `
+            <div style="text-align: center; padding: 35px 20px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+              <i class="fa-solid fa-folder-open" style="font-size: 32px; color: #94a3b8; margin-bottom: 10px; display: block;"></i>
+              <div style="font-weight: 700; color: #334155;">No Questions Tagged Yet</div>
+              <p style="font-size: 13px; color: #64748b; margin-top: 6px;">
+                No questions in <code>questions.json</code> currently have:
+                <br><code>course_code = "${data.course_code}"</code> AND <code>subject = "${data.subject}"</code>.
+              </p>
+              <a href="{{ url_for('admin.add_question_page') }}" class="btn btn-sm btn-primary mt-2">
+                <i class="fa-solid fa-plus me-1"></i> Add Question for this Course
+              </a>
+            </div>
+          `;
+        } else {
+          html += `<div style="display: flex; flex-direction: column; gap: 12px;">`;
+          data.questions.forEach((q, idx) => {
+            const isMcq = q.type === 'MCQ';
+            html += `
+              <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+                  <span style="font-size: 11.5px; font-weight: 700; color: #4f46e5;">QUESTION #${idx + 1}</span>
+                  <div style="display: flex; gap: 6px;">
+                    <span class="badge ${isMcq ? 'bg-primary' : 'bg-purple'}" style="background-color: ${isMcq ? '#3b82f6' : '#8b5cf6'} !important; font-size: 10px;">${q.type}</span>
+                    <span class="badge bg-secondary" style="font-size: 10px;">${q.level || 'Easy'}</span>
+                  </div>
+                </div>
+                <div style="font-size: 14px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">
+                  ${q.q}
+                </div>
+                ${isMcq && q.a ? `
+                  <div style="font-size: 12.5px; color: #475569; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #f8fafc; padding: 8px 12px; border-radius: 8px;">
+                    ${q.a.map(opt => `<div style="${opt === q.correct ? 'color: #16a34a; font-weight: 700;' : ''}">• ${opt} ${opt === q.correct ? '✓' : ''}</div>`).join('')}
+                  </div>
+                ` : ''}
+                ${!isMcq && q.answer_key ? `
+                  <div style="font-size: 12px; color: #475569; background: #f5f3ff; border: 1px solid #ede9fe; padding: 8px 12px; border-radius: 8px;">
+                    <strong>Key Points / Answer Key:</strong> ${q.answer_key}
+                  </div>
+                ` : ''}
+              </div>
+            `;
+          });
+          html += `</div>`;
+        }
+
+        body.innerHTML = html;
+      })
+      .catch(err => {
+        body.innerHTML = `<div class="alert alert-danger">Failed to load questions: ${err}</div>`;
+      });
+  }
+
+  function closeQuestionsModal() {
+    document.getElementById('questionsModal').style.display = 'none';
+  }
+
+  // Auto-open modal after returning from question selection mode
+  {% if auto_open_exam %}
+  document.addEventListener("DOMContentLoaded", function() {
+    const autoExamId = {{ auto_open_exam|tojson }};
+    if (autoExamId === "new") {
+      const draft = {{ (draft_exam or {})|tojson }};
+      openCreateModalWithDraft(draft);
+    } else {
+      const exams = {{ exams|tojson }};
+      const target = exams.find(e => String(e.id) === String(autoExamId));
+      if (target) {
+        openEditModal(target);
+      }
+    }
+  });
+  {% endif %}
+</script>

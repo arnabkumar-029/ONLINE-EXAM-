@@ -60,6 +60,7 @@
   <table>
     <tr>
       <th>Date</th>
+      <th>Exam</th>
       <th>Score</th>
       <th>Total</th>
       <th>Time Taken</th>
@@ -67,6 +68,12 @@
     {% for record in history|reverse %}
     <tr>
       <td>{{ record.date }}</td>
+      <td>
+        <strong>{{ record.exam_title or 'Practice Examination' }}</strong>
+        {% if record.course_code %}
+        <br><small style="opacity: 0.85;">{{ record.course_code }}</small>
+        {% endif %}
+      </td>
       <td>{{ record.score }}</td>
       <td>{{ record.total }}</td>
       <td>{{ record.time_taken }}</td>

@@ -87,6 +87,11 @@
     <i class='bx bx-trophy icon'></i>
 
     <h1>Exam Completed!</h1>
+    {% if session.get('course_exam_title') %}
+    <p style="font-size: 18px; color: #ffe680; margin: -5px 0 15px 0; font-weight: 600;">
+      🎓 {{ session.get('course_code') }} &bull; {{ session.get('course_exam_title') }}
+    </p>
+    {% endif %}
     <h2>✅ Correct or Total Marks Obtained: {{ score }}</h2>
     <h2>❌ Wrong (MCQ): {{ wrong }}</h2>
     <h2>⏭ Skipped: {{ skipped }}</h2>

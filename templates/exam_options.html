@@ -1,0 +1,1132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Examination Portal &bull; Exam Options</title>
+
+  <!-- Google Fonts: Orbitron & Poppins -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
+  <style>
+    /* =========================================================
+       THEME VARIABLES & COLOR PALETTE
+       ========================================================= */
+    :root {
+      --bg-dark: #020617;
+      --bg-surface: #0a0f1d;
+      --bg-glass-card: rgba(15, 23, 42, 0.72);
+      --bg-glass-hover: rgba(22, 33, 62, 0.88);
+      --border-glass: rgba(255, 255, 255, 0.09);
+
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.45);
+      --blue: #3b82f6;
+      --blue-glow: rgba(59, 130, 246, 0.4);
+      --purple: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.45);
+      --pink: #ec4899;
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.4);
+
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+
+      --font-body: 'Poppins', sans-serif;
+      --font-tech: 'Orbitron', sans-serif;
+
+      --transition-smooth: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* =========================================================
+       RESET & BASE STYLING
+       ========================================================= */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      position: relative;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 18px 16px 50px 16px;
+    }
+
+    /* =========================================================
+       BACKGROUND CANVAS & GRID
+       ========================================================= */
+    #bg-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-grid {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        linear-gradient(rgba(0, 240, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.035) 1px, transparent 1px);
+      background-size: 55px 55px;
+      z-index: 1;
+      pointer-events: none;
+      mask-image: radial-gradient(circle at 50% 35%, black 25%, transparent 80%);
+      -webkit-mask-image: radial-gradient(circle at 50% 35%, black 25%, transparent 80%);
+    }
+
+    .ambient-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(140px);
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.25;
+      animation: floatOrb 18s ease-in-out infinite alternate;
+    }
+
+    .orb-1 {
+      top: 5%;
+      left: 10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--blue), transparent 70%);
+    }
+
+    .orb-2 {
+      top: 20%;
+      right: 10%;
+      width: 540px;
+      height: 540px;
+      background: radial-gradient(circle, var(--purple), transparent 70%);
+      animation-delay: -8s;
+    }
+
+    .orb-3 {
+      bottom: 5%;
+      left: 35%;
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, var(--cyan), transparent 70%);
+      animation-delay: -4s;
+      opacity: 0.16;
+    }
+
+    @keyframes floatOrb {
+      0% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(35px, 40px) scale(1.08); }
+      100% { transform: translate(-30px, 20px) scale(0.95); }
+    }
+
+    /* =========================================================
+       TOP NAVBAR
+       ========================================================= */
+    .top-navbar {
+      width: 100%;
+      max-width: 1140px;
+      margin-bottom: 22px;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: 14px;
+      z-index: 10;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #030712;
+      font-size: 17px;
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .brand-text {
+      font-family: var(--font-tech);
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-main);
+    }
+
+    .brand-text span {
+      color: var(--cyan);
+    }
+
+    .user-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .candidate-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .candidate-badge strong {
+      color: var(--cyan);
+      font-weight: 600;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 8px var(--emerald-glow);
+      display: inline-block;
+      animation: pulseDot 2s infinite;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    .logout-btn {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: var(--transition-smooth);
+    }
+
+    .logout-btn:hover {
+      color: #f43f5e;
+      background: rgba(244, 63, 94, 0.1);
+    }
+
+    /* =========================================================
+       HERO CONTAINER
+       ========================================================= */
+    .portal-container {
+      width: 100%;
+      max-width: 1140px;
+      position: relative;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: pageEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes pageEntrance {
+      0% { opacity: 0; transform: translateY(20px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-section {
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+      width: 100%;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 18px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      border-radius: 30px;
+      font-family: var(--font-tech);
+      font-size: 11px;
+      letter-spacing: 1.8px;
+      color: var(--cyan);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.15);
+      margin-bottom: 14px;
+    }
+
+    .hero-badge i {
+      font-size: 11px;
+    }
+
+    .hero-title {
+      font-family: var(--font-tech);
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      line-height: 1.25;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #ffffff 30%, #cbd5e1 70%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 35px rgba(0, 240, 255, 0.2);
+    }
+
+    .hero-subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      font-weight: 400;
+      max-width: 640px;
+      margin: 0 auto;
+      line-height: 1.5;
+    }
+
+    /* =========================================================
+       CENTRAL 3D EXAMINATION VISUAL (PURE CSS 3D & MICRO-JS)
+       ========================================================= */
+    .hero-3d-visual {
+      width: 240px;
+      height: 170px;
+      margin: 16px auto 10px auto;
+      perspective: 1000px;
+      pointer-events: none;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scene-3d {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: sceneGentleFloat 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes sceneGentleFloat {
+      0% { transform: translateY(0px) rotateY(-4deg); }
+      100% { transform: translateY(-8px) rotateY(6deg); }
+    }
+
+    /* 1. Orbiting Rings */
+    .orbital-ring {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .ring-1 {
+      width: 180px;
+      height: 180px;
+      border: 1px dashed rgba(0, 240, 255, 0.45);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.25);
+      transform: rotateX(68deg) rotateY(22deg);
+      animation: spinRing1 14s linear infinite;
+    }
+
+    .ring-2 {
+      width: 210px;
+      height: 210px;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      border-top-color: rgba(0, 240, 255, 0.85);
+      transform: rotateX(75deg) rotateY(-28deg);
+      animation: spinRing2 18s linear infinite reverse;
+    }
+
+    @keyframes spinRing1 {
+      0% { transform: rotateX(68deg) rotateY(22deg) rotateZ(0deg); }
+      100% { transform: rotateX(68deg) rotateY(22deg) rotateZ(360deg); }
+    }
+
+    @keyframes spinRing2 {
+      0% { transform: rotateX(75deg) rotateY(-28deg) rotateZ(0deg); }
+      100% { transform: rotateX(75deg) rotateY(-28deg) rotateZ(360deg); }
+    }
+
+    /* 2. Rotating Holographic 3D Cube */
+    .holo-cube {
+      width: 44px;
+      height: 44px;
+      position: absolute;
+      transform-style: preserve-3d;
+      animation: rotateCube 16s linear infinite;
+    }
+
+    @keyframes rotateCube {
+      0% { transform: rotateX(15deg) rotateY(0deg); }
+      100% { transform: rotateX(15deg) rotateY(360deg); }
+    }
+
+    .cube-face {
+      position: absolute;
+      width: 44px;
+      height: 44px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.55);
+      box-shadow: 0 0 10px rgba(0, 240, 255, 0.25) inset;
+      backdrop-filter: blur(2px);
+    }
+
+    .face-front  { transform: translateZ(22px); }
+    .face-back   { transform: rotateY(180deg) translateZ(22px); }
+    .face-right  { transform: rotateY(90deg) translateZ(22px); }
+    .face-left   { transform: rotateY(-90deg) translateZ(22px); }
+    .face-top    { transform: rotateX(90deg) translateZ(22px); }
+    .face-bottom { transform: rotateX(-90deg) translateZ(22px); }
+
+    /* 3. 3D Mortarboard Cap */
+    .mortarboard-cap {
+      width: 78px;
+      height: 78px;
+      background: linear-gradient(135deg, rgba(14, 165, 233, 0.2), rgba(139, 92, 246, 0.15));
+      border: 1.5px solid var(--cyan);
+      box-shadow: 0 0 22px rgba(0, 240, 255, 0.35) inset, 0 0 16px rgba(0, 240, 255, 0.2);
+      transform: rotateX(65deg) rotateZ(45deg) translateZ(16px);
+      position: absolute;
+      animation: hoverCap 6s ease-in-out infinite alternate;
+    }
+
+    .cap-tassel {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 6px;
+      height: 6px;
+      background: var(--cyan);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    .cap-cord {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 32px;
+      height: 2px;
+      background: rgba(0, 240, 255, 0.85);
+      transform-origin: left center;
+      transform: rotate(45deg);
+    }
+
+    @keyframes hoverCap {
+      0% { transform: rotateX(65deg) rotateZ(45deg) translateZ(16px) translateY(0px); }
+      100% { transform: rotateX(55deg) rotateZ(48deg) translateZ(16px) translateY(-10px); }
+    }
+
+    /* 4. Floating 3D Examination Paper */
+    .floating-exam-paper {
+      position: absolute;
+      width: 58px;
+      height: 76px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 5px;
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), 0 0 12px rgba(0, 240, 255, 0.2);
+      backdrop-filter: blur(5px);
+      transform: rotateY(-25deg) rotateX(20deg) translateZ(-20px) translateX(-65px);
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 3.5px;
+      animation: floatPaper 7s ease-in-out infinite alternate;
+    }
+
+    .paper-line {
+      height: 2px;
+      background: rgba(0, 240, 255, 0.6);
+      border-radius: 2px;
+      width: 85%;
+    }
+    .paper-line.short { width: 50%; }
+    .paper-line.header { height: 4px; background: rgba(139, 92, 246, 0.85); width: 65%; margin-bottom: 2px; }
+
+    .paper-badge {
+      margin-top: auto;
+      font-size: 8px;
+      font-family: var(--font-tech);
+      color: #10b981;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    @keyframes floatPaper {
+      0% { transform: rotateY(-25deg) rotateX(20deg) translateZ(-20px) translateX(-65px) translateY(0px); }
+      100% { transform: rotateY(-18deg) rotateX(15deg) translateZ(-20px) translateX(-65px) translateY(-8px); }
+    }
+
+    /* 5. Floating Academic & Neural Glyphs (?, A, B, C, D) */
+    .floating-glyph {
+      position: absolute;
+      font-family: var(--font-tech);
+      font-weight: 700;
+      font-size: 13px;
+      pointer-events: none;
+      animation: floatGlyph 4s ease-in-out infinite alternate;
+      user-select: none;
+    }
+
+    .glyph-1 { top: 0px; left: 10px; animation-delay: 0s; color: #a78bfa; text-shadow: 0 0 10px rgba(167, 139, 250, 0.6); }
+    .glyph-2 { top: 12px; right: 14px; animation-delay: 0.8s; color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.6); }
+    .glyph-3 { bottom: 10px; left: 16px; animation-delay: 1.6s; color: #34d399; text-shadow: 0 0 10px rgba(52, 211, 153, 0.6); }
+    .glyph-4 { bottom: 6px; right: 12px; animation-delay: 2.4s; color: #f472b6; text-shadow: 0 0 10px rgba(244, 114, 182, 0.6); }
+    .glyph-5 { top: 45%; left: -20px; animation-delay: 1.2s; color: #fbbf24; text-shadow: 0 0 10px rgba(251, 191, 36, 0.6); }
+    .glyph-6 { top: 40%; right: -22px; animation-delay: 2.0s; color: #38bdf8; text-shadow: 0 0 10px rgba(56, 189, 248, 0.6); }
+
+    @keyframes floatGlyph {
+      0% { transform: translateY(0px) scale(0.9); opacity: 0.45; }
+      100% { transform: translateY(-8px) scale(1.1); opacity: 0.95; }
+    }
+
+    /* =========================================================
+       TWO LARGE 3D GLASS CARDS
+       ========================================================= */
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      width: 100%;
+      margin-bottom: 35px;
+    }
+
+    .option-card {
+      position: relative;
+      background: var(--bg-glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 22px;
+      padding: 38px 34px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 385px;
+      transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    /* Ambient Glow on Card Hover */
+    .card-glow-layer {
+      position: absolute;
+      inset: -1px;
+      border-radius: 22px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .card-course .card-glow-layer {
+      background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.24), transparent 70%);
+    }
+
+    .card-practice .card-glow-layer {
+      background: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.24), transparent 70%);
+    }
+
+    .option-card:hover .card-glow-layer {
+      opacity: 1;
+    }
+
+    .card-course:hover {
+      border-color: rgba(139, 92, 246, 0.65);
+      box-shadow: 0 0 35px rgba(139, 92, 246, 0.3), 0 20px 45px rgba(0, 0, 0, 0.55);
+    }
+
+    .card-practice:hover {
+      border-color: rgba(0, 240, 255, 0.65);
+      box-shadow: 0 0 35px rgba(0, 240, 255, 0.3), 0 20px 45px rgba(0, 0, 0, 0.55);
+    }
+
+    .card-inner {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    /* Card Icon */
+    .card-icon-box {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 22px;
+      font-size: 34px;
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .option-card:hover .card-icon-box {
+      transform: translateY(-6px) scale(1.08);
+    }
+
+    .card-course .card-icon-box {
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.22), rgba(236, 72, 153, 0.22));
+      border: 1px solid rgba(139, 92, 246, 0.45);
+      box-shadow: 0 0 25px rgba(139, 92, 246, 0.25);
+    }
+
+    .card-practice .card-icon-box {
+      background: linear-gradient(135deg, rgba(0, 240, 255, 0.22), rgba(59, 130, 246, 0.22));
+      border: 1px solid rgba(0, 240, 255, 0.45);
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.25);
+    }
+
+    .card-title {
+      font-family: var(--font-tech);
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: var(--text-main);
+      margin-bottom: 10px;
+    }
+
+    .card-course .card-title {
+      background: linear-gradient(135deg, #ffffff 40%, #c084fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card-practice .card-title {
+      background: linear-gradient(135deg, #ffffff 40%, var(--cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card-desc {
+      font-size: 14.5px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      margin-bottom: 22px;
+    }
+
+    /* Feature Badges */
+    .badge-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 28px;
+      margin-top: auto;
+    }
+
+    .feature-badge {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      transition: var(--transition-smooth);
+      text-transform: uppercase;
+    }
+
+    .option-card:hover .feature-badge {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    /* Action Buttons */
+    .card-btn {
+      width: 100%;
+      padding: 15px 24px;
+      border-radius: 12px;
+      font-family: var(--font-tech);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: var(--transition-smooth);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-course {
+      background: linear-gradient(135deg, #7c3aed, #a855f7);
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.35);
+    }
+
+    .btn-course:hover {
+      background: linear-gradient(135deg, #6d28d9, #9333ea);
+      box-shadow: 0 0 35px rgba(139, 92, 246, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .btn-practice {
+      background: linear-gradient(135deg, #0284c7, #00f0ff);
+      color: #030712;
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
+    }
+
+    .btn-practice:hover {
+      background: linear-gradient(135deg, #0369a1, #38bdf8);
+      box-shadow: 0 0 35px rgba(0, 240, 255, 0.6);
+      transform: translateY(-2px);
+    }
+
+    .card-btn i {
+      transition: transform 0.3s ease;
+    }
+
+    .card-btn:hover i {
+      transform: translateX(5px);
+    }
+
+    /* Focus visible for accessibility */
+    .option-card:focus-visible,
+    .card-btn:focus-visible,
+    .logout-btn:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 4px;
+    }
+
+    /* =========================================================
+       BOTTOM INFORMATIONAL SECTION (EXAMINATION MODES)
+       ========================================================= */
+    .modes-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .modes-title {
+      font-family: var(--font-tech);
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .modes-line {
+      height: 1px;
+      width: 100%;
+      background: linear-gradient(90deg, var(--border-glass), transparent);
+    }
+
+    .bottom-info-panel {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      width: 100%;
+    }
+
+    .info-card {
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+
+    .info-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--cyan);
+      flex-shrink: 0;
+    }
+
+    .info-content h4 {
+      font-family: var(--font-tech);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--text-main);
+      margin-bottom: 4px;
+    }
+
+    .info-content p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    /* =========================================================
+       RESPONSIVE ADAPTATIONS
+       ========================================================= */
+    @media (max-width: 900px) {
+      .options-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .bottom-info-panel {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .hero-title {
+        font-size: 28px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .top-navbar {
+        padding: 10px 16px;
+      }
+      .candidate-badge {
+        font-size: 12px;
+        padding: 4px 10px;
+      }
+      .hero-title {
+        font-size: 24px;
+      }
+      .hero-subtitle {
+        font-size: 13.5px;
+      }
+      .option-card {
+        padding: 26px 20px;
+        min-height: auto;
+      }
+    }
+
+    /* Accessibility: Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- BACKGROUND PARTICLES & GRADIENT -->
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+  <div class="bg-grid" aria-hidden="true"></div>
+  <div class="ambient-orb orb-1" aria-hidden="true"></div>
+  <div class="ambient-orb orb-2" aria-hidden="true"></div>
+  <div class="ambient-orb orb-3" aria-hidden="true"></div>
+
+  <!-- TOP NAVBAR -->
+  <header class="top-navbar">
+    <a href="#" class="brand-wrap">
+      <div class="brand-icon-box">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div class="brand-text">AI <span>EXAM</span> PORTAL</div>
+    </a>
+
+    <div class="user-status-pill">
+      <div class="candidate-badge">
+        <span class="status-dot"></span>
+        ● Candidate: <strong>{{ session.get('username', 'Student') }}</strong>
+      </div>
+      <a href="{{ url_for('auth.logout_final') }}" class="logout-btn" title="Logout">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Logout</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN PORTAL WRAPPER -->
+  <main class="portal-container">
+
+    <!-- HERO SECTION -->
+    <section class="hero-section">
+      <div class="hero-badge">
+        <i class="fa-solid fa-shield-halved"></i>
+        <span>AI EXAMINATION PORTAL</span>
+      </div>
+
+      <h1 class="hero-title">HOW WOULD YOU LIKE TO TAKE YOUR EXAM?</h1>
+      <p class="hero-subtitle">
+        Choose between an official instructor-assigned examination or a personalized self-assessment.
+      </p>
+
+      <!-- CENTRAL 3D ACADEMIC VISUAL -->
+      <div class="hero-3d-visual" aria-hidden="true">
+        <div class="scene-3d">
+          <!-- Orbital rings -->
+          <div class="orbital-ring ring-1"></div>
+          <div class="orbital-ring ring-2"></div>
+
+          <!-- Rotating Holographic Cube -->
+          <div class="holo-cube">
+            <div class="cube-face face-front"></div>
+            <div class="cube-face face-back"></div>
+            <div class="cube-face face-right"></div>
+            <div class="cube-face face-left"></div>
+            <div class="cube-face face-top"></div>
+            <div class="cube-face face-bottom"></div>
+          </div>
+
+          <!-- 3D Mortarboard Cap -->
+          <div class="mortarboard-cap">
+            <div class="cap-tassel"></div>
+            <div class="cap-cord"></div>
+          </div>
+
+          <!-- 3D Floating Examination Paper -->
+          <div class="floating-exam-paper">
+            <div class="paper-line header"></div>
+            <div class="paper-line"></div>
+            <div class="paper-line"></div>
+            <div class="paper-line short"></div>
+            <div class="paper-badge">[A+]</div>
+          </div>
+
+          <!-- Floating Question Marks & Option Glyphs -->
+          <div class="floating-glyph glyph-1">🎓</div>
+          <div class="floating-glyph glyph-2">?</div>
+          <div class="floating-glyph glyph-3">A</div>
+          <div class="floating-glyph glyph-4">B</div>
+          <div class="floating-glyph glyph-5">C</div>
+          <div class="floating-glyph glyph-6">D</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TWO MAIN 3D CARDS -->
+    <div class="options-grid">
+
+      <!-- CARD 1: GIVE COURSE EXAM -->
+      <div class="option-card card-course" id="cardCourse">
+        <div class="card-glow-layer"></div>
+        <div class="card-inner">
+          <div class="card-icon-box">
+            <span>🎓</span>
+          </div>
+
+          <h2 class="card-title">GIVE COURSE EXAM</h2>
+          <p class="card-desc">
+            Take an official examination assigned and scheduled by your instructor.
+          </p>
+
+          <div class="badge-list">
+            <span class="feature-badge">COURSE WISE</span>
+            <span class="feature-badge">SUBJECT WISE</span>
+            <span class="feature-badge">INSTRUCTOR ASSIGNED</span>
+            <span class="feature-badge">SCHEDULED</span>
+          </div>
+
+          <a href="{{ url_for('auth.course_exams') }}" class="card-btn btn-course">
+            <span>VIEW COURSE EXAMS &rarr;</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- CARD 2: TEST YOURSELF -->
+      <div class="option-card card-practice" id="cardPractice">
+        <div class="card-glow-layer"></div>
+        <div class="card-inner">
+          <div class="card-icon-box">
+            <span>🧠</span>
+          </div>
+
+          <h2 class="card-title">TEST YOURSELF</h2>
+          <p class="card-desc">
+            Create your own practice examination using the available question bank.
+          </p>
+
+          <div class="badge-list">
+            <span class="feature-badge">CUSTOM TEST</span>
+            <span class="feature-badge">SUBJECT SELECTION</span>
+            <span class="feature-badge">DIFFICULTY</span>
+            <span class="feature-badge">PRACTICE</span>
+          </div>
+
+          <a href="{{ url_for('auth.choose_exam') }}" class="card-btn btn-practice">
+            <span>START PRACTICE &rarr;</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- BOTTOM INFORMATION SECTION: EXAMINATION MODES -->
+    <div class="modes-header">
+      <span class="modes-title">EXAMINATION MODES</span>
+      <div class="modes-line"></div>
+    </div>
+
+    <section class="bottom-info-panel">
+      <div class="info-card">
+        <div class="info-icon">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div class="info-content">
+          <h4>OFFICIAL COURSE EXAM</h4>
+          <p>Instructor-assigned examinations based on course and subject.</p>
+        </div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-icon">
+          <i class="fa-solid fa-brain"></i>
+        </div>
+        <div class="info-content">
+          <h4>SELF ASSESSMENT</h4>
+          <p>Build a personalized test from the available question bank.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JAVASCRIPT: 3D CARD MOUSE TILT & PARTICLE CANVAS -->
+  <script>
+    /* ---------------------------------------------------------
+       1. 3D MOUSE TILT & PARALLAX ON CARDS
+       --------------------------------------------------------- */
+    const cards = document.querySelectorAll(".option-card");
+
+    cards.forEach(card => {
+      card.addEventListener("mousemove", (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const rotateX = ((y - centerY) / centerY) * -6.5; // max ±6.5 deg
+        const rotateY = ((x - centerX) / centerX) * 6.5;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateY(-8px)`;
+      });
+
+      card.addEventListener("mouseleave", () => {
+        card.style.transform = "perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)";
+      });
+    });
+
+    /* ---------------------------------------------------------
+       2. LIGHTWEIGHT PARTICLE CANVAS BACKGROUND
+       --------------------------------------------------------- */
+    (function initBackgroundCanvas() {
+      const canvas = document.getElementById("bg-canvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+
+      let width = canvas.width = window.innerWidth;
+      let height = canvas.height = window.innerHeight;
+
+      window.addEventListener("resize", () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+      });
+
+      const particleCount = Math.min(36, Math.floor(width / 35));
+      const particles = [];
+
+      for (let i = 0; i < particleCount; i++) {
+        particles.push({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.45,
+          vy: (Math.random() - 0.5) * 0.45,
+          radius: Math.random() * 1.5 + 0.6,
+          alpha: Math.random() * 0.5 + 0.2
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          p.x += p.vx;
+          p.y += p.vy;
+
+          if (p.x < 0) p.x = width;
+          if (p.x > width) p.x = 0;
+          if (p.y < 0) p.y = height;
+          if (p.y > height) p.y = 0;
+
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0, 240, 255, ${p.alpha})`;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = "#00f0ff";
+          ctx.fill();
+
+          // Connect nearby particles for neural look
+          for (let j = i + 1; j < particles.length; j++) {
+            const p2 = particles[j];
+            const dx = p.x - p2.x;
+            const dy = p.y - p2.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 110) {
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = `rgba(0, 240, 255, ${0.12 * (1 - dist / 110)})`;
+              ctx.lineWidth = 0.75;
+              ctx.stroke();
+            }
+          }
+        }
+
+        requestAnimationFrame(draw);
+      }
+
+      draw();
+    })();
+  </script>
+
+</body>
+</html>

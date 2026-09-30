@@ -6,7 +6,9 @@
 
   <!-- ✅ SweetAlert CDN -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" rel="stylesheet">
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -57,6 +59,13 @@
       letter-spacing: 0.5px;
     }
     tr:nth-child(even) { background: #f8f9ff; }
+    tr.selected-row {
+      background: #eef2ff !important;
+      transition: background 0.15s ease;
+    }
+    tr.selected-row td {
+      border-color: #c7d2fe !important;
+    }
 
     .add-box {
       background: white;
@@ -91,20 +100,1131 @@
 .delete-btn {
   margin-top: 5px;
 }
+
+/* ============================
+   TOOLBAR
+============================ */
+
+.toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin:25px 0;
+    padding:15px 20px;
+    background:#fff;
+    border-radius:10px;
+    box-shadow:0 2px 10px rgba(0,0,0,.1);
+}
+
+.toolbar-left{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.toolbar-right{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+/* ============================
+   SELECT ALL CHECKBOX
+============================ */
+
+.checkbox-wrapper input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-wrapper .terms-label {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.checkbox-wrapper .label-text {
+  margin-left: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #333;
+}
+
+.checkbox-wrapper .checkbox-svg {
+  width: 30px;
+  height: 30px;
+}
+
+.checkbox-wrapper .checkbox-box {
+  fill: rgba(207,205,205,.4);
+  stroke: #8c00ff;
+  stroke-width: 8;
+  stroke-dasharray: 800;
+  stroke-dashoffset: 800;
+  transition: stroke-dashoffset .6s ease-in;
+}
+
+.checkbox-wrapper .checkbox-tick {
+  stroke: #8c00ff;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 172;
+  stroke-dashoffset: 172;
+  transition: stroke-dashoffset .6s ease-in;
+}
+
+.checkbox-wrapper input:checked + .terms-label .checkbox-box,
+.checkbox-wrapper input:checked + .terms-label .checkbox-tick{
+    stroke-dashoffset:0;
+}
+/* From Uiverse.io by 00Kubi */ 
+.neon-checkbox {
+  --primary: #00ffaa;
+  --primary-dark: #00cc88;
+  --primary-light: #88ffdd;
+  --size: 30px;
+  position: relative;
+  width: var(--size);
+  height: var(--size);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.neon-checkbox input {
+  display: none;
+}
+
+.neon-checkbox__frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.neon-checkbox__box {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  border-radius: 4px;
+  border: 2px solid var(--primary-dark);
+  transition: all 0.4s ease;
+}
+
+.neon-checkbox__check-container {
+  position: absolute;
+  inset: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.neon-checkbox__check {
+  width: 80%;
+  height: 80%;
+  fill: none;
+  stroke: var(--primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  transform-origin: center;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.neon-checkbox__glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 6px;
+  background: var(--primary);
+  opacity: 0;
+  filter: blur(8px);
+  transform: scale(1.2);
+  transition: all 0.4s ease;
+}
+
+.neon-checkbox__borders {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.neon-checkbox__borders span {
+  position: absolute;
+  width: 40px;
+  height: 1px;
+  background: var(--primary);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.neon-checkbox__borders span:nth-child(1) {
+  top: 0;
+  left: -100%;
+  animation: borderFlow1 2s linear infinite;
+}
+
+.neon-checkbox__borders span:nth-child(2) {
+  top: -100%;
+  right: 0;
+  width: 1px;
+  height: 40px;
+  animation: borderFlow2 2s linear infinite;
+}
+
+.neon-checkbox__borders span:nth-child(3) {
+  bottom: 0;
+  right: -100%;
+  animation: borderFlow3 2s linear infinite;
+}
+
+.neon-checkbox__borders span:nth-child(4) {
+  bottom: -100%;
+  left: 0;
+  width: 1px;
+  height: 40px;
+  animation: borderFlow4 2s linear infinite;
+}
+
+.neon-checkbox__particles span {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  top: 50%;
+  left: 50%;
+  box-shadow: 0 0 6px var(--primary);
+}
+
+.neon-checkbox__rings {
+  position: absolute;
+  inset: -20px;
+  pointer-events: none;
+}
+
+.neon-checkbox__rings .ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--primary);
+  opacity: 0;
+  transform: scale(0);
+}
+
+.neon-checkbox__sparks span {
+  position: absolute;
+  width: 20px;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary), transparent);
+  opacity: 0;
+}
+
+/* Hover Effects */
+.neon-checkbox:hover .neon-checkbox__box {
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+/* Checked State */
+.neon-checkbox input:checked ~ .neon-checkbox__frame .neon-checkbox__box {
+  border-color: var(--primary);
+  background: rgba(0, 255, 170, 0.1);
+}
+
+.neon-checkbox input:checked ~ .neon-checkbox__frame .neon-checkbox__check {
+  stroke-dashoffset: 0;
+  transform: scale(1.1);
+}
+
+.neon-checkbox input:checked ~ .neon-checkbox__frame .neon-checkbox__glow {
+  opacity: 0.2;
+}
+
+.neon-checkbox
+  input:checked
+  ~ .neon-checkbox__frame
+  .neon-checkbox__borders
+  span {
+  opacity: 1;
+}
+
+/* Particle Animations */
+.neon-checkbox
+  input:checked
+  ~ .neon-checkbox__frame
+  .neon-checkbox__particles
+  span {
+  animation: particleExplosion 0.6s ease-out forwards;
+}
+
+.neon-checkbox
+  input:checked
+  ~ .neon-checkbox__frame
+  .neon-checkbox__rings
+  .ring {
+  animation: ringPulse 0.6s ease-out forwards;
+}
+
+.neon-checkbox
+  input:checked
+  ~ .neon-checkbox__frame
+  .neon-checkbox__sparks
+  span {
+  animation: sparkFlash 0.6s ease-out forwards;
+}
+
+.sidebar{
+    width:280px;
+    height:100vh;
+    position:fixed;
+    left:0;
+    top:0;
+    background:#fff;
+    box-shadow:0 0 20px rgba(0,0,0,.08);
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    overflow:hidden;
+    z-index: 10;
+}
+
+.sidebar-menu-scroll{
+    flex:1;
+    overflow-y:auto;
+    overflow-x:hidden;
+    padding-bottom:15px;
+}
+
+.sidebar-menu-scroll::-webkit-scrollbar {
+    width: 5px;
+}
+.sidebar-menu-scroll::-webkit-scrollbar-thumb {
+    background: rgba(79, 70, 229, 0.2);
+    border-radius: 10px;
+}
+.sidebar-menu-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(79, 70, 229, 0.4);
+}
+
+.main-content{
+    margin-left:280px;
+    padding:30px;
+}
+
+.logo{
+    padding:25px;
+    font-size:24px;
+    font-weight:bold;
+    color:#4F46E5;
+}
+
+.sidebar .nav-link{
+    color:#444;
+    padding:12px 20px;
+}
+
+.sidebar .nav-link:hover{
+    background:#4F46E5;
+    color:white;
+}
+/* Animations */
+@keyframes borderFlow1 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes borderFlow2 {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(200%);
+  }
+}
+
+@keyframes borderFlow3 {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-200%);
+  }
+}
+
+@keyframes borderFlow4 {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-200%);
+  }
+}
+
+@keyframes particleExplosion {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(
+        calc(-50% + var(--x, 20px)),
+        calc(-50% + var(--y, 20px))
+      )
+      scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes ringPulse {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes sparkFlash {
+  0% {
+    transform: rotate(var(--r, 0deg)) translateX(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--r, 0deg)) translateX(30px) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Particle Positions */
+.neon-checkbox__particles span:nth-child(1) {
+  --x: 25px;
+  --y: -25px;
+}
+.neon-checkbox__particles span:nth-child(2) {
+  --x: -25px;
+  --y: -25px;
+}
+.neon-checkbox__particles span:nth-child(3) {
+  --x: 25px;
+  --y: 25px;
+}
+.neon-checkbox__particles span:nth-child(4) {
+  --x: -25px;
+  --y: 25px;
+}
+.neon-checkbox__particles span:nth-child(5) {
+  --x: 35px;
+  --y: 0px;
+}
+.neon-checkbox__particles span:nth-child(6) {
+  --x: -35px;
+  --y: 0px;
+}
+.neon-checkbox__particles span:nth-child(7) {
+  --x: 0px;
+  --y: 35px;
+}
+.neon-checkbox__particles span:nth-child(8) {
+  --x: 0px;
+  --y: -35px;
+}
+.neon-checkbox__particles span:nth-child(9) {
+  --x: 20px;
+  --y: -30px;
+}
+.neon-checkbox__particles span:nth-child(10) {
+  --x: -20px;
+  --y: 30px;
+}
+.neon-checkbox__particles span:nth-child(11) {
+  --x: 30px;
+  --y: 20px;
+}
+.neon-checkbox__particles span:nth-child(12) {
+  --x: -30px;
+  --y: -20px;
+}
+
+/* Spark Rotations */
+.neon-checkbox__sparks span:nth-child(1) {
+  --r: 0deg;
+  top: 50%;
+  left: 50%;
+}
+.neon-checkbox__sparks span:nth-child(2) {
+  --r: 90deg;
+  top: 50%;
+  left: 50%;
+}
+.neon-checkbox__sparks span:nth-child(3) {
+  --r: 180deg;
+  top: 50%;
+  left: 50%;
+}
+.neon-checkbox__sparks span:nth-child(4) {
+  --r: 270deg;
+  top: 50%;
+  left: 50%;
+}
+
+/* Ring Delays */
+.neon-checkbox__rings .ring:nth-child(1) {
+  animation-delay: 0s;
+}
+.neon-checkbox__rings .ring:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.neon-checkbox__rings .ring:nth-child(3) {
+  animation-delay: 0.2s;
+}
+/* FIX NEON CHECKBOX */
+
+.neon-checkbox {
+    display: inline-block;
+}
+
+.neon-checkbox__frame {
+    display: block;
+}
+
+.neon-checkbox__box {
+    width: 30px;
+    height: 30px;
+    box-sizing: border-box;
+}
+
+.neon-checkbox__effects{
+    position:absolute;
+    inset:0;
+}
+
+.neon-checkbox svg{
+    overflow:visible;
+}
+
+.neon-checkbox__check{
+    fill:none !important;
+    stroke:#00ffaa !important;
+}
+
+.neon-checkbox__check path{
+    fill:none !important;
+}
+
+/* ===============================================================
+   WELCOME DASHBOARD — particle hero + glassmorphism stat cards
+=================================================================== */
+
+.welcome-container{
+    position: relative;
+    min-height: 460px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #120c2e 0%, #1a1440 45%, #241a5e 100%);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    padding: 60px 20px 50px;
+    box-shadow: 0 20px 50px rgba(31, 20, 90, 0.35);
+}
+
+#particle-canvas{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.welcome-title{
+    position: relative;
+    z-index: 2;
+    font-size: 52px;
+    font-weight: 800;
+    text-align: center;
+    white-space: nowrap;
+    background: linear-gradient(90deg, #818cf8, #a78bfa, #22d3ee, #818cf8);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradientFlow 6s ease-in-out infinite, riseIn 1s ease forwards;
+    opacity: 0;
+}
+
+.welcome-subtitle{
+    position: relative;
+    z-index: 2;
+    margin-top: 16px;
+    font-size: 18px;
+    letter-spacing: 0.5px;
+    color: #c7c9f5;
+    opacity:0;
+    animation:fadeUp 1s ease forwards;
+    animation-delay:0.7s;
+}
+
+@keyframes gradientFlow{
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes riseIn{
+    from{ transform: translateY(18px); opacity: 0; }
+    to{ transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeUp{
+    from{ transform:translateY(20px); opacity:0; }
+    to{ transform:translateY(0); opacity:1; }
+}
+
+/* Stat cards */
+.stats-grid{
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 980px;
+    margin-top: 44px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+@media (max-width: 900px){
+    .stats-grid{ grid-template-columns: repeat(2, 1fr); }
+    .welcome-title{ font-size: 34px; white-space: normal; }
+}
+
+.stat-card{
+    position: relative;
+    padding: 24px 20px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    text-align: left;
+    opacity: 0;
+    transform: translateY(24px);
+    animation: cardIn 0.7s ease forwards;
+    transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s ease;
+    cursor: default;
+}
+
+.stat-card:nth-child(1){ animation-delay: 0.15s; }
+.stat-card:nth-child(2){ animation-delay: 0.30s; }
+.stat-card:nth-child(3){ animation-delay: 0.45s; }
+.stat-card:nth-child(4){ animation-delay: 0.60s; }
+
+@keyframes cardIn{
+    to{ opacity: 1; transform: translateY(0); }
+}
+
+.stat-card:hover{
+    transform: translateY(-6px);
+    border-color: rgba(167, 139, 250, 0.6);
+    box-shadow: 0 14px 30px rgba(99, 66, 219, 0.35);
+}
+
+.stat-icon{
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size: 18px;
+    color: #fff;
+    margin-bottom: 14px;
+    background: linear-gradient(135deg, #6366f1, #a855f7);
+    transition: transform 0.35s ease;
+}
+
+.stat-card:hover .stat-icon{
+    transform: scale(1.12) rotate(-6deg);
+}
+
+.stat-card:nth-child(2) .stat-icon{ background: linear-gradient(135deg, #06b6d4, #3b82f6); }
+.stat-card:nth-child(3) .stat-icon{ background: linear-gradient(135deg, #f59e0b, #ef4444); }
+.stat-card:nth-child(4) .stat-icon{ background: linear-gradient(135deg, #22c55e, #10b981); }
+
+.stat-value{
+    font-size: 32px;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.1;
+}
+
+.stat-label{
+    margin-top: 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #b7baf0;
+}
+
+/* ===========================
+   SIDEBAR
+=========================== */
+
+.sidebar .nav-item{
+    width:100%;
+}
+
+.sidebar .nav-link{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:12px 18px;
+    color:#444;
+    text-decoration:none;
+    border-radius:10px;
+    transition:.3s;
+    font-weight:500;
+}
+
+.sidebar .nav-link:hover{
+    background:#4F46E5;
+    color:#fff;
+}
+
+/* Only Question Bank has arrow */
+.dropdown-toggle-link{
+    justify-content:space-between;
+}
+
+.dropdown-toggle-link span{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+/* ===============================
+   QUESTION BANK DROPDOWN
+================================= */
+
+.submenu{
+    padding:8px 12px 10px 20px;
+}
+
+/* Dropdown buttons */
+.submenu .nav-link{
+    background:linear-gradient(135deg,#4F46E5,#6366F1);
+    color:#fff !important;
+    border-radius:10px;
+    margin:8px 0;
+    padding:10px 15px;
+    font-size:15px;
+    transition:.3s;
+    box-shadow:0 4px 10px rgba(79,70,229,.25);
+}
+
+/* Hover */
+.submenu .nav-link:hover{
+    background:linear-gradient(135deg,#2563EB,#3B82F6);
+    transform:translateX(6px);
+    box-shadow:0 8px 18px rgba(37,99,235,.4);
+}
+
+/* Active page */
+.submenu .nav-link.active{
+    background:linear-gradient(135deg,#0EA5E9,#06B6D4);
+    color:#fff;
+}
+
+.arrow{
+    transition:.35s;
+    font-size:13px;
+}
+
+/* =========================================
+   NEON GLASSMORPHISM SIDEBAR DOWNSIDE BUTTON
+========================================= */
+.sidebar-footer {
+    padding: 16px 18px 22px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.6) 0%, rgba(248, 250, 252, 0.95) 100%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+    box-shadow: 0 -6px 20px rgba(0, 0, 0, 0.03);
+    position: relative;
+    z-index: 2;
+}
+
+.neon-glass-btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+    width: 100%;
+    padding: 13px 18px;
+    border-radius: 14px;
+    text-decoration: none !important;
+    color: #00f0ff !important;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.92) 0%, rgba(30, 27, 75, 0.88) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 240, 255, 0.4);
+    box-shadow: 
+        0 4px 18px rgba(0, 0, 0, 0.25),
+        0 0 16px rgba(0, 240, 255, 0.25),
+        inset 0 1px 1px rgba(255, 255, 255, 0.2),
+        inset 0 0 12px rgba(0, 240, 255, 0.1);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13.5px;
+    letter-spacing: 0.3px;
+    transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    overflow: hidden;
+}
+
+/* Glowing light sweep animation on glass surface */
+.neon-glass-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0, 240, 255, 0.25),
+        rgba(255, 255, 255, 0.4),
+        rgba(168, 85, 247, 0.25),
+        transparent
+    );
+    transition: 0.6s ease;
+    pointer-events: none;
+}
+
+.neon-glass-btn:hover::before {
+    left: 100%;
+}
+
+.neon-glass-btn:hover {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, rgba(30, 27, 75, 0.96) 0%, rgba(79, 70, 229, 0.92) 100%);
+    border-color: rgba(0, 240, 255, 0.95);
+    box-shadow: 
+        0 0 25px rgba(0, 240, 255, 0.75),
+        0 0 45px rgba(168, 85, 247, 0.55),
+        inset 0 0 16px rgba(0, 240, 255, 0.35);
+    transform: translateY(-2px);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.9), 0 0 20px rgba(0, 240, 255, 0.6);
+}
+
+.neon-glass-btn:active {
+    transform: translateY(0);
+}
+
+.neon-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #00f0ff;
+    box-shadow: 0 0 8px #00f0ff, 0 0 14px #00f0ff;
+    animation: neonDotPulse 2s infinite ease-in-out;
+    flex-shrink: 0;
+}
+
+@keyframes neonDotPulse {
+    0%, 100% {
+        opacity: 0.6;
+        transform: scale(0.9);
+        box-shadow: 0 0 6px #00f0ff;
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.3);
+        box-shadow: 0 0 14px #00f0ff, 0 0 22px #00f0ff;
+    }
+}
+
+.neon-icon {
+    font-size: 14px;
+    transition: transform 0.3s ease;
+}
+
+.neon-glass-btn:hover .neon-icon {
+    transform: translateX(-4px);
+}
+
+.neon-text {
+    white-space: nowrap;
+}
+
+/* =========================================
+   AI GENERATOR FULL BACKGROUND & THEME
+========================================= */
+body.ai-page-bg {
+    background:
+        linear-gradient(rgba(10, 15, 35, 0.78), rgba(10, 15, 35, 0.78)),
+        url("{{ url_for('static', filename='AI IMG.png') }}") !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-attachment: fixed !important;
+}
+
+body.ai-page-bg .main-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
+    padding: 30px 20px 80px;
+}
+
+.custom-delete-swal {
+  border: 1px solid rgba(56, 189, 248, 0.28) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(14, 165, 233, 0.15) !important;
+  border-radius: 18px !important;
+  font-family: 'Poppins', sans-serif !important;
+}
+
   </style>
 </head>
 
-<body>
+<body class="{% if page == 'generate_questions' %}ai-page-bg{% endif %}">
+
+<div class="sidebar">
+
+    <div class="sidebar-menu-scroll">
+
+        <div class="logo">
+            ADMIN PANEL
+        </div>
+
+        <ul class="nav flex-column">
+
+            <!-- Dashboard -->
+           <li class="nav-item">
+        <a class="nav-link sidebar-link" href="{{ url_for('admin.admin_dashboard') }}">
+            <i class="fa-solid fa-house"></i>
+            <span>Dashboard</span>
+        </a>
+    </li>
+
+            <!-- Course Exam Management -->
+            <li class="nav-item">
+                <a class="nav-link sidebar-link {% if page in ['course_exams', 'select_exam_questions'] %}active{% endif %}" href="{{ url_for('admin.course_exams_manage') }}">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>Course Exams</span>
+                </a>
+            </li>
+
+            <!-- Question Bank -->
+            <li class="nav-item">
+
+                <a class="nav-link d-flex justify-content-between align-items-center {% if page in ['all_questions', 'add_question', 'generate_questions'] %}{% else %}collapsed{% endif %}"
+                   data-bs-toggle="collapse"
+                   href="#questionBank"
+                   role="button"
+                   aria-expanded="{% if page in ['all_questions', 'add_question', 'generate_questions'] %}true{% else %}false{% endif %}">
+
+                    <span>
+                        <i class="fa-solid fa-book"></i>
+                        Question Bank
+                    </span>
+
+                    <i class="fa-solid fa-chevron-down arrow"></i>
+
+                </a>
+
+                <div class="collapse {% if page in ['all_questions', 'add_question', 'generate_questions'] %}show{% endif %}" id="questionBank">
+
+                    <ul class="nav flex-column submenu">
+
+                        <li>
+                            <a class="nav-link {% if page == 'all_questions' %}active{% endif %}" href="{{ url_for('admin.all_questions') }}">
+                                <i class="fa-solid fa-list"></i>
+                                All Questions
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link {% if page == 'add_question' %}active{% endif %}" href="{{ url_for('admin.add_question_page') }}">
+                                <i class="fa-solid fa-plus"></i>
+                                Add Question
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link {% if page == 'generate_questions' %}active{% endif %}" href="{{ url_for('admin.generate_questions_page') }}">
+                                <i class="fa-solid fa-robot"></i>
+                                AI Generator
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </li>
+
+            <!-- Students -->
+            <li class="nav-item">
+
+                <a class="nav-link d-flex justify-content-between align-items-center {% if page in ['students', 'leaderboard', 'exam_history'] %}{% else %}collapsed{% endif %}"
+                   data-bs-toggle="collapse"
+                   href="#studentsMenu"
+                   role="button"
+                   aria-expanded="{% if page in ['students', 'leaderboard', 'exam_history'] %}true{% else %}false{% endif %}">
+
+                    <span>
+                        <i class="fa-solid fa-user-graduate"></i>
+                        Students
+                    </span>
+
+                    <i class="fa-solid fa-chevron-down arrow"></i>
+
+                </a>
+
+                <div class="collapse {% if page in ['students', 'leaderboard', 'exam_history', 'user_history'] %}show{% endif %}" id="studentsMenu">
+
+                    <ul class="nav flex-column submenu">
+
+                        <li>
+                            <a class="nav-link {% if page in ['students', 'user_history'] %}active{% endif %}" href="{{ url_for('admin.students_page') }}">
+                                <i class="fa-solid fa-users"></i>
+                                All Students
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link {% if page == 'leaderboard' %}active{% endif %}" href="{{ url_for('admin.leaderboard') }}">
+                                <i class="fa-solid fa-trophy"></i>
+                                Leaderboard
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link {% if page == 'exam_history' %}active{% endif %}" href="{{ url_for('admin.exam_history') }}">
+                                <i class="fa-solid fa-clock-rotate-left"></i>
+                                Exam History
+                            </a>
+                        </li>
+
+                    </ul>
+
+                </div>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+    <!-- 🌟 Neon Glassmorphism Bottom Action Button -->
+    <div class="sidebar-footer">
+        <a href="{{ url_for('auth.auth_page') }}#register" class="neon-glass-btn" title="Back to Signup">
+            <span class="neon-dot"></span>
+            <i class="fa-solid fa-arrow-left neon-icon"></i>
+            <span class="neon-text">Back to Signup</span>
+        </a>
+    </div>
+
+</div>
+
+<div class="main-content">
 
   <!-- ✅ SweetAlert popup for special notices -->
   {% if popup %}
   <script>
-  Swal.fire({
-    icon: "info",
-    title: "Notice",
-    text: "{{ popup }}"
-  });
+    Swal.fire({
+      icon: "info",
+      title: "Notice",
+      text: "{{ popup }}"
+    });
   </script>
+  {% endif %}
+
+  <!-- ✅ Main Content -->
+  {% if page == "all_questions" %}
+      {% include "all_questions.html" %}
+  {% elif page == "add_question" %}
+      {% include "add_question.html" %}
+  {% elif page == "generate_questions" %}
+      {% include "generate_questions.html" %}
+  {% elif page == "course_exams" %}
+      {% include "admin_course_exams.html" %}
+  {% elif page == "select_exam_questions" %}
+      {% include "course_exam_select_questions.html" %}
+  {% elif page == "students" %}
+      {% include "students_all.html" %}
+  {% elif page == "leaderboard" %}
+      {% include "admin_leaderboard.html" %}
+  {% elif page == "exam_history" %}
+      {% include "exam_history.html" %}
+  {% elif page == "user_history" %}
+      {% include "admin_user_history.html" %}
+  {% else %}
+      <div class="welcome-container">
+
+        <canvas id="particle-canvas"></canvas>
+
+        <h1 class="welcome-title">
+            Welcome to Admin Dashboard
+        </h1>
+
+        <p class="welcome-subtitle">
+            Manage Questions • AI Generator • Results • Students
+        </p>
+
+        <!--
+          Pass real numbers from your Flask route, e.g.:
+          return render_template('dashboard.html',
+              total_questions=128, total_students=540,
+              total_exams=32, total_ai_questions=76)
+          The |default(...) fallback keeps the page working even
+          without those variables.
+        -->
+        <div class="stats-grid">
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa fa-book"></i></div>
+                <div class="stat-value" data-count="{{ total_questions|default(128) }}">0</div>
+                <div class="stat-label">Questions</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa fa-user-graduate"></i></div>
+                <div class="stat-value" data-count="{{ total_students|default(540) }}">0</div>
+                <div class="stat-label">Students</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa fa-file-pen"></i></div>
+                <div class="stat-value" data-count="{{ total_exams|default(32) }}">0</div>
+                <div class="stat-label">Exams</div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fa fa-robot"></i></div>
+                <div class="stat-value" data-count="{{ total_ai_questions|default(76) }}">0</div>
+                <div class="stat-label">AI Questions</div>
+            </div>
+
+        </div>
+
+      </div>
   {% endif %}
 
   <!-- ✅ SweetAlert flash messages -->
@@ -112,182 +1232,341 @@
     {% if messages %}
       {% for category, message in messages %}
         <script>
-          Swal.fire({
-            icon: "{{ 'success' if category == 'success' else 'error' }}",
-            title: "{{ 'Success' if category == 'success' else 'Error' }}",
-            text: "{{ message }}"
-          });
+          (function() {
+            const rawMsg = {{ message|tojson }};
+            const lowerMsg = (rawMsg || "").toLowerCase();
+            const cat = {{ category|tojson }};
+
+            if (cat === "success" && (lowerMsg.includes("question deleted") || lowerMsg.includes("question(s) deleted") || lowerMsg === "question deleted!")) {
+              const isMulti = lowerMsg.includes("question(s) deleted") && !rawMsg.startsWith("1 ");
+              Swal.fire({
+                icon: "success",
+                title: isMulti ? "QUESTIONS DELETED" : "QUESTION DELETED",
+                text: isMulti ? rawMsg : "Question deleted successfully.",
+                timer: 2200,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                background: "#0d1527",
+                color: "#f8fafc",
+                iconColor: "#10b981",
+                customClass: {
+                  popup: "custom-delete-swal"
+                }
+              });
+            } else if (cat === "error" && (lowerMsg.includes("invalid question") || lowerMsg.includes("delete failed") || lowerMsg.includes("unable to delete"))) {
+              Swal.fire({
+                icon: "error",
+                title: "DELETE FAILED",
+                text: lowerMsg.includes("invalid question") ? "Unable to delete the question. Please try again." : rawMsg,
+                timer: 2800,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                background: "#0d1527",
+                color: "#f8fafc",
+                iconColor: "#ef4444",
+                customClass: {
+                  popup: "custom-delete-swal"
+                }
+              });
+            } else {
+              Swal.fire({
+                icon: {{ ('success' if category == 'success' else ('warning' if category == 'warning' else 'error'))|tojson }},
+                title: {{ ('Success' if category == 'success' else ('Warning' if category == 'warning' else 'Error'))|tojson }},
+                text: rawMsg
+              });
+            }
+          })();
         </script>
       {% endfor %}
     {% endif %}
   {% endwith %}
 
-  <div class="header">
-    <h1>Admin Dashboard</h1>
-    <div>
-      <a href="{{ url_for('admin.generate_questions_page') }}" class="btn">✨ AI Generate</a>
-      <a href="{{ url_for('admin.admin_logout') }}" class="btn btn-danger">Logout</a>
-    </div>
-  </div>
 
-  <!-- ✅ Add Question Box (MCQ + DESCRIPTIVE SUPPORT) -->
-  <div class="add-box">
-    <h2>Add New Question</h2>
+ 
 
-    <form action="{{ url_for('admin.add_question') }}" method="POST">
 
-      <select name="type" required id="qType">
-        <option value="">Select Question Type</option>
-        <option value="mcq">MCQ (Objective)</option>
-        <option value="descriptive">Descriptive (Long Answer)</option>
-      </select>
+<script>
 
-      <input type="text" name="question" placeholder="Enter question..." required>
+const bulkForm = document.getElementById("bulkDeleteForm");
 
-      <!-- ✅ MCQ Fields -->
-      <div id="mcqFields">
-        <input type="text" name="opt1" placeholder="Option 1">
-        <input type="text" name="opt2" placeholder="Option 2">
-        <input type="text" name="opt3" placeholder="Option 3">
-        <input type="text" name="opt4" placeholder="Option 4">
-        <input type="text" name="correct" placeholder="Correct Answer (A/B/C/D)">
-      </div>
+if (bulkForm) {
 
-      <!-- ✅ Descriptive Fields -->
-      <div id="descFields" style="display:none;">
-        <textarea name="answer_key" placeholder="Enter model answer..." style="height:120px;"></textarea>
-        <input type="number" name="max_marks" placeholder="Max Marks (e.g., 5)">
-      </div>
+    const tableBody = bulkForm.querySelector("tbody");
+    const questionChecks = Array.from(bulkForm.querySelectorAll(".questionCheck"));
+    const deleteBtn = document.getElementById("deleteSelected");
+    const selectAll = document.getElementById("selectAll");
+    let lastCheckedIndex = null;
+    let isShiftPressed = false;
+    let isCtrlPressed = false;
 
-      <select name="level" required>
-        <option value="">Select Difficulty Level</option>
-        <option value="Easy">Easy</option>
-        <option value="Medium">Medium</option>
-        <option value="Hard">Hard</option>
-      </select>
+    // Track physical Shift and Ctrl keys at the window level with capture
+    window.addEventListener("keydown", function (e) {
+        if (e.key === "Shift" || e.shiftKey) isShiftPressed = true;
+        if (e.key === "Control" || e.ctrlKey || e.metaKey) isCtrlPressed = true;
+    }, true);
 
-      <button type="submit" class="btn">Add Question</button>
-    </form>
-  </div>
+    window.addEventListener("keyup", function (e) {
+        if (e.key === "Shift") isShiftPressed = false;
+        if (e.key === "Control") isCtrlPressed = false;
+        if (!e.shiftKey) isShiftPressed = false;
+        if (!e.ctrlKey && !e.metaKey) isCtrlPressed = false;
+    }, true);
 
-  <script>
-    const qType = document.getElementById('qType');
-    const mcqFields = document.getElementById('mcqFields');
-    const descFields = document.getElementById('descFields');
-
-    qType.addEventListener('change', () => {
-      if (qType.value === 'mcq') {
-        mcqFields.style.display = 'block';
-        descFields.style.display = 'none';
-      } else {
-        mcqFields.style.display = 'none';
-        descFields.style.display = 'block';
-      }
+    window.addEventListener("blur", function () {
+        isShiftPressed = false;
+        isCtrlPressed = false;
     });
-  </script>
 
-  <!-- ✅ All Questions -->
-  <h2>All Questions</h2>
-  <table>
-    <tr>
-      <th>#</th>
-      <th>Question</th>
-      <th>Correct / Keywords</th>
-      <th>Type</th>
-      <th>Level</th>
-      <th>Action</th>
-    </tr>
+    function updateDeleteCount() {
+        let checkedCount = 0;
+        questionChecks.forEach(function (checkbox) {
+            const tr = checkbox.closest("tr");
+            if (checkbox.checked) {
+                checkedCount++;
+                if (tr) tr.classList.add("selected-row");
+            } else {
+                if (tr) tr.classList.remove("selected-row");
+            }
+        });
 
-    {% for q in questions %}
-    <tr>
-      <td>{{ loop.index }}</td>
-      <td>{{ q.q }}</td>
+        if (deleteBtn) {
+            deleteBtn.innerHTML = "🗑 Delete Selected (" + checkedCount + ")";
+        }
 
-      {% if q.type == 'DESCRIPTIVE' %}
-        <td>
-          <strong>Keywords:</strong> {{ q.answer_key }}<br>
-          <strong>Marks:</strong> {{ q.max_marks }}
-        </td>
-      {% else %}
-        <td>{{ q.correct }}</td>
-      {% endif %}
+        if (selectAll) {
+            selectAll.checked = (checkedCount === questionChecks.length && questionChecks.length > 0);
+        }
+    }
 
-      <td>{{ q.type }}</td>
-      <td>{{ q.level }}</td>
+    if (selectAll) {
+        selectAll.addEventListener("change", function () {
+            const isChecked = selectAll.checked;
+            questionChecks.forEach(function (checkbox) {
+                checkbox.checked = isChecked;
+            });
+            lastCheckedIndex = null;
+            updateDeleteCount();
+        });
+    }
 
-<td>
-  <div class="action-box">
+    if (tableBody) {
+        tableBody.addEventListener("click", function (e) {
+            // Do not intercept interactive form elements (actions, selects, inputs, buttons, links)
+            if (e.target.closest("button, a, select, textarea, input:not(.questionCheck)")) {
+                return;
+            }
 
-    <form action="/admin/edit_question/{{ loop.index0 }}" method="POST">
-      <select name="level">
-        <option value="Easy" {% if q.level=='Easy' %}selected{% endif %}>Easy</option>
-        <option value="Medium" {% if q.level=='Medium' %}selected{% endif %}>Medium</option>
-        <option value="Hard" {% if q.level=='Hard' %}selected{% endif %}>Hard</option>
-      </select>
+            const tr = e.target.closest("tr");
+            if (!tr) return;
 
-      {% if q.type == "DESCRIPTIVE" %}
-        <input type="number" name="max_marks" value="{{ q.max_marks }}" min="1">
-      {% endif %}
+            const checkbox = tr.querySelector(".questionCheck");
+            if (!checkbox) return;
 
-      <button type="submit" class="btn save-btn">💾</button>
-    </form>
+            const currentIndex = questionChecks.indexOf(checkbox);
+            if (currentIndex === -1) return;
 
-    <a href="{{ url_for('admin.delete_question', index=loop.index0) }}" class="btn btn-danger delete-btn">
-      Delete
-    </a>
+            // Bulk selection strictly requires BOTH Ctrl and Shift pressed together (not Shift alone)
+            const hasCtrl = e.ctrlKey || e.metaKey || isCtrlPressed;
+            const hasShift = e.shiftKey || isShiftPressed;
+            const isBulk = hasCtrl && hasShift;
 
-  </div>
-</td>
-    </tr>
-    {% endfor %}
-  </table>
+            const clickedCheckboxDirectly = e.target.closest(".neon-checkbox") || e.target.classList.contains("questionCheck");
+            const clickedSelectCell = e.target.closest("td") && (e.target.closest("td").cellIndex === 0 || e.target.closest("td").cellIndex === 1);
 
-  <!-- ✅ Registered Users -->
-  <h2>Registered Users</h2>
-  <table>
-    <tr>
-      <th>Username</th>
-      <th>Email</th>
-      <th>Latest Score</th>
-      <th>Action</th>
-    </tr>
+            // If user clicked row text without holding modifier, do not toggle to avoid interfering with selecting text
+            if (!isBulk && !clickedCheckboxDirectly && !clickedSelectCell) {
+                return;
+            }
 
-    {% for username, info in users.items() %}
-    <tr>
-      <td>{{ username }}</td>
-      <td>{{ info.email }}</td>
-      <td>
-        {% if results.get(username) %}
-          {{ results[username].get('score', 'N/A') }} /
-          {{ results[username].get('total', 'N/A') }}
-        {% else %}
-          N/A
-        {% endif %}
-      </td>
-      <td><a href="{{ url_for('admin.admin_user_history', username=username) }}" class="btn">📜 View History</a></td>
-    </tr>
-    {% endfor %}
-  </table>
+            // BULK RANGE SELECTION (when Ctrl + Shift, Shift, or Ctrl is held)
+            if (isBulk && lastCheckedIndex !== null) {
+                e.preventDefault();
+                e.stopPropagation();
 
-  <!-- ✅ Leaderboard -->
-  <h2>Leaderboard</h2>
-  <table>
-    <tr>
-      <th>Username</th>
-      <th>Score</th>
-      <th>Total</th>
-      <th>Time Taken</th>
-    </tr>
+                if (window.getSelection) {
+                    window.getSelection().removeAllRanges();
+                }
 
-    {% for name, data in results.items() %}
-    <tr>
-      <td>{{ name }}</td>
-      <td>{{ data.score }}</td>
-      <td>{{ data.total }}</td>
-      <td>{{ data.time_taken or 'N/A' }}</td>
-    </tr>
-    {% endfor %}
-  </table>
+                const start = Math.min(lastCheckedIndex, currentIndex);
+                const end = Math.max(lastCheckedIndex, currentIndex);
 
+                // Target state: if both ends are already checked, user is unchecking; otherwise check all in range
+                const startChecked = questionChecks[lastCheckedIndex].checked;
+                const currentChecked = questionChecks[currentIndex].checked;
+                const targetState = (startChecked && currentChecked) ? false : true;
+
+                for (let i = start; i <= end; i++) {
+                    questionChecks[i].checked = targetState;
+                }
+
+                lastCheckedIndex = currentIndex;
+                updateDeleteCount();
+                return;
+            }
+
+            // Single item click:
+            if (clickedCheckboxDirectly) {
+                // Clicking the label toggles the checkbox natively; sync state and count
+                setTimeout(function () {
+                    lastCheckedIndex = currentIndex;
+                    updateDeleteCount();
+                }, 0);
+            } else if (clickedSelectCell || isBulk) {
+                // Clicked on td cell or row while holding bulk key for the first time: toggle checkbox
+                checkbox.checked = !checkbox.checked;
+                lastCheckedIndex = currentIndex;
+                updateDeleteCount();
+            }
+        });
+    }
+
+    // Direct change event fallback
+    questionChecks.forEach(function (checkbox, idx) {
+        checkbox.addEventListener("change", function () {
+            lastCheckedIndex = idx;
+            updateDeleteCount();
+        });
+    });
+
+}
+
+</script>
+
+<!-- ===============================================================
+     PARTICLE BACKGROUND + STAT COUNTERS
+     Only runs when the welcome hero (#particle-canvas) is present,
+     so it never interferes with the other admin pages/tables.
+=================================================================== -->
+<script>
+(function () {
+
+    const canvas = document.getElementById("particle-canvas");
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    const wrapper = canvas.parentElement;
+    let particles = [];
+    let width, height;
+
+    const PARTICLE_COUNT = 70;
+    const LINK_DISTANCE = 120;
+
+    function resize() {
+        width = canvas.width = wrapper.offsetWidth;
+        height = canvas.height = wrapper.offsetHeight;
+    }
+
+    function makeParticles() {
+        particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+            particles.push({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                vx: (Math.random() - 0.5) * 0.4,
+                vy: (Math.random() - 0.5) * 0.4,
+                r: Math.random() * 1.8 + 0.6
+            });
+        }
+    }
+
+    function step() {
+        ctx.clearRect(0, 0, width, height);
+
+        // move + draw particles
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0 || p.x > width) p.vx *= -1;
+            if (p.y < 0 || p.y > height) p.vy *= -1;
+
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(167, 139, 250, 0.85)";
+            ctx.fill();
+        });
+
+        // draw connecting lines between nearby particles
+        for (let i = 0; i < particles.length; i++) {
+            for (let j = i + 1; j < particles.length; j++) {
+                const a = particles[i], b = particles[j];
+                const dx = a.x - b.x, dy = a.y - b.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+
+                if (dist < LINK_DISTANCE) {
+                    ctx.beginPath();
+                    ctx.moveTo(a.x, a.y);
+                    ctx.lineTo(b.x, b.y);
+                    ctx.strokeStyle = "rgba(129, 140, 248, " + (1 - dist / LINK_DISTANCE) * 0.35 + ")";
+                    ctx.lineWidth = 1;
+                    ctx.stroke();
+                }
+            }
+        }
+
+        requestAnimationFrame(step);
+    }
+
+    resize();
+    makeParticles();
+    requestAnimationFrame(step);
+
+    window.addEventListener("resize", function () {
+        resize();
+        makeParticles();
+    });
+
+    // ---- animated stat counters ----
+    const counters = document.querySelectorAll(".stat-value[data-count]");
+
+    function animateCounter(el) {
+        const target = parseInt(el.getAttribute("data-count"), 10) || 0;
+        const duration = 1400;
+        const start = performance.now();
+
+        function tick(now) {
+            const progress = Math.min((now - start) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+            el.textContent = Math.floor(eased * target).toLocaleString();
+
+            if (progress < 1) {
+                requestAnimationFrame(tick);
+            } else {
+                el.textContent = target.toLocaleString();
+            }
+        }
+
+        requestAnimationFrame(tick);
+    }
+
+    counters.forEach(animateCounter);
+
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
+<script>
+document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(btn => {
+
+    btn.addEventListener('click', function(){
+
+        const arrow = this.querySelector('.arrow');
+
+        setTimeout(() => {
+
+            if(this.getAttribute('aria-expanded') === "true"){
+                arrow.style.transform = "rotate(180deg)";
+            }else{
+                arrow.style.transform = "rotate(0deg)";
+            }
+
+        },50);
+
+    });
+
+});
+</script>
 </body>
 </html>

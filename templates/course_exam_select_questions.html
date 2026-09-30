@@ -1,0 +1,1726 @@
+<!-- ==============================================================
+     COURSE EXAM QUESTION SELECTION MODE
+     File: templates/course_exam_select_questions.html
+     ============================================================== -->
+
+<style>
+  .select-mode-wrapper {
+    animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  /* Top Banner Badge */
+  .select-mode-top-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 16px;
+    border-radius: 30px;
+    background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.2));
+    border: 1px solid rgba(56, 189, 248, 0.4);
+    color: #0284c7;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    box-shadow: 0 0 20px rgba(14, 165, 233, 0.15);
+    margin-bottom: 12px;
+  }
+
+  .select-mode-top-badge .badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #0ea5e9;
+    box-shadow: 0 0 8px #0ea5e9;
+    animation: pulseDot 1.8s infinite;
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { opacity: 0.5; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
+  .select-mode-header {
+    margin-bottom: 20px;
+  }
+
+  .select-mode-header h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .select-mode-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  /* 3D Glassmorphic Exam Info Card */
+  .exam-info-card {
+    background: linear-gradient(145deg, #0d1527, #0a0f1d);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    border-radius: 18px;
+    padding: 22px 28px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35), 0 0 30px rgba(14, 165, 233, 0.12);
+    color: #f8fafc;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .exam-info-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #0ea5e9, #8b5cf6, #10b981);
+  }
+
+  .exam-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px 24px;
+    align-items: center;
+  }
+
+  .exam-info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .info-lbl {
+    font-size: 11px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .info-val {
+    font-size: 14.5px;
+    font-weight: 700;
+    color: #f1f5f9;
+    word-break: break-word;
+  }
+
+  .info-val.highlight-cyan {
+    color: #38bdf8;
+  }
+
+  .info-val.highlight-purple {
+    color: #c084fc;
+  }
+
+  .exam-counter-box {
+    background: rgba(14, 165, 233, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 12px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .exam-counter-num {
+    font-size: 22px;
+    font-weight: 800;
+    color: #38bdf8;
+  }
+
+  /* Two Column Main Layout */
+  .select-mode-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 24px;
+    align-items: start;
+  }
+
+  @media (max-width: 1100px) {
+    .select-mode-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /* Filter Card */
+  .selection-filter-card {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    padding: 18px 22px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    margin-bottom: 20px;
+  }
+
+  .selection-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .selection-filter-item label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: 4px;
+  }
+
+  .selection-filter-item select,
+  .selection-filter-search input {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 13px;
+    color: #1e293b;
+    background: #ffffff;
+  }
+
+  .selection-filter-item select:focus,
+  .selection-filter-search input:focus {
+    border-color: #0284c7;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.15);
+  }
+
+  .filter-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #f1f5f9;
+  }
+
+  .selection-filter-search {
+    position: relative;
+    flex: 1;
+    max-width: 380px;
+  }
+
+  .selection-filter-search i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 13px;
+  }
+
+  .selection-filter-search input {
+    padding-left: 36px;
+  }
+
+  /* Action Buttons in Toolbar */
+  .toolbar-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .btn-manual-add {
+    background: linear-gradient(135deg, #4f46e5, #0ea5e9);
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(14, 165, 233, 0.25);
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-manual-add:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(14, 165, 233, 0.4);
+    color: #ffffff;
+  }
+
+  .select-all-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 7px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    user-select: none;
+  }
+
+  .select-all-box input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+
+  /* Questions Cards Grid */
+  .questions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .question-item-card {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 20px 22px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .question-item-card:hover {
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  }
+
+  .question-item-card.is-selected {
+    border-color: #0ea5e9 !important;
+    background: #f0f9ff !important;
+    box-shadow: 0 8px 24px rgba(14, 165, 233, 0.15) !important;
+  }
+
+  .q-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 12px;
+  }
+
+  .q-card-select-trigger {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .q-select-checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    cursor: pointer;
+    accent-color: #0ea5e9;
+  }
+
+  .q-meta-badges {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .q-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    display: inline-block;
+  }
+
+  .q-badge-code { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+  .q-badge-subj { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+  .q-badge-type-mcq { background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+  .q-badge-type-desc { background: #fdf4ff; color: #a21caf; border: 1px solid #f5d0fe; }
+  .q-badge-level-easy { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+  .q-badge-level-med { background: #fef9c3; color: #a16207; border: 1px solid #fef08a; }
+  .q-badge-level-hard { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+  .q-badge-source { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+
+  .q-id-code {
+    font-size: 11px;
+    font-family: monospace;
+    color: #94a3b8;
+  }
+
+  .q-unit-topic {
+    font-size: 11.5px;
+    color: #64748b;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+
+  .q-text-body {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+
+  .mcq-options-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+  }
+
+  @media (max-width: 600px) {
+    .mcq-options-list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .mcq-option-row {
+    font-size: 13px;
+    color: #475569;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .mcq-option-row.is-correct {
+    background: #ecfdf5;
+    color: #065f46;
+    border-color: #a7f3d0;
+    font-weight: 700;
+  }
+
+  .desc-answer-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: #475569;
+    margin-bottom: 6px;
+  }
+
+  .desc-marks-badge {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #7c3aed;
+    background: #f5f3ff;
+    border: 1px solid #ddd6fe;
+    border-radius: 6px;
+    padding: 3px 8px;
+    display: inline-block;
+  }
+
+  /* Right Sticky Panel (Selected Questions) */
+  .selected-panel {
+    background: linear-gradient(145deg, #0d1527, #0a0f1d);
+    border: 1px solid rgba(56, 189, 248, 0.28);
+    border-radius: 20px;
+    padding: 22px;
+    color: #f8fafc;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.35), 0 0 30px rgba(14, 165, 233, 0.12);
+    position: sticky;
+    top: 24px;
+    max-height: calc(100vh - 48px);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .selected-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 14px;
+  }
+
+  .selected-panel-header h3 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .selected-progress-track {
+    width: 100%;
+    height: 7px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+
+  .selected-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #0ea5e9, #10b981);
+    border-radius: 10px;
+    transition: width 0.3s ease;
+  }
+
+  .selected-items-scroll {
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 4px;
+    margin-bottom: 18px;
+  }
+
+  /* Custom Scrollbar for Selected Items */
+  .selected-items-scroll::-webkit-scrollbar {
+    width: 5px;
+  }
+  .selected-items-scroll::-webkit-scrollbar-thumb {
+    background: rgba(56, 189, 248, 0.3);
+    border-radius: 10px;
+  }
+
+  .selected-compact-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: all 0.2s ease;
+  }
+
+  .selected-compact-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(56, 189, 248, 0.35);
+  }
+
+  .compact-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .compact-q-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e2e8f0;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .compact-q-meta {
+    font-size: 11px;
+    color: #94a3b8;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .btn-remove-from-exam {
+    background: rgba(239, 68, 68, 0.15);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 6px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .btn-remove-from-exam:hover {
+    background: #ef4444;
+    color: #ffffff;
+    border-color: #ef4444;
+  }
+
+  .selected-empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: #94a3b8;
+    font-size: 13px;
+  }
+
+  .selected-empty-state i {
+    font-size: 32px;
+    color: #475569;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .panel-bottom-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .btn-save-selection {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 13px 20px;
+    font-size: 14.5px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .btn-save-selection:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5);
+  }
+
+  .btn-back-cem {
+    background: rgba(148, 163, 184, 0.12);
+    color: #cbd5e1;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 12px;
+    padding: 10px 18px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-back-cem:hover {
+    background: rgba(148, 163, 184, 0.22);
+    color: #ffffff;
+  }
+
+  /* Manual Add Question Modal */
+  .manual-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 15, 30, 0.8);
+    backdrop-filter: blur(8px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+    padding: 20px;
+    overflow-y: auto;
+  }
+
+  .manual-modal-content {
+    background: linear-gradient(145deg, #0d1527, #0a0f1d);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    border-radius: 20px;
+    width: 100%;
+    max-width: 660px;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.65), 0 0 35px rgba(14, 165, 233, 0.18);
+    color: #f8fafc;
+    overflow: hidden;
+    animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .manual-modal-header {
+    background: linear-gradient(90deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15));
+    border-bottom: 1px solid rgba(56, 189, 248, 0.25);
+    padding: 20px 26px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .manual-modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .manual-modal-body {
+    padding: 24px 26px;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+
+  .inherited-pill-box {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(56, 189, 248, 0.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .inherited-pill {
+    font-size: 12px;
+    color: #cbd5e1;
+  }
+  .inherited-pill strong {
+    color: #38bdf8;
+  }
+
+  .manual-form-group {
+    margin-bottom: 16px;
+  }
+
+  .manual-form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #94a3b8;
+    margin-bottom: 6px;
+  }
+
+  .manual-form-group input,
+  .manual-form-group select,
+  .manual-form-group textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 10px;
+    padding: 9px 12px;
+    color: #f8fafc;
+    font-size: 13.5px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+
+  .manual-form-group input:focus,
+  .manual-form-group select:focus,
+  .manual-form-group textarea:focus {
+    border-color: #38bdf8;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
+  }
+
+  .manual-form-group select option {
+    background: #0f172a;
+    color: #f8fafc;
+  }
+
+  .type-toggle-btns {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .btn-type-toggle {
+    flex: 1;
+    padding: 9px;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    background: rgba(255, 255, 255, 0.05);
+    color: #94a3b8;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-type-toggle.active {
+    background: #0284c7;
+    border-color: #38bdf8;
+    color: #ffffff;
+    box-shadow: 0 0 15px rgba(14, 165, 233, 0.4);
+  }
+
+  .manual-modal-footer {
+    padding: 16px 26px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+</style>
+
+<div class="select-mode-wrapper">
+
+  <!-- TOP BADGE -->
+  <div class="select-mode-top-badge">
+    <span class="badge-dot"></span>
+    <i class="fa-solid fa-sliders"></i>
+    <span>EXAM QUESTION SELECTION MODE</span>
+  </div>
+
+  <!-- HEADER -->
+  <div class="select-mode-header">
+    <h2><i class="fa-solid fa-list-check" style="color: #0284c7;"></i> SELECT QUESTIONS FOR COURSE EXAM</h2>
+    <p>Select existing questions from the question bank or author manual questions dedicated specifically for this course examination.</p>
+  </div>
+
+  <!-- EXAM INFORMATION 3D GLASS CARD -->
+  <div class="exam-info-card">
+    <div class="exam-info-grid">
+      <div class="exam-info-item">
+        <span class="info-lbl">EXAM TITLE</span>
+        <span class="info-val highlight-cyan">{{ exam.title }}</span>
+      </div>
+      <div class="exam-info-item">
+        <span class="info-lbl">COURSE</span>
+        <span class="info-val">{{ exam.course_code }} • {{ exam.course_name }}</span>
+      </div>
+      <div class="exam-info-item">
+        <span class="info-lbl">SUBJECT</span>
+        <span class="info-val highlight-purple">{{ exam.subject }}</span>
+      </div>
+      <div class="exam-info-item">
+        <span class="info-lbl">TARGET DIFFICULTY</span>
+        <span class="info-val">{{ exam.difficulty }}</span>
+      </div>
+      <div class="exam-info-item">
+        <span class="info-lbl">QUESTIONS REQUIRED</span>
+        <span class="info-val" style="font-size: 18px;">{{ exam.num_questions }}</span>
+      </div>
+      <div class="exam-counter-box">
+        <div>
+          <span class="info-lbl" style="color: #cbd5e1;">SELECTED</span>
+          <div class="exam-counter-num">
+            <span id="headerSelectedCount">{{ selected_ids|length }}</span> / {{ exam.num_questions }}
+          </div>
+        </div>
+        <i class="fa-solid fa-circle-check" style="font-size: 26px; color: #38bdf8;"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- TWO COLUMN MAIN LAYOUT -->
+  <div class="select-mode-layout">
+
+    <!-- LEFT COLUMN: TOOLBAR, FILTERS & QUESTIONS LIST -->
+    <div>
+
+      <!-- TOOLBAR: ADD MANUAL QUESTION & SELECT ALL -->
+      <div class="toolbar-actions">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+          <button type="button" class="btn-manual-add" onclick="openManualModal()">
+            <i class="fa-solid fa-plus-circle"></i> + ADD QUESTION MANUALLY
+          </button>
+
+          <label class="select-all-box">
+            <input type="checkbox" id="selectAllVisibleBox" onchange="handleSelectAllVisible(this.checked)">
+            <span>☑ Select All Visible</span>
+          </label>
+        </div>
+
+        <span class="badge bg-light text-dark border p-2" id="filterStatsDisplay" style="font-size: 12px;">
+          Matching Questions: <strong id="visibleCountNum">0</strong>
+        </span>
+      </div>
+
+      <!-- FILTER CARD -->
+      <div class="selection-filter-card">
+        <div class="selection-filter-grid">
+          <!-- Course Code -->
+          <div class="selection-filter-item">
+            <label>Course Code</label>
+            <select id="filterCourseCode" onchange="applyFilters()">
+              <option value="">All Courses</option>
+              {% for c in existing_courses %}
+                <option value="{{ c }}" {% if c == exam.course_code %}selected{% endif %}>{{ c }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Subject -->
+          <div class="selection-filter-item">
+            <label>Subject</label>
+            <select id="filterSubject" onchange="applyFilters()">
+              <option value="">All Subjects</option>
+              {% for s in existing_subjects %}
+                <option value="{{ s }}" {% if s|lower == exam.subject|lower %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Question Type -->
+          <div class="selection-filter-item">
+            <label>Question Type</label>
+            <select id="filterType" onchange="applyFilters()">
+              <option value="">All Types</option>
+              <option value="MCQ" {% if exam.exam_type == 'MCQ' %}selected{% endif %}>MCQ</option>
+              <option value="DESCRIPTIVE" {% if exam.exam_type == 'Descriptive' %}selected{% endif %}>Descriptive</option>
+            </select>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="selection-filter-item">
+            <label>Difficulty</label>
+            <select id="filterDifficulty" onchange="applyFilters()">
+              <option value="">All Levels</option>
+              <option value="Easy" {% if exam.difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+              <option value="Medium" {% if exam.difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+              <option value="Hard" {% if exam.difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+            </select>
+          </div>
+
+          <!-- Source -->
+          <div class="selection-filter-item">
+            <label>Source</label>
+            <select id="filterSource" onchange="applyFilters()">
+              <option value="">All Sources</option>
+              <option value="MANUAL">Manual</option>
+              <option value="AI">AI Generated</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-actions-row">
+          <div class="selection-filter-search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="filterSearchInput" placeholder="Search question text, keywords, ID..." oninput="applyFilters()">
+          </div>
+          <button type="button" class="btn btn-sm btn-light border" onclick="resetFilters()">
+            <i class="fa-solid fa-rotate-left me-1"></i> Reset to Course Default
+          </button>
+        </div>
+      </div>
+
+      <!-- QUESTIONS LIST CARDS -->
+      <div class="questions-container" id="questionsListContainer">
+        {% for q in questions %}
+        {% set q_id = q.id|default('Q-' ~ loop.index) %}
+        {% set is_selected = q_id in selected_ids %}
+        <div class="question-item-card {% if is_selected %}is-selected{% endif %}"
+             id="card-{{ q_id }}"
+             data-qid="{{ q_id }}"
+             data-course-code="{{ q.course_code|default('')|upper }}"
+             data-subject="{{ q.subject|default('')|lower }}"
+             data-type="{{ q.type|default('MCQ')|upper }}"
+             data-level="{{ q.level|default('Easy') }}"
+             data-source="{{ q.source|default('MANUAL')|upper }}"
+             data-search="{{ (q.question|default(q.q)|default('') ~ ' ' ~ q_id ~ ' ' ~ q.topic|default('') ~ ' ' ~ q.unit|default(''))|lower }}"
+             onclick="handleCardClick(event, '{{ q_id }}')">
+
+          <div class="q-card-top">
+            <div class="q-card-select-trigger">
+              <input type="checkbox"
+                     class="q-select-checkbox"
+                     id="chk-{{ q_id }}"
+                     data-qid="{{ q_id }}"
+                     {% if is_selected %}checked{% endif %}
+                     onclick="handleCheckboxClick(event, '{{ q_id }}')">
+              <div class="q-meta-badges">
+                <span class="q-badge q-badge-code">{{ q.course_code|default('GEN101') }}</span>
+                <span class="q-badge q-badge-subj">{{ q.subject|default('General') }}</span>
+                <span class="q-badge {% if q.type == 'DESCRIPTIVE' %}q-badge-type-desc{% else %}q-badge-type-mcq{% endif %}">
+                  {{ q.type|default('MCQ') }}
+                </span>
+                <span class="q-badge {% if q.level == 'Hard' %}q-badge-level-hard{% elif q.level == 'Medium' %}q-badge-level-med{% else %}q-badge-level-easy{% endif %}">
+                  {{ q.level|default('Easy') }}
+                </span>
+                <span class="q-badge q-badge-source">{{ q.source|default('MANUAL') }}</span>
+              </div>
+            </div>
+            <span class="q-id-code">ID: {{ q_id }}</span>
+          </div>
+
+          {% if q.unit or q.topic %}
+          <div class="q-unit-topic">
+            <i class="fa-solid fa-folder-tree me-1 text-primary"></i>
+            {% if q.unit %}<span>{{ q.unit }}</span>{% endif %}
+            {% if q.unit and q.topic %} • {% endif %}
+            {% if q.topic %}<span>{{ q.topic }}</span>{% endif %}
+          </div>
+          {% endif %}
+
+          <div class="q-text-body">
+            {{ q.question|default(q.q) }}
+          </div>
+
+          {% if q.type == 'DESCRIPTIVE' %}
+            <div class="desc-answer-box">
+              <strong style="color: #7c3aed;"><i class="fa-solid fa-key me-1"></i> Model Answer:</strong>
+              <div>{{ q.answer_key|default('N/A') }}</div>
+            </div>
+            <div style="margin-top: 6px;">
+              <span class="desc-marks-badge"><i class="fa-solid fa-award me-1"></i> Max Marks: {{ q.max_marks|default(5) }}</span>
+            </div>
+          {% else %}
+            {% set opts = q.options or q.a %}
+            {% if opts %}
+            <div class="mcq-options-list">
+              {% for opt in opts %}
+              <div class="mcq-option-row {% if opt == q.correct %}is-correct{% endif %}">
+                <span style="font-weight: 700; width: 18px;">{{ ['A','B','C','D'][loop.index0] if loop.index0 < 4 else loop.index }}.</span>
+                <span>{{ opt }}</span>
+                {% if opt == q.correct %}
+                  <i class="fa-solid fa-circle-check ms-auto text-success"></i>
+                {% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          {% endif %}
+
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN: SELECTED QUESTIONS STICKY PANEL -->
+    <div>
+      <div class="selected-panel">
+
+        <div class="selected-panel-header">
+          <h3><i class="fa-solid fa-clipboard-check text-cyan"></i> SELECTED QUESTIONS</h3>
+          <span style="font-size: 13px; font-weight: 700; color: #38bdf8;" id="panelHeaderCount">
+            {{ selected_ids|length }} / {{ exam.num_questions }}
+          </span>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="selected-progress-track">
+          <div class="selected-progress-fill" id="selectedProgressBar" style="width: 0%;"></div>
+        </div>
+
+        <!-- Scrollable Selected Items -->
+        <div class="selected-items-scroll" id="selectedItemsContainer">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="panel-bottom-actions">
+          <button type="button" class="btn-save-selection" onclick="submitExamSelection()">
+            <i class="fa-solid fa-floppy-disk"></i> SAVE QUESTION SELECTION
+          </button>
+          <a href="{{ url_for('admin.course_exams_manage') }}" class="btn-back-cem">
+            <i class="fa-solid fa-arrow-left"></i> ← BACK
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ==============================================================
+     IN-PAGE "+ ADD QUESTION MANUALLY" MODAL
+     ============================================================== -->
+<div class="manual-modal-overlay" id="manualQuestionModal">
+  <div class="manual-modal-content">
+    <div class="manual-modal-header">
+      <h3><i class="fa-solid fa-pen-fancy text-cyan"></i> Add Question for Course Exam</h3>
+      <button type="button" class="btn-close btn-close-white" onclick="closeManualModal()"></button>
+    </div>
+
+    <form id="manualQuestionForm" onsubmit="handleManualQuestionSubmit(event)">
+      <div class="manual-modal-body">
+
+        <!-- Inherited Exam Fields (Predefined) -->
+        <div class="inherited-pill-box">
+          <div class="inherited-pill">Course Code: <strong>{{ exam.course_code }}</strong></div>
+          <div class="inherited-pill">Course Name: <strong>{{ exam.course_name }}</strong></div>
+          <div class="inherited-pill">Subject: <strong>{{ exam.subject }}</strong></div>
+        </div>
+
+        <input type="hidden" id="mq_course_code" value="{{ exam.course_code }}">
+        <input type="hidden" id="mq_course_name" value="{{ exam.course_name }}">
+        <input type="hidden" id="mq_subject" value="{{ exam.subject }}">
+
+        <!-- Unit & Topic -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="manual-form-group">
+            <label>Unit / Module (Optional)</label>
+            <input type="text" id="mq_unit" placeholder="e.g. Module III">
+          </div>
+          <div class="manual-form-group">
+            <label>Topic (Optional)</label>
+            <input type="text" id="mq_topic" placeholder="e.g. Binary Search Trees">
+          </div>
+        </div>
+
+        <!-- Question Type Toggle -->
+        <div class="manual-form-group">
+          <label>Question Type *</label>
+          <div class="type-toggle-btns">
+            <button type="button" class="btn-type-toggle active" id="btnTypeMcq" onclick="setManualType('MCQ')">
+              <i class="fa-solid fa-list-ol me-1"></i> Multiple Choice (MCQ)
+            </button>
+            <button type="button" class="btn-type-toggle" id="btnTypeDesc" onclick="setManualType('DESCRIPTIVE')">
+              <i class="fa-solid fa-align-left me-1"></i> Descriptive
+            </button>
+          </div>
+          <input type="hidden" id="mq_type" value="MCQ">
+        </div>
+
+        <!-- Difficulty -->
+        <div class="manual-form-group">
+          <label>Difficulty Level *</label>
+          <select id="mq_level">
+            <option value="Easy" {% if exam.difficulty == 'Easy' %}selected{% endif %}>Easy</option>
+            <option value="Medium" {% if exam.difficulty == 'Medium' %}selected{% endif %}>Medium</option>
+            <option value="Hard" {% if exam.difficulty == 'Hard' %}selected{% endif %}>Hard</option>
+          </select>
+        </div>
+
+        <!-- Question Statement -->
+        <div class="manual-form-group">
+          <label>Question Statement *</label>
+          <textarea id="mq_question" rows="3" placeholder="Enter the complete question statement..." required></textarea>
+        </div>
+
+        <!-- MCQ Section -->
+        <div id="mqMcqSection">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="manual-form-group">
+              <label>Option A *</label>
+              <input type="text" id="mq_option_a" placeholder="Option A text">
+            </div>
+            <div class="manual-form-group">
+              <label>Option B *</label>
+              <input type="text" id="mq_option_b" placeholder="Option B text">
+            </div>
+            <div class="manual-form-group">
+              <label>Option C *</label>
+              <input type="text" id="mq_option_c" placeholder="Option C text">
+            </div>
+            <div class="manual-form-group">
+              <label>Option D *</label>
+              <input type="text" id="mq_option_d" placeholder="Option D text">
+            </div>
+          </div>
+          <div class="manual-form-group">
+            <label>Correct Answer *</label>
+            <select id="mq_correct">
+              <option value="">Select which option is correct...</option>
+              <option value="A">Option A</option>
+              <option value="B">Option B</option>
+              <option value="C">Option C</option>
+              <option value="D">Option D</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Descriptive Section -->
+        <div id="mqDescSection" style="display: none;">
+          <div class="manual-form-group">
+            <label>Model Answer / Key Points *</label>
+            <textarea id="mq_answer_key" rows="3" placeholder="Provide key points or sample model answer..."></textarea>
+          </div>
+          <div class="manual-form-group">
+            <label>Maximum Marks *</label>
+            <input type="number" id="mq_max_marks" min="1" max="100" value="5">
+          </div>
+        </div>
+
+      </div>
+
+      <div class="manual-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeManualModal()">Cancel</button>
+        <button type="submit" class="btn btn-primary" id="btnSaveManualQuestion" style="background: linear-gradient(135deg, #4f46e5, #0ea5e9); border: none; font-weight: 700;">
+          <i class="fa-solid fa-check me-1"></i> Save & Select Question
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ==============================================================
+     JAVASCRIPT LOGIC
+     ============================================================== -->
+<script>
+  const examData = {{ exam|tojson }};
+  const questionsMap = {};
+  {% for q in questions %}
+    questionsMap[{{ (q.id|default('Q-' ~ loop.index))|tojson }}] = {{ q|tojson }};
+  {% endfor %}
+
+  let selectedIds = {{ selected_ids|tojson }};
+  const requiredCount = parseInt(examData.num_questions) || 10;
+
+  // Initialize view
+  document.addEventListener('DOMContentLoaded', function() {
+    applyFilters();
+    renderSelectedPanel();
+  });
+
+  // Toggle selection on Card click
+  function handleCardClick(event, qid) {
+    // If clicked on interactive elements directly, ignore card wrapper click
+    if (event.target.closest('input, button, a, select, textarea')) {
+      return;
+    }
+    toggleQuestion(qid);
+  }
+
+  // Toggle selection on Checkbox click
+  function handleCheckboxClick(event, qid) {
+    event.stopPropagation();
+    toggleQuestion(qid);
+  }
+
+  function toggleQuestion(qid) {
+    const idx = selectedIds.indexOf(qid);
+    if (idx > -1) {
+      // Unselect
+      selectedIds.splice(idx, 1);
+      updateQuestionCardState(qid, false);
+    } else {
+      // Check limit
+      if (selectedIds.length >= requiredCount) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'MAXIMUM QUESTIONS REACHED',
+          text: `Maximum ${requiredCount} questions can be selected for this examination.`,
+          timer: 2500,
+          timerProgressBar: true,
+          showConfirmButton: false,
+          background: '#0d1527',
+          color: '#f8fafc',
+          iconColor: '#f59e0b'
+        });
+        // Ensure checkbox is unchecked
+        const chk = document.getElementById('chk-' + qid);
+        if (chk) chk.checked = false;
+        return;
+      }
+      selectedIds.push(qid);
+      updateQuestionCardState(qid, true);
+    }
+    renderSelectedPanel();
+  }
+
+  function updateQuestionCardState(qid, isSelected) {
+    const card = document.getElementById('card-' + qid);
+    const chk = document.getElementById('chk-' + qid);
+    if (card) {
+      if (isSelected) card.classList.add('is-selected');
+      else card.classList.remove('is-selected');
+    }
+    if (chk) {
+      chk.checked = isSelected;
+    }
+  }
+
+  // Remove question from exam selection only (NEVER deletes from question bank)
+  function removeSelected(qid) {
+    const idx = selectedIds.indexOf(qid);
+    if (idx > -1) {
+      selectedIds.splice(idx, 1);
+      updateQuestionCardState(qid, false);
+      renderSelectedPanel();
+    }
+  }
+
+  // Render the Selected Questions Sticky Panel
+  function renderSelectedPanel() {
+    const container = document.getElementById('selectedItemsContainer');
+    const headerDisplay = document.getElementById('headerSelectedCount');
+    const panelDisplay = document.getElementById('panelHeaderCount');
+    const progressBar = document.getElementById('selectedProgressBar');
+
+    const count = selectedIds.length;
+    if (headerDisplay) headerDisplay.textContent = count;
+    if (panelDisplay) panelDisplay.textContent = `${count} / ${requiredCount}`;
+
+    // Update progress bar
+    const pct = Math.min(100, Math.round((count / requiredCount) * 100));
+    if (progressBar) {
+      progressBar.style.width = pct + '%';
+      if (count >= requiredCount) {
+        progressBar.style.background = 'linear-gradient(90deg, #10b981, #059669)';
+      } else {
+        progressBar.style.background = 'linear-gradient(90deg, #0ea5e9, #8b5cf6)';
+      }
+    }
+
+    if (!container) return;
+
+    if (count === 0) {
+      container.innerHTML = `
+        <div class="selected-empty-state">
+          <i class="fa-regular fa-square-check"></i>
+          <div>No questions selected yet.</div>
+          <div style="font-size: 11.5px; margin-top: 4px;">Click any question card to select, or create a new question manually.</div>
+        </div>
+      `;
+      return;
+    }
+
+    let html = '';
+    selectedIds.forEach((qid, idx) => {
+      const q = questionsMap[qid] || {};
+      const qText = q.question || q.q || 'Question #' + (idx + 1);
+      const cCode = q.course_code || examData.course_code || '';
+      const subj = q.subject || examData.subject || '';
+      const lvl = q.level || 'Easy';
+      const qType = q.type || 'MCQ';
+
+      html += `
+        <div class="selected-compact-card">
+          <div class="compact-card-row">
+            <span style="font-weight: 700; color: #38bdf8; font-size: 12px;">${idx + 1}.</span>
+            <div class="compact-q-title" title="${escapeHtml(qText)}">${escapeHtml(qText)}</div>
+            <button type="button" class="btn-remove-from-exam" title="Remove from this exam" onclick="removeSelected('${qid}')">
+              <i class="fa-solid fa-xmark"></i> REMOVE
+            </button>
+          </div>
+          <div class="compact-q-meta">
+            <span>${cCode}</span> • <span>${subj}</span> • <span>${lvl}</span> • <span>${qType}</span>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  // Filter Logic
+  function applyFilters() {
+    const codeVal = document.getElementById('filterCourseCode').value.toUpperCase().trim();
+    const subjVal = document.getElementById('filterSubject').value.toLowerCase().trim();
+    const typeVal = document.getElementById('filterType').value.toUpperCase().trim();
+    const diffVal = document.getElementById('filterDifficulty').value.toLowerCase().trim();
+    const sourceVal = document.getElementById('filterSource').value.toUpperCase().trim();
+    const searchVal = document.getElementById('filterSearchInput').value.toLowerCase().trim();
+
+    const cards = document.querySelectorAll('#questionsListContainer .question-item-card');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const cCode = (card.getAttribute('data-course-code') || '').toUpperCase();
+      const cSubj = (card.getAttribute('data-subject') || '').toLowerCase();
+      const cType = (card.getAttribute('data-type') || '').toUpperCase();
+      const cLevel = (card.getAttribute('data-level') || '').toLowerCase();
+      const cSource = (card.getAttribute('data-source') || '').toUpperCase();
+      const cSearch = (card.getAttribute('data-search') || '').toLowerCase();
+
+      let match = true;
+      if (codeVal && cCode !== codeVal) match = false;
+      if (subjVal && cSubj !== subjVal) match = false;
+      if (typeVal && cType !== typeVal) match = false;
+      if (diffVal && cLevel !== diffVal) match = false;
+      if (sourceVal && cSource !== sourceVal) match = false;
+      if (searchVal && !cSearch.includes(searchVal)) match = false;
+
+      if (match) {
+        card.style.display = '';
+        visibleCount++;
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    const stats = document.getElementById('visibleCountNum');
+    if (stats) stats.textContent = visibleCount;
+  }
+
+  function resetFilters() {
+    document.getElementById('filterCourseCode').value = examData.course_code || '';
+    document.getElementById('filterSubject').value = examData.subject || '';
+    document.getElementById('filterType').value = '';
+    document.getElementById('filterDifficulty').value = '';
+    document.getElementById('filterSource').value = '';
+    document.getElementById('filterSearchInput').value = '';
+    applyFilters();
+  }
+
+  // Select All Visible
+  function handleSelectAllVisible(isChecked) {
+    const visibleCards = document.querySelectorAll('#questionsListContainer .question-item-card:not([style*="display: none"])');
+    if (isChecked) {
+      let addedAny = false;
+      for (const card of visibleCards) {
+        const qid = card.getAttribute('data-qid');
+        if (!selectedIds.includes(qid)) {
+          if (selectedIds.length >= requiredCount) {
+            Swal.fire({
+              icon: 'warning',
+              title: 'MAXIMUM QUESTIONS REACHED',
+              text: `Maximum ${requiredCount} questions reached.`,
+              timer: 2000,
+              showConfirmButton: false,
+              background: '#0d1527',
+              color: '#f8fafc',
+              iconColor: '#f59e0b'
+            });
+            break;
+          }
+          selectedIds.push(qid);
+          updateQuestionCardState(qid, true);
+          addedAny = true;
+        }
+      }
+    } else {
+      visibleCards.forEach(card => {
+        const qid = card.getAttribute('data-qid');
+        const idx = selectedIds.indexOf(qid);
+        if (idx > -1) {
+          selectedIds.splice(idx, 1);
+          updateQuestionCardState(qid, false);
+        }
+      });
+    }
+    renderSelectedPanel();
+  }
+
+  // Save Selection Submission
+  function submitExamSelection() {
+    if (selectedIds.length < requiredCount) {
+      const remaining = requiredCount - selectedIds.length;
+      Swal.fire({
+        icon: 'warning',
+        title: 'INCOMPLETE SELECTION',
+        text: `Please select ${remaining} more question${remaining > 1 ? 's' : ''} to reach the required ${requiredCount} questions.`,
+        confirmButtonColor: '#4f46e5',
+        background: '#0d1527',
+        color: '#f8fafc',
+        iconColor: '#f59e0b'
+      });
+      return;
+    }
+
+    if (selectedIds.length > requiredCount) {
+      const excess = selectedIds.length - requiredCount;
+      Swal.fire({
+        icon: 'warning',
+        title: 'TOO MANY QUESTIONS',
+        text: `Maximum ${requiredCount} questions allowed. Please remove ${excess} question${excess > 1 ? 's' : ''}.`,
+        confirmButtonColor: '#ef4444',
+        background: '#0d1527',
+        color: '#f8fafc',
+        iconColor: '#ef4444'
+      });
+      return;
+    }
+
+    const examId = examData.id || 'new';
+
+    fetch('/admin/course-exams/save-selection/' + examId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question_ids: selectedIds })
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'QUESTIONS SAVED',
+          text: `${data.count} questions selected successfully.`,
+          timer: 1600,
+          showConfirmButton: false,
+          background: '#0d1527',
+          color: '#f8fafc',
+          iconColor: '#10b981'
+        }).then(() => {
+          window.location.href = data.redirect_url || "{{ url_for('admin.course_exams_manage') }}";
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: data.error || 'Failed to save question selection.'
+        });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Network error occurred while saving question selection.'
+      });
+    });
+  }
+
+  // ==============================================================
+  // MANUAL QUESTION MODAL LOGIC
+  // ==============================================================
+  function openManualModal() {
+    document.getElementById('manualQuestionModal').style.display = 'flex';
+  }
+
+  function closeManualModal() {
+    document.getElementById('manualQuestionModal').style.display = 'none';
+  }
+
+  function setManualType(type) {
+    document.getElementById('mq_type').value = type;
+    const btnMcq = document.getElementById('btnTypeMcq');
+    const btnDesc = document.getElementById('btnTypeDesc');
+    const mcqSec = document.getElementById('mqMcqSection');
+    const descSec = document.getElementById('mqDescSection');
+
+    if (type === 'MCQ') {
+      btnMcq.classList.add('active');
+      btnDesc.classList.remove('active');
+      mcqSec.style.display = '';
+      descSec.style.display = 'none';
+    } else {
+      btnDesc.classList.add('active');
+      btnMcq.classList.remove('active');
+      mcqSec.style.display = 'none';
+      descSec.style.display = '';
+    }
+  }
+
+  function handleManualQuestionSubmit(event) {
+    event.preventDefault();
+
+    const cCode = document.getElementById('mq_course_code').value.trim();
+    const cName = document.getElementById('mq_course_name').value.trim();
+    const subj = document.getElementById('mq_subject').value.trim();
+    const unit = document.getElementById('mq_unit').value.trim();
+    const topic = document.getElementById('mq_topic').value.trim();
+    const qtype = document.getElementById('mq_type').value.trim();
+    const level = document.getElementById('mq_level').value.trim();
+    const question = document.getElementById('mq_question').value.trim();
+
+    if (!question) {
+      Swal.fire({ icon: 'warning', title: 'QUESTION REQUIRED', text: 'Please enter question text.' });
+      return;
+    }
+
+    let payload = {
+      course_code: cCode,
+      course_name: cName,
+      subject: subj,
+      unit: unit,
+      topic: topic,
+      type: qtype,
+      level: level,
+      question: question
+    };
+
+    if (qtype === 'MCQ') {
+      const optA = document.getElementById('mq_option_a').value.trim();
+      const optB = document.getElementById('mq_option_b').value.trim();
+      const optC = document.getElementById('mq_option_c').value.trim();
+      const optD = document.getElementById('mq_option_d').value.trim();
+      const correctChoice = document.getElementById('mq_correct').value.trim();
+
+      if (!optA || !optB || !optC || !optD || !correctChoice) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'MCQ FIELDS REQUIRED',
+          text: 'Please fill all four options and select the correct answer.'
+        });
+        return;
+      }
+
+      let correctText = optA;
+      if (correctChoice === 'B') correctText = optB;
+      else if (correctChoice === 'C') correctText = optC;
+      else if (correctChoice === 'D') correctText = optD;
+
+      payload.option_a = optA;
+      payload.option_b = optB;
+      payload.option_c = optC;
+      payload.option_d = optD;
+      payload.correct = correctText;
+    } else {
+      const ak = document.getElementById('mq_answer_key').value.trim();
+      const mm = parseInt(document.getElementById('mq_max_marks').value) || 5;
+      if (!ak) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'MODEL ANSWER REQUIRED',
+          text: 'Please provide model answer key points.'
+        });
+        return;
+      }
+      payload.answer_key = ak;
+      payload.max_marks = mm;
+    }
+
+    const saveBtn = document.getElementById('btnSaveManualQuestion');
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Saving...';
+
+    fetch('/admin/course-exams/add-manual-question', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(data => {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Save & Select Question';
+
+      if (data.success && data.question) {
+        const newQ = data.question;
+        const qid = newQ.id;
+
+        // Register into questionsMap
+        questionsMap[qid] = newQ;
+
+        // Automatically select the question if not exceeding limit
+        if (selectedIds.length < requiredCount) {
+          selectedIds.push(qid);
+        }
+
+        // Prepend card to questions list
+        insertNewQuestionCard(newQ, selectedIds.includes(qid));
+
+        // Refresh panel and counters
+        renderSelectedPanel();
+        closeManualModal();
+        document.getElementById('manualQuestionForm').reset();
+        setManualType('MCQ');
+
+        Swal.fire({
+          icon: 'success',
+          title: 'QUESTION CREATED',
+          text: selectedIds.includes(qid) ?
+            'Question created and automatically selected for this exam!' :
+            'Question created! (Not selected because required limit was already reached)',
+          timer: 2200,
+          showConfirmButton: false,
+          background: '#0d1527',
+          color: '#f8fafc',
+          iconColor: '#10b981'
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Creation Failed',
+          text: data.error || 'Failed to save manual question.'
+        });
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Save & Select Question';
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Network error occurred while creating question.'
+      });
+    });
+  }
+
+  function insertNewQuestionCard(q, isSelected) {
+    const list = document.getElementById('questionsListContainer');
+    if (!list) return;
+
+    const qid = q.id;
+    const isMcq = q.type === 'MCQ';
+    const card = document.createElement('div');
+    card.className = 'question-item-card ' + (isSelected ? 'is-selected' : '');
+    card.id = 'card-' + qid;
+    card.setAttribute('data-qid', qid);
+    card.setAttribute('data-course-code', (q.course_code || '').toUpperCase());
+    card.setAttribute('data-subject', (q.subject || '').toLowerCase());
+    card.setAttribute('data-type', (q.type || 'MCQ').toUpperCase());
+    card.setAttribute('data-level', q.level || 'Easy');
+    card.setAttribute('data-source', 'MANUAL');
+    card.setAttribute('data-search', ((q.question || q.q || '') + ' ' + qid).toLowerCase());
+    card.onclick = function(e) { handleCardClick(e, qid); };
+
+    let optHtml = '';
+    if (isMcq && q.options) {
+      optHtml = `<div class="mcq-options-list">`;
+      q.options.forEach((opt, idx) => {
+        const isCorr = opt === q.correct;
+        const letter = ['A','B','C','D'][idx] || (idx + 1);
+        optHtml += `
+          <div class="mcq-option-row ${isCorr ? 'is-correct' : ''}">
+            <span style="font-weight: 700; width: 18px;">${letter}.</span>
+            <span>${escapeHtml(opt)}</span>
+            ${isCorr ? '<i class="fa-solid fa-circle-check ms-auto text-success"></i>' : ''}
+          </div>
+        `;
+      });
+      optHtml += `</div>`;
+    } else if (!isMcq && q.answer_key) {
+      optHtml = `
+        <div class="desc-answer-box">
+          <strong style="color: #7c3aed;"><i class="fa-solid fa-key me-1"></i> Model Answer:</strong>
+          <div>${escapeHtml(q.answer_key)}</div>
+        </div>
+        <div style="margin-top: 6px;">
+          <span class="desc-marks-badge"><i class="fa-solid fa-award me-1"></i> Max Marks: ${q.max_marks || 5}</span>
+        </div>
+      `;
+    }
+
+    card.innerHTML = `
+      <div class="q-card-top">
+        <div class="q-card-select-trigger">
+          <input type="checkbox"
+                 class="q-select-checkbox"
+                 id="chk-${qid}"
+                 data-qid="${qid}"
+                 ${isSelected ? 'checked' : ''}
+                 onclick="handleCheckboxClick(event, '${qid}')">
+          <div class="q-meta-badges">
+            <span class="q-badge q-badge-code">${q.course_code}</span>
+            <span class="q-badge q-badge-subj">${q.subject}</span>
+            <span class="q-badge ${isMcq ? 'q-badge-type-mcq' : 'q-badge-type-desc'}">${q.type}</span>
+            <span class="q-badge q-badge-level-${(q.level || 'easy').toLowerCase()}">${q.level || 'Easy'}</span>
+            <span class="q-badge q-badge-source">MANUAL</span>
+          </div>
+        </div>
+        <span class="q-id-code">ID: ${qid}</span>
+      </div>
+      ${(q.unit || q.topic) ? `<div class="q-unit-topic"><i class="fa-solid fa-folder-tree me-1 text-primary"></i>${q.unit ? q.unit : ''}${(q.unit && q.topic) ? ' • ' : ''}${q.topic ? q.topic : ''}</div>` : ''}
+      <div class="q-text-body">${escapeHtml(q.question || q.q)}</div>
+      ${optHtml}
+    `;
+
+    list.insertBefore(card, list.firstChild);
+    applyFilters();
+  }
+
+  function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+</script>

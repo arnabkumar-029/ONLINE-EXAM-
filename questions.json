@@ -1,285 +1,1221 @@
 [
   {
-    "q": "Which planet is known as the Red Planet?",
+    "id": "Q-0C114ADB",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "MCQ",
-    "a": [
-      "Earth",
-      "Mars",
-      "Jupiter",
-      "Venus"
-    ],
-    "correct": "Mars",
-    "level": "Easy"
-  },
-  {
-    "q": "Who wrote the National Anthem of India?",
-    "type": "MCQ",
-    "a": [
-      "Rabindranath Tagore",
-      "Bankim Chandra",
-      "Sarojini Naidu",
-      "Mahatma Gandhi"
-    ],
-    "correct": "Rabindranath Tagore",
-    "level": "Easy"
-  },
-  {
-    "q": "In which year did India gain independence?",
-    "type": "MCQ",
-    "a": [
-      "1947",
-      "1950",
-      "1930",
-      "1960"
-    ],
-    "correct": "1947",
-    "level": "Easy"
-  },
-  {
-    "q": "Which instrument measures atmospheric pressure?",
-    "type": "MCQ",
-    "a": [
-      "Barometer",
-      "Thermometer",
-      "Hygrometer",
-      "Altimeter"
-    ],
-    "correct": "Barometer",
-    "level": "Medium"
-  },
-  {
-    "q": "Which continent is called the ‘Dark Continent’?",
-    "type": "MCQ",
-    "a": [
-      "Asia",
-      "Africa",
-      "Europe",
-      "America"
-    ],
-    "correct": "Africa",
-    "level": "Easy"
-  },
-  {
-    "q": "Which vitamin is produced in the human body when exposed to sunlight?",
-    "type": "MCQ",
-    "a": [
-      "Vitamin A",
-      "Vitamin C",
-      "Vitamin D",
-      "Vitamin K"
-    ],
-    "correct": "Vitamin D",
-    "level": "Easy"
-  },
-  {
-    "q": "What is the national flower of India?",
-    "type": "MCQ",
-    "a": [
-      "Rose",
-      "Lotus",
-      "Lily",
-      "Jasmine"
-    ],
-    "correct": "Lotus",
-    "level": "Easy"
-  },
-  {
-    "q": "What is the hardest natural substance on Earth?",
-    "type": "MCQ",
-    "a": [
-      "Gold",
-      "Iron",
-      "Diamond",
-      "Platinum"
-    ],
-    "correct": "Diamond",
-    "level": "Medium"
-  },
-  {
-    "q": "What is the capital city of India?",
-    "type": "MCQ",
-    "a": [
-      "Mumbai",
-      "New Delhi",
-      "Kolkata",
-      "Bengaluru"
-    ],
-    "correct": "New Delhi",
-    "level": "Easy"
-  },
-  {
-    "q": "Which animal is the national animal of India?",
-    "type": "MCQ",
-    "a": [
-      "Lion",
+    "level": "Easy",
+    "question": "Which animal is recognized as the National Animal of India?",
+    "q": "Which animal is recognized as the National Animal of India?",
+    "options": [
       "Elephant",
+      "Lion",
+      "Tiger",
+      "Peacock"
+    ],
+    "a": [
+      "Elephant",
+      "Lion",
       "Tiger",
       "Peacock"
     ],
     "correct": "Tiger",
-    "level": "Easy"
+    "source": "MANUAL"
   },
   {
-    "q": "Which mountain peak, located entirely within India, is the highest in the country?",
+    "id": "Q-E7EB23EB",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "MCQ",
-    "a": [
-      "Nanda Devi",
-      "Kanchenjunga",
-      "Mount Everest",
-      "K2"
+    "level": "Medium",
+    "question": "Which Indian state has the largest area?",
+    "q": "Which Indian state has the largest area?",
+    "options": [
+      "Madhya Pradesh",
+      "Maharashtra",
+      "Rajasthan",
+      "Uttar Pradesh"
     ],
-    "correct": "Nanda Devi",
-    "level": "Hard"
+    "a": [
+      "Madhya Pradesh",
+      "Maharashtra",
+      "Rajasthan",
+      "Uttar Pradesh"
+    ],
+    "correct": "Rajasthan",
+    "source": "MANUAL"
   },
   {
-    "q": "Who was the first Prime Minister of independent India?",
+    "id": "Q-3FEA1F0D",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "MCQ",
-    "a": [
-      "Jawaharlal Nehru",
-      "Sardar Vallabhbhai Patel",
-      "Mahatma Gandhi",
-      "Dr. B.R. Ambedkar"
+    "level": "Medium",
+    "question": "Which of the following is the longest river in India?",
+    "q": "Which of the following is the longest river in India?",
+    "options": [
+      "Yamuna",
+      "Brahmaputra",
+      "Ganges",
+      "Godavari"
     ],
-    "correct": "Jawaharlal Nehru",
-    "level": "Medium"
+    "a": [
+      "Yamuna",
+      "Brahmaputra",
+      "Ganges",
+      "Godavari"
+    ],
+    "correct": "Ganges",
+    "source": "MANUAL"
   },
   {
-    "q": "What is the largest ocean on Earth?",
+    "id": "Q-629A33E5",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "MCQ",
-    "a": [
-      "Atlantic Ocean",
-      "Indian Ocean",
-      "Pacific Ocean",
-      "Arctic Ocean"
+    "level": "Hard",
+    "question": "The Taj Mahal, a famous UNESCO World Heritage Site, is located in which Indian city?",
+    "q": "The Taj Mahal, a famous UNESCO World Heritage Site, is located in which Indian city?",
+    "options": [
+      "Delhi",
+      "Jaipur",
+      "Agra",
+      "Varanasi"
     ],
-    "correct": "Pacific Ocean",
-    "level": "Easy"
+    "a": [
+      "Delhi",
+      "Jaipur",
+      "Agra",
+      "Varanasi"
+    ],
+    "correct": "Agra",
+    "source": "MANUAL"
   },
   {
-    "q": "How many players are typically on one side of a cricket team on the field during a match?",
+    "id": "Q-3B4549AF",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "MCQ",
-    "a": [
-      "11",
-      "9",
-      "10",
-      "12"
+    "level": "Easy",
+    "question": "Who is the current Prime Minister of India (as of early 2020s)?",
+    "q": "Who is the current Prime Minister of India (as of early 2020s)?",
+    "options": [
+      "Rahul Gandhi",
+      "Amit Shah",
+      "Narendra Modi",
+      "Arvind Kejriwal"
     ],
-    "correct": "11",
-    "level": "Easy"
+    "a": [
+      "Rahul Gandhi",
+      "Amit Shah",
+      "Narendra Modi",
+      "Arvind Kejriwal"
+    ],
+    "correct": "Narendra Modi",
+    "source": "MANUAL"
   },
   {
-    "q": "In which format of cricket does each team typically bat for a maximum of 50 overs?",
+    "id": "Q-0D94C6F6",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "MCQ",
-    "a": [
-      "One Day International (ODI)",
-      "Test Cricket",
-      "Twenty20 (T20)",
-      "First-Class Cricket"
+    "level": "Easy",
+    "question": "India gained independence from British rule in which year?",
+    "q": "India gained independence from British rule in which year?",
+    "options": [
+      "1942",
+      "1947",
+      "1950",
+      "1962"
     ],
-    "correct": "One Day International (ODI)",
-    "level": "Medium"
+    "a": [
+      "1942",
+      "1947",
+      "1950",
+      "1962"
+    ],
+    "correct": "1947",
+    "source": "MANUAL"
   },
   {
-    "q": "Which country is known as the 'Land of the Rising Sun'?",
+    "id": "Q-FBA0E4A6",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "MCQ",
-    "a": [
-      "China",
-      "Japan",
-      "South Korea",
-      "Thailand"
+    "level": "Medium",
+    "question": "The Mughal Empire was a significant power in India. Who founded it?",
+    "q": "The Mughal Empire was a significant power in India. Who founded it?",
+    "options": [
+      "Akbar",
+      "Humayun",
+      "Babur",
+      "Shah Jahan"
     ],
-    "correct": "Japan",
-    "level": "Easy"
+    "a": [
+      "Akbar",
+      "Humayun",
+      "Babur",
+      "Shah Jahan"
+    ],
+    "correct": "Babur",
+    "source": "MANUAL"
   },
   {
-    "q": "Explain how the invention of the printing press fundamentally transformed European society and the dissemination of knowledge.",
-    "type": "DESCRIPTIVE",
-    "answer_key": "keywords: printing press, Gutenberg, mass production of books, literacy rates, Reformation, scientific revolution, information access, political discourse, education",
-    "max_marks": 5,
-    "level": "Medium"
+    "id": "Q-6A89774A",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "MCQ",
+    "level": "Easy",
+    "question": "What is the most widely spoken language in India, and also one of its official languages?",
+    "q": "What is the most widely spoken language in India, and also one of its official languages?",
+    "options": [
+      "Bengali",
+      "Tamil",
+      "Hindi",
+      "Marathi"
+    ],
+    "a": [
+      "Bengali",
+      "Tamil",
+      "Hindi",
+      "Marathi"
+    ],
+    "correct": "Hindi",
+    "source": "MANUAL"
   },
   {
-    "q": "Describe the cultural and historical significance of the ancient Olympic Games, including their purpose and impact on Greek city-states.",
-    "type": "DESCRIPTIVE",
-    "answer_key": "keywords: ancient Greece, religious festival, athletic competition, truce, unity, city-states, prestige, physical prowess, artistic expression, Zeus",
-    "max_marks": 5,
-    "level": "Medium"
+    "id": "Q-44271CFC",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "Which country shares its longest land border with India?",
+    "q": "Which country shares its longest land border with India?",
+    "options": [
+      "Nepal",
+      "Pakistan",
+      "Bangladesh",
+      "China"
+    ],
+    "a": [
+      "Nepal",
+      "Pakistan",
+      "Bangladesh",
+      "China"
+    ],
+    "correct": "Bangladesh",
+    "source": "MANUAL"
   },
   {
-    "q": "Discuss the major factors contributing to India's unique cultural diversity, including its linguistic, religious, and traditional aspects.",
+    "id": "Q-88304388",
+    "course_code": "CS101",
+    "course_name": "Computer Science & Programming",
+    "subject": "Python Programming",
+    "unit": "Module I",
+    "topic": "Python Fundamentals",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: geographical variations, historical invasions/migrations, multiple religions coexisting, linguistic families, regional customs, festivals, art forms.",
-    "max_marks": 5,
-    "level": "Medium"
+    "level": "Medium",
+    "question": "Explain Python's key features that make it a popular choice for various applications, including its syntax and ecosystem.",
+    "q": "Explain Python's key features that make it a popular choice for various applications, including its syntax and ecosystem.",
+    "answer_key": "keywords: readability, interpreted, high-level, dynamic typing, large standard library, cross-platform, object-oriented, extensibility, vast community, frameworks",
+    "max_marks": 10,
+    "source": "MANUAL"
   },
   {
-    "q": "Explain the significant shifts in India's economy since its independence, focusing on the transition from an agrarian base to a service-sector-led growth model.",
+    "id": "Q-6852AA8C",
+    "course_code": "CS101",
+    "course_name": "Computer Science & Programming",
+    "subject": "Python Programming",
+    "unit": "Module I",
+    "topic": "Python Fundamentals",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: agrarian economy post-independence, Green Revolution, liberalization 1991, rise of IT/service sector, manufacturing challenges, 'Make in India' initiative.",
-    "max_marks": 5,
-    "level": "Medium"
+    "level": "Advanced",
+    "question": "Describe the Global Interpreter Lock (GIL) in Python. Discuss its purpose, its implications for multi-threaded programming in CPython, and common strategies to mitigate its effects.",
+    "q": "Describe the Global Interpreter Lock (GIL) in Python. Discuss its purpose, its implications for multi-threaded programming in CPython, and common strategies to mitigate its effects.",
+    "answer_key": "keywords: GIL, CPython, single thread execution, CPU-bound, I/O-bound, concurrency, parallelism, multiprocessing, async/await, C extensions",
+    "max_marks": 10,
+    "source": "MANUAL"
   },
   {
-    "q": "Describe the key challenges and successes of India's democratic system since its inception, considering its vast population and diverse socio-political landscape.",
+    "id": "Q-350E7843",
+    "course_code": "CS101",
+    "course_name": "Computer Science & Programming",
+    "subject": "Python Programming",
+    "unit": "Module I",
+    "topic": "Python Fundamentals",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: adoption of democracy, electoral process, federal structure, social inequalities, regionalism, coalition politics, stability, rule of law, challenges of governance.",
+    "level": "Medium",
+    "question": "Discuss the differences between lists and tuples in Python. Include explanations of their mutability, typical use cases, and performance considerations.",
+    "q": "Discuss the differences between lists and tuples in Python. Include explanations of their mutability, typical use cases, and performance considerations.",
+    "answer_key": "keywords: list mutable, tuple immutable, square brackets, parentheses, sequence, ordered, performance, iteration, hashable, fixed data, dynamic data",
     "max_marks": 5,
-    "level": "Medium"
+    "source": "MANUAL"
   },
   {
-    "q": "Analyze how India's diverse geographical features, such as the Himalayas, the Indo-Gangetic Plains, and the Deccan Plateau, have influenced its climate, agriculture, and human settlements.",
+    "id": "Q-CD080ACB",
+    "course_code": "CS101",
+    "course_name": "Computer Science & Programming",
+    "subject": "Python Programming",
+    "unit": "Module I",
+    "topic": "Python Fundamentals",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: Himalayas (monsoon, rivers, climate barrier), Gangetic Plains (fertile, dense population, agriculture), Deccan Plateau (minerals, different crops, rainfall patterns), coastal areas (trade, fishing), diverse ecosystems.",
-    "max_marks": 5,
-    "level": "Hard"
+    "level": "Advanced",
+    "question": "Explain the concept of decorators in Python. Provide a simple code example of a decorator's implementation and explain how they enhance code reusability and readability.",
+    "q": "Explain the concept of decorators in Python. Provide a simple code example of a decorator's implementation and explain how they enhance code reusability and readability.",
+    "answer_key": "keywords: function wrapping, modifying behavior, `@` syntax, higher-order functions, reusable code, logging, authentication, timing, arguments",
+    "max_marks": 7,
+    "source": "MANUAL"
   },
   {
-    "q": "Elaborate on the historical evolution and contemporary relevance of the caste system in India, including its impact on social mobility and political dynamics.",
+    "id": "Q-236050D7",
+    "course_code": "CS101",
+    "course_name": "Computer Science & Programming",
+    "subject": "Python Programming",
+    "unit": "Module I",
+    "topic": "Python Fundamentals",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: historical origins (Vedic period), Varna system, Jati system, social hierarchy, discrimination, constitutional abolition, affirmative action (reservations), socio-political influence, persistence in rural areas.",
-    "max_marks": 5,
-    "level": "Medium"
+    "level": "Easy",
+    "question": "What is a virtual environment in Python? Describe its primary purpose, how it addresses dependency management issues, and outline the basic steps to create and use one.",
+    "q": "What is a virtual environment in Python? Describe its primary purpose, how it addresses dependency management issues, and outline the basic steps to create and use one.",
+    "answer_key": "keywords: isolated environment, package conflicts, `venv`, `pip`, project-specific dependencies, reproducibility, `requirements.txt`, activation",
+    "max_marks": 6,
+    "source": "MANUAL"
   },
   {
-    "q": "Discuss the philosophical underpinnings and core tenets of Hinduism, and its pervasive influence on Indian art, literature, and daily life.",
+    "id": "Q-4E97078F",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: Dharma, Karma, Moksha, Samsara, Vedas, Upanishads, polytheism/monism, diverse deities, rituals, festivals, influence on architecture, dance, music, ethical framework.",
+    "level": "Medium",
+    "question": "Describe the key differences and characteristics of Test cricket, One Day Internationals (ODIs), and Twenty20 (T20) cricket.",
+    "q": "Describe the key differences and characteristics of Test cricket, One Day Internationals (ODIs), and Twenty20 (T20) cricket.",
+    "answer_key": "keywords: Test cricket: multi-day, red ball, traditional, attrition, draws possible; ODI: 50 overs per side, white ball, limited overs, balance; T20: 20 overs per side, white ball, fast-paced, aggressive batting, entertainment",
     "max_marks": 5,
-    "level": "Medium"
+    "source": "MANUAL"
   },
   {
-    "q": "Explain the major environmental challenges facing India today, such as air pollution, water scarcity, and deforestation, and outline efforts being made to address them.",
+    "id": "Q-86CD839D",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: air pollution (urban centers, industrial emissions, vehicle exhaust), water scarcity (groundwater depletion, river pollution), deforestation (agriculture, urbanization), climate change impacts, government policies (Swachh Bharat, Namami Gange, renewable energy targets), public awareness.",
+    "level": "Medium",
+    "question": "Explain the various methods by which a batsman can be dismissed in cricket, providing a brief description of each.",
+    "q": "Explain the various methods by which a batsman can be dismissed in cricket, providing a brief description of each.",
+    "answer_key": "keywords: Bowled, Caught, Leg Before Wicket (LBW), Run Out, Stumped, Hit Wicket, Obstructing the Field, Handled the Ball, Timed Out, Retired Out",
     "max_marks": 5,
-    "level": "Medium"
+    "source": "MANUAL"
   },
   {
-    "q": "Describe India's evolving foreign policy approach, particularly its shift from non-alignment during the Cold War to its current multi-aligned strategy and engagement with global powers.",
+    "id": "Q-15D2D674",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: Non-Aligned Movement (NAM), Cold War neutrality, Look East/Act East Policy, strategic autonomy, relations with USA, Russia, China, regional diplomacy, QUAD, BRICS, UN role.",
+    "level": "Medium",
+    "question": "Discuss the strategic importance of an all-rounder in a cricket team and how their presence can influence team composition and match outcomes.",
+    "q": "Discuss the strategic importance of an all-rounder in a cricket team and how their presence can influence team composition and match outcomes.",
+    "answer_key": "keywords: All-rounder: capable in batting and bowling; provides team balance, flexibility, depth; allows for varied team combinations; reduces burden on specialist players; influences match strategy and tactics",
     "max_marks": 5,
-    "level": "Medium"
+    "source": "MANUAL"
   },
   {
-    "q": "Elaborate on the factors that led to India's emergence as a global hub for information technology and software services, and discuss its future prospects in digital innovation.",
+    "id": "Q-97048E13",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: skilled workforce (English proficiency, engineering education), government support, liberalization policies, cost advantage, time zone difference, outsourcing boom, startup ecosystem, Digital India initiative, AI/ML focus.",
+    "level": "Medium",
+    "question": "Describe the standard layout of a cricket pitch, including its dimensions and the various lines (creases) marked on it, explaining their significance.",
+    "q": "Describe the standard layout of a cricket pitch, including its dimensions and the various lines (creases) marked on it, explaining their significance.",
+    "answer_key": "keywords: Pitch: 22 yards long, 10 feet wide; Wickets at each end; Creases: popping crease (batting line), return crease (bowler's side line), bowling crease (wicket line); Significance: safe batting area, legal bowling delivery",
     "max_marks": 5,
-    "level": "Medium"
+    "source": "MANUAL"
   },
   {
-    "q": "Trace the development of Indian architecture from ancient to medieval periods, highlighting the distinctive features and cultural influences seen in prominent structures like stupas, temples, and Mughal monuments.",
+    "id": "Q-285D1761",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: Indus Valley (urban planning), Mauryan (Stupas, Ashokan Pillars), Gupta (temple architecture, cave temples), Dravidian style (gopurams), Nagara style (shikhara), Islamic/Mughal (arches, domes, minarets, pietra dura), fusion of styles.",
+    "level": "Medium",
+    "question": "Describe the major geographical regions of India and their impact on its climate and agriculture.",
+    "q": "Describe the major geographical regions of India and their impact on its climate and agriculture.",
+    "answer_key": "keywords: Himalayas, Indo-Gangetic Plain, Deccan Plateau, Coastal Plains, Thar Desert, monsoon, rainfall patterns, crop diversity, regional variations.",
     "max_marks": 5,
-    "level": "Medium"
+    "source": "MANUAL"
   },
   {
-    "q": "Discuss the major historical, geographical, and social factors that have contributed to India's remarkable cultural and linguistic diversity.",
+    "id": "Q-A6512719",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
     "type": "DESCRIPTIVE",
-    "answer_key": "keywords: Geographical variations (mountains, rivers, plains, coastlines), historical migrations (Aryan, Huns, Turks, Mughals), diverse religious traditions (Hinduism, Islam, Christianity, Sikhism, Buddhism, Jainism), evolution of numerous regional kingdoms and empires, influence of different linguistic families (Indo-Aryan, Dravidian, Tibeto-Burman, Austroasiatic), the federal structure and state reorganization post-independence.",
+    "level": "Medium",
+    "question": "Elaborate on India's cultural diversity, encompassing its languages, major religions, and significant festivals.",
+    "q": "Elaborate on India's cultural diversity, encompassing its languages, major religions, and significant festivals.",
+    "answer_key": "keywords: linguistic diversity, Hindi, English, Dravidian, Indo-Aryan, Hinduism, Islam, Christianity, Sikhism, Buddhism, Jainism, Diwali, Eid, Christmas, Holi, regional festivals.",
     "max_marks": 5,
-    "level": "Medium"
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-BA17CF33",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Discuss the key sectors driving India's economy and the challenges it faces in achieving sustained and inclusive economic growth.",
+    "q": "Discuss the key sectors driving India's economy and the challenges it faces in achieving sustained and inclusive economic growth.",
+    "answer_key": "keywords: agriculture, services sector, IT, manufacturing, demographic dividend, infrastructure, education, poverty, inequality, unemployment, reforms.",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-4C489348",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Outline the major events and figures that led to India's independence from British colonial rule.",
+    "q": "Outline the major events and figures that led to India's independence from British colonial rule.",
+    "answer_key": "keywords: Sepoy Mutiny, Indian National Congress, Mahatma Gandhi, non-violence, civil disobedience, Partition, Jawaharlal Nehru, Sardar Patel, Quit India Movement, Round Table Conferences.",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-A4F6BC60",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Explain the structure of India's democratic government and the significance of its federal system.",
+    "q": "Explain the structure of India's democratic government and the significance of its federal system.",
+    "answer_key": "keywords: parliamentary democracy, President, Prime Minister, Parliament, Lok Sabha, Rajya Sabha, judiciary, Supreme Court, High Courts, federalism, states, Union Territories, legislative powers, fiscal powers, concurrent list.",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-BDDE2E4E",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Explain how India's diverse geographical features, from the Himalayan range to its extensive coastal plains, influence its climate patterns, agricultural practices, and regional cultural variations.",
+    "q": "Explain how India's diverse geographical features, from the Himalayan range to its extensive coastal plains, influence its climate patterns, agricultural practices, and regional cultural variations.",
+    "answer_key": "keywords: Himalayas, Indo-Gangetic Plain, Deccan Plateau, Thar Desert, coastal regions, monsoon, diverse crops, regional cuisines, distinct cultures, climate zones.",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-1CF88687",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Describe the concept of 'unity in diversity' as it applies to India, providing examples from its linguistic landscape, religious practices, and major festivals celebrated across the nation.",
+    "q": "Describe the concept of 'unity in diversity' as it applies to India, providing examples from its linguistic landscape, religious practices, and major festivals celebrated across the nation.",
+    "answer_key": "keywords: multiple languages, major religions (Hinduism, Islam, Christianity, Sikhism, Buddhism, Jainism), regional festivals (Diwali, Eid, Christmas, Baisakhi), cultural pluralism, shared national identity.",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-0CD50DAD",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Discuss the significant contributions of India's primary, secondary, and tertiary sectors to its overall economy, and analyze the key challenges and opportunities for sustainable economic growth.",
+    "q": "Discuss the significant contributions of India's primary, secondary, and tertiary sectors to its overall economy, and analyze the key challenges and opportunities for sustainable economic growth.",
+    "answer_key": "keywords: agriculture, manufacturing, services (IT, finance), GDP contribution, population dividend, infrastructure development, skill gap, global trade, ease of doing business.",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-54D7AA5F",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Elaborate on the key milestones and prominent figures of the Indian independence movement, explaining their collective impact on the formation of the modern Indian state.",
+    "q": "Elaborate on the key milestones and prominent figures of the Indian independence movement, explaining their collective impact on the formation of the modern Indian state.",
+    "answer_key": "keywords: British Raj, Mahatma Gandhi, non-violence, civil disobedience, Jawaharlal Nehru, Sardar Patel, Partition, Quit India Movement, constitutional assembly, national integration.",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-C5A7BB6E",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Describe the fundamental structure of India's parliamentary democratic system, highlighting the roles of the executive, legislature, and judiciary, and outline some of the current challenges to its effective functioning.",
+    "q": "Describe the fundamental structure of India's parliamentary democratic system, highlighting the roles of the executive, legislature, and judiciary, and outline some of the current challenges to its effective functioning.",
+    "answer_key": "keywords: Lok Sabha, Rajya Sabha, President, Prime Minister, Supreme Court, federalism, electoral reforms, coalition politics, judicial activism, parliamentary disruptions.",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-E6B3652E",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "Indian Heritage & Geography",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Describe the diverse geographical regions of India and explain how this diversity contributes to its rich cultural tapestry.",
+    "q": "Describe the diverse geographical regions of India and explain how this diversity contributes to its rich cultural tapestry.",
+    "answer_key": "keywords: Himalayas, Indo-Gangetic Plains, Deccan Plateau, Coastal Plains, Thar Desert, climate, agriculture, languages, traditions, food",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-3169142F",
+    "course_code": "GEN102",
+    "course_name": "Science & Society",
+    "subject": "Environmental & Historical Sciences",
+    "unit": "Module II",
+    "topic": "General Science",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Explain the significance of the Renaissance period in shaping modern European thought and art.",
+    "q": "Explain the significance of the Renaissance period in shaping modern European thought and art.",
+    "answer_key": "keywords: rebirth of classical ideas, humanism, individualism, scientific inquiry, artistic innovation, impact on philosophy, art, science",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-6081C34B",
+    "course_code": "GEN102",
+    "course_name": "Science & Society",
+    "subject": "Environmental & Historical Sciences",
+    "unit": "Module II",
+    "topic": "General Science",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Describe the process of photosynthesis and its vital role in sustaining life on Earth.",
+    "q": "Describe the process of photosynthesis and its vital role in sustaining life on Earth.",
+    "answer_key": "keywords: plants convert light energy, water, carbon dioxide, produce glucose, oxygen, food chain base, atmospheric oxygen",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-FAA1F391",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "General Knowledge",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Elaborate on the key differences between a democracy and a republic, providing examples.",
+    "q": "Elaborate on the key differences between a democracy and a republic, providing examples.",
+    "answer_key": "keywords: direct vs representative rule, protection of minority rights, rule of law, citizen participation, examples (e.g., ancient Athens vs USA)",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-1C3A6CB4",
+    "course_code": "GEN102",
+    "course_name": "Science & Society",
+    "subject": "Environmental & Historical Sciences",
+    "unit": "Module II",
+    "topic": "General Science",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Trace the evolution of the internet from its early ARPANET days to its current global influence.",
+    "q": "Trace the evolution of the internet from its early ARPANET days to its current global influence.",
+    "answer_key": "keywords: ARPANET origins, TCP/IP development, World Wide Web, commercialization, mobile internet, social media, global communication, information access",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-6AE3CD5C",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "General Knowledge",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Analyze the principal reasons for the decline of the Roman Empire.",
+    "q": "Analyze the principal reasons for the decline of the Roman Empire.",
+    "answer_key": "keywords: economic issues, political instability, military overstretch, barbarian invasions, social decay, division of empire, disease",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-9B8E4038",
+    "course_code": "GEN102",
+    "course_name": "Science & Society",
+    "subject": "Environmental & Historical Sciences",
+    "unit": "Module II",
+    "topic": "General Science",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Explain the concept of biodiversity and why its preservation is crucial for ecological balance.",
+    "q": "Explain the concept of biodiversity and why its preservation is crucial for ecological balance.",
+    "answer_key": "keywords: variety of life forms, ecosystems, genetic diversity, ecosystem services, resilience, resource provision, medicinal discovery, ethical responsibility",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-AD7F3A15",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "General Knowledge",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Describe the major components of the human circulatory system and their functions.",
+    "q": "Describe the major components of the human circulatory system and their functions.",
+    "answer_key": "keywords: heart (pump), blood vessels (arteries, veins, capillaries), blood (transport oxygen, nutrients, waste), lymph system (part of immunity)",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-DA40B7CE",
+    "course_code": "GEN101",
+    "course_name": "General Studies",
+    "subject": "General Knowledge",
+    "unit": "Module I",
+    "topic": "General Knowledge",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Discuss the impact of the Industrial Revolution on urban development and social structures.",
+    "q": "Discuss the impact of the Industrial Revolution on urban development and social structures.",
+    "answer_key": "keywords: rural-to-urban migration, factory system, population growth, slums, new social classes (bourgeoisie, proletariat), labor movements, sanitation issues",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-BDF87995",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "Module I",
+    "topic": "Search Algorithms",
+    "type": "MCQ",
+    "level": "Easy",
+    "question": "Which search algorithm guarantees finding the shortest path on an unweighted graph?",
+    "q": "Which search algorithm guarantees finding the shortest path on an unweighted graph?",
+    "options": [
+      "Breadth-First Search (BFS)",
+      "Depth-First Search (DFS)",
+      "Linear Search",
+      "Binary Search"
+    ],
+    "a": [
+      "Breadth-First Search (BFS)",
+      "Depth-First Search (DFS)",
+      "Linear Search",
+      "Binary Search"
+    ],
+    "correct": "Breadth-First Search (BFS)",
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-19DA0A96",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "Module I",
+    "topic": "Search Algorithms",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "What heuristic search algorithm uses the evaluation function f(n) = g(n) + h(n) to find optimal paths?",
+    "q": "What heuristic search algorithm uses the evaluation function f(n) = g(n) + h(n) to find optimal paths?",
+    "options": [
+      "A* Search",
+      "Hill Climbing",
+      "Greedy Best-First Search",
+      "Uniform Cost Search"
+    ],
+    "a": [
+      "A* Search",
+      "Hill Climbing",
+      "Greedy Best-First Search",
+      "Uniform Cost Search"
+    ],
+    "correct": "A* Search",
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-52D74DC2",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Machine Learning",
+    "unit": "Module III",
+    "topic": "Classification Algorithms",
+    "type": "MCQ",
+    "level": "Easy",
+    "question": "In machine learning, what condition describes a model that memorizes training data but fails to generalize to test data?",
+    "q": "In machine learning, what condition describes a model that memorizes training data but fails to generalize to test data?",
+    "options": [
+      "Overfitting",
+      "Underfitting",
+      "Convergence",
+      "Regularization"
+    ],
+    "a": [
+      "Overfitting",
+      "Underfitting",
+      "Convergence",
+      "Regularization"
+    ],
+    "correct": "Overfitting",
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-D3DA7D54",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Machine Learning",
+    "unit": "Module III",
+    "topic": "Classification Algorithms",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "Which neural network layer or architecture is primarily designed to handle sequential dependencies in data like speech and text?",
+    "q": "Which neural network layer or architecture is primarily designed to handle sequential dependencies in data like speech and text?",
+    "options": [
+      "Recurrent Neural Network (RNN)",
+      "Convolutional Neural Network (CNN)",
+      "Support Vector Machine (SVM)",
+      "K-Nearest Neighbors"
+    ],
+    "a": [
+      "Recurrent Neural Network (RNN)",
+      "Convolutional Neural Network (CNN)",
+      "Support Vector Machine (SVM)",
+      "K-Nearest Neighbors"
+    ],
+    "correct": "Recurrent Neural Network (RNN)",
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-4FCAE03F",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Machine Learning",
+    "unit": "Module III",
+    "topic": "Classification Algorithms",
+    "type": "MCQ",
+    "level": "Hard",
+    "question": "What is the primary role of an Activation Function in artificial neural networks?",
+    "q": "What is the primary role of an Activation Function in artificial neural networks?",
+    "options": [
+      "Introduce non-linearity into the network output",
+      "Normalize dataset values between 0 and 1",
+      "Store weights in persistent memory",
+      "Calculate loss during testing"
+    ],
+    "a": [
+      "Introduce non-linearity into the network output",
+      "Normalize dataset values between 0 and 1",
+      "Store weights in persistent memory",
+      "Calculate loss during testing"
+    ],
+    "correct": "Introduce non-linearity into the network output",
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-96CA2AD2",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Machine Learning",
+    "unit": "Module III",
+    "topic": "Classification Algorithms",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Explain the fundamental differences between Supervised Learning, Unsupervised Learning, and Reinforcement Learning.",
+    "q": "Explain the fundamental differences between Supervised Learning, Unsupervised Learning, and Reinforcement Learning.",
+    "answer_key": "keywords: labeled data, supervisor, unlabeled patterns, clustering, reward penalty feedback, agent environment policy",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-E9126B99",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "Module I",
+    "topic": "Search Algorithms",
+    "type": "DESCRIPTIVE",
+    "level": "Hard",
+    "question": "Discuss how the A* search algorithm operates and state the condition required for the heuristic to be admissible.",
+    "q": "Discuss how the A* search algorithm operates and state the condition required for the heuristic to be admissible.",
+    "answer_key": "keywords: evaluation function f(n)=g(n)+h(n), path cost g(n), heuristic estimate h(n), admissible never overestimates true cost, optimal shortest path",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-740B1C25",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Machine Learning",
+    "unit": "Module III",
+    "topic": "Classification Algorithms",
+    "type": "DESCRIPTIVE",
+    "level": "Hard",
+    "question": "Explain the concept of Backpropagation in neural networks and how gradient descent updates weights.",
+    "q": "Explain the concept of Backpropagation in neural networks and how gradient descent updates weights.",
+    "answer_key": "keywords: chain rule, loss function derivative, gradient descent, weight update, forward pass backward pass, learning rate",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-C9F416F0",
+    "course_code": "CS401",
+    "course_name": "Computer Science & Engineering",
+    "subject": "Data Structures & Algorithms",
+    "unit": "Module II",
+    "topic": "Trees & Sorting",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "What is the worst-case time complexity of QuickSort when bad pivot selection occurs?",
+    "q": "What is the worst-case time complexity of QuickSort when bad pivot selection occurs?",
+    "options": [
+      "O(n^2)",
+      "O(n log n)",
+      "O(n)",
+      "O(log n)"
+    ],
+    "a": [
+      "O(n^2)",
+      "O(n log n)",
+      "O(n)",
+      "O(log n)"
+    ],
+    "correct": "O(n^2)",
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-9204D51B",
+    "course_code": "CS401",
+    "course_name": "Computer Science & Engineering",
+    "subject": "Data Structures & Algorithms",
+    "unit": "Module II",
+    "topic": "Trees & Sorting",
+    "type": "MCQ",
+    "level": "Easy",
+    "question": "Which data structure follows the Last-In First-Out (LIFO) protocol?",
+    "q": "Which data structure follows the Last-In First-Out (LIFO) protocol?",
+    "options": [
+      "Stack",
+      "Queue",
+      "Linked List",
+      "Binary Tree"
+    ],
+    "a": [
+      "Stack",
+      "Queue",
+      "Linked List",
+      "Binary Tree"
+    ],
+    "correct": "Stack",
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-8E890CC0",
+    "course_code": "CS401",
+    "course_name": "Computer Science & Engineering",
+    "subject": "Data Structures & Algorithms",
+    "unit": "Module II",
+    "topic": "Trees & Sorting",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Explain the difference between a Binary Search Tree (BST) and an AVL Tree regarding self-balancing.",
+    "q": "Explain the difference between a Binary Search Tree (BST) and an AVL Tree regarding self-balancing.",
+    "answer_key": "keywords: BST left smaller right greater, AVL height-balanced, balance factor -1 0 +1, rotations LL RR LR RL, O(log n) guaranteed search",
+    "max_marks": 5,
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-CS301-BC08CC",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Machine Learning",
+    "unit": "Module III",
+    "topic": "Classification Algorithms",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "Which evaluation metric represents the harmonic mean of precision and recall?",
+    "q": "Which evaluation metric represents the harmonic mean of precision and recall?",
+    "options": [
+      "Accuracy",
+      "F1 Score",
+      "ROC-AUC",
+      "Mean Squared Error"
+    ],
+    "a": [
+      "Accuracy",
+      "F1 Score",
+      "ROC-AUC",
+      "Mean Squared Error"
+    ],
+    "correct": "F1 Score",
+    "source": "MANUAL"
+  },
+  {
+    "id": "Q-CS301-08F675",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Machine Learning",
+    "unit": "Module III",
+    "topic": "Decision Trees",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "Which of the following techniques is primarily employed to mitigate the risk of overfitting in a trained decision tree model?",
+    "q": "Which of the following techniques is primarily employed to mitigate the risk of overfitting in a trained decision tree model?",
+    "options": [
+      "Feature scaling",
+      "Principal Component Analysis (PCA)",
+      "Pruning",
+      "K-fold Cross-validation for hyperparameter tuning"
+    ],
+    "a": [
+      "Feature scaling",
+      "Principal Component Analysis (PCA)",
+      "Pruning",
+      "K-fold Cross-validation for hyperparameter tuning"
+    ],
+    "correct": "Pruning",
+    "source": "AI"
+  },
+  {
+    "id": "Q-CS301-EE2769",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Machine Learning",
+    "unit": "Module III",
+    "topic": "Decision Trees",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Decision trees are powerful and intuitive models but come with their own set of strengths and weaknesses. Discuss two significant advantages and two notable disadvantages of using decision trees for classification tasks.",
+    "q": "Decision trees are powerful and intuitive models but come with their own set of strengths and weaknesses. Discuss two significant advantages and two notable disadvantages of using decision trees for classification tasks.",
+    "answer_key": "keywords: Model Answer:\n\n**Advantages of Decision Trees:**\n1.  **Interpretability and Ease of Understanding:** Decision trees are often called 'white-box' models because their decision-making process can be easily visualized and understood. The tree structure directly maps to a series of IF-THEN rules, making them highly interpretable for domain experts and non-technical stakeholders. This transparency helps in explaining why a particular prediction was made.\n2.  **Handles Non-linear Relationships and Mixed Data Types:** Decision trees do not assume linearity in the data. They can effectively capture complex non-linear relationships between features and the target variable. Furthermore, they can naturally handle both numerical and categorical features without requiring extensive preprocessing like one-hot encoding for categorical variables or feature scaling for numerical ones.\n\n**(Other valid advantages could include: Requires little data preparation, implicitly performs feature selection.)**\n\n**Disadvantages of Decision Trees:**\n1.  **Prone to Overfitting:** A major drawback is their tendency to overfit the training data, especially when they are allowed to grow to their full depth. This can result in a tree that performs very well on the training data but poorly on unseen test data, indicating poor generalization. Techniques like pruning are used to combat this.\n2.  **Instability and High Variance:** Decision trees can be very sensitive to small variations in the training data. A small change in the data can lead to a completely different tree structure, which can result in significant changes in predictions. This high variance makes them less stable compared to other models. Ensemble methods like Random Forests or Gradient Boosting are often used to address this instability.\n\n**(Other valid disadvantages could include: Bias towards features with more levels, can create biased trees if some classes dominate, local optima problem during greedy splitting.)**\n\n**Grading Criteria:**\n*   **1 mark** for each correctly identified and adequately explained advantage (total 2 marks).\n*   **1 mark** for each correctly identified and adequately explained disadvantage (total 2 marks).\n*   **1 mark** for overall clarity, coherence, and accuracy of explanations, demonstrating a comprehensive understanding of decision tree properties (total 1 mark).\n*   Partial marks may be awarded for correct identification without full explanation.",
+    "max_marks": 5,
+    "source": "AI"
+  },
+  {
+    "id": "Q-CS301-C22FD8",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "3",
+    "topic": "ai robot",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "Which of the following capabilities most fundamentally distinguishes an AI robot from a traditional, purely automated industrial robot?",
+    "q": "Which of the following capabilities most fundamentally distinguishes an AI robot from a traditional, purely automated industrial robot?",
+    "options": [
+      "Its ability to execute a fixed sequence of motions with high repeatability.",
+      "Its reliance on hydraulic actuators for heavy lifting tasks.",
+      "Its capacity for perception, learning, and autonomous decision-making in dynamic environments.",
+      "Its connectivity to a central control server via Wi-Fi."
+    ],
+    "a": [
+      "Its ability to execute a fixed sequence of motions with high repeatability.",
+      "Its reliance on hydraulic actuators for heavy lifting tasks.",
+      "Its capacity for perception, learning, and autonomous decision-making in dynamic environments.",
+      "Its connectivity to a central control server via Wi-Fi."
+    ],
+    "correct": "Its capacity for perception, learning, and autonomous decision-making in dynamic environments.",
+    "source": "AI"
+  },
+  {
+    "id": "Q-CS301-C699E8",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "3",
+    "topic": "ai robot",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "For an autonomous AI robot navigating an unknown environment, which of the following is the primary function of Simultaneous Localization and Mapping (SLAM)?",
+    "q": "For an autonomous AI robot navigating an unknown environment, which of the following is the primary function of Simultaneous Localization and Mapping (SLAM)?",
+    "options": [
+      "To control the robot's physical manipulators for object grasping.",
+      "To enable the robot to identify and classify different types of objects in its view.",
+      "To allow the robot to build a map of its surroundings while simultaneously determining its own position within that map.",
+      "To optimize the robot's energy consumption during movement."
+    ],
+    "a": [
+      "To control the robot's physical manipulators for object grasping.",
+      "To enable the robot to identify and classify different types of objects in its view.",
+      "To allow the robot to build a map of its surroundings while simultaneously determining its own position within that map.",
+      "To optimize the robot's energy consumption during movement."
+    ],
+    "correct": "To allow the robot to build a map of its surroundings while simultaneously determining its own position within that map.",
+    "source": "AI"
+  },
+  {
+    "id": "Q-CS301-F418F3",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "3",
+    "topic": "ai robot",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "Which AI technique is most commonly utilized by AI robots to perform object recognition and classification from visual sensory data?",
+    "q": "Which AI technique is most commonly utilized by AI robots to perform object recognition and classification from visual sensory data?",
+    "options": [
+      "Proportional-Integral-Derivative (PID) control.",
+      "Deterministic state machines.",
+      "Deep reinforcement learning for motion planning.",
+      "Supervised machine learning, often involving convolutional neural networks."
+    ],
+    "a": [
+      "Proportional-Integral-Derivative (PID) control.",
+      "Deterministic state machines.",
+      "Deep reinforcement learning for motion planning.",
+      "Supervised machine learning, often involving convolutional neural networks."
+    ],
+    "correct": "Supervised machine learning, often involving convolutional neural networks.",
+    "source": "AI"
+  },
+  {
+    "id": "Q-CS301-3EF26D",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "3",
+    "topic": "ai robot",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "In the architecture of an AI robot, what is the primary function of the 'perception' component?",
+    "q": "In the architecture of an AI robot, what is the primary function of the 'perception' component?",
+    "options": [
+      "To translate high-level commands into motor control signals.",
+      "To process sensory input from the environment to create an internal representation or understanding.",
+      "To store long-term memories of past experiences and tasks.",
+      "To generate natural language responses for human-robot interaction."
+    ],
+    "a": [
+      "To translate high-level commands into motor control signals.",
+      "To process sensory input from the environment to create an internal representation or understanding.",
+      "To store long-term memories of past experiences and tasks.",
+      "To generate natural language responses for human-robot interaction."
+    ],
+    "correct": "To process sensory input from the environment to create an internal representation or understanding.",
+    "source": "AI"
+  },
+  {
+    "id": "Q-CS301-0FBE1A",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "3",
+    "topic": "ai robot",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "A significant advantage of AI robots over traditional, pre-programmed robots, especially in complex and dynamic environments, is their capacity for:",
+    "q": "A significant advantage of AI robots over traditional, pre-programmed robots, especially in complex and dynamic environments, is their capacity for:",
+    "options": [
+      "Performing highly repetitive tasks with unwavering accuracy.",
+      "Operating solely on renewable energy sources without recharging.",
+      "Adapting their behaviors and decision-making in real-time based on unexpected changes or novel sensory data.",
+      "Achieving maximum speeds in controlled industrial settings."
+    ],
+    "a": [
+      "Performing highly repetitive tasks with unwavering accuracy.",
+      "Operating solely on renewable energy sources without recharging.",
+      "Adapting their behaviors and decision-making in real-time based on unexpected changes or novel sensory data.",
+      "Achieving maximum speeds in controlled industrial settings."
+    ],
+    "correct": "Adapting their behaviors and decision-making in real-time based on unexpected changes or novel sensory data.",
+    "source": "AI"
+  },
+  {
+    "id": "Q-CS301-EE5C7A",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "2",
+    "topic": "python",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "Which Python dictionary method is best suited for retrieving a value associated with a key, providing a default value if the key is not found, without raising a KeyError?",
+    "q": "Which Python dictionary method is best suited for retrieving a value associated with a key, providing a default value if the key is not found, without raising a KeyError?",
+    "options": [
+      "dict.get(key, default_value)",
+      "dict.pop(key, default_value)",
+      "dict.setdefault(key, default_value)",
+      "dict.items()"
+    ],
+    "a": [
+      "dict.get(key, default_value)",
+      "dict.pop(key, default_value)",
+      "dict.setdefault(key, default_value)",
+      "dict.items()"
+    ],
+    "correct": "dict.get(key, default_value)",
+    "source": "AI"
+  },
+  {
+    "id": "Q-CS101-846029",
+    "course_code": "CS101",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "1",
+    "topic": "python and java",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "Which of the following statements accurately describes a key difference between Python and Java concerning their execution and common application in AI development?",
+    "q": "Which of the following statements accurately describes a key difference between Python and Java concerning their execution and common application in AI development?",
+    "source": "AI",
+    "options": [
+      "Python is primarily a compiled language, offering superior raw execution speed compared to Java's interpreted nature.",
+      "Java is a dynamically typed language, allowing variable types to be inferred at runtime, whereas Python requires explicit type declarations.",
+      "Python's extensive ecosystem of scientific computing libraries (e.g., NumPy, Pandas, Scikit-learn) makes it ideal for rapid AI prototyping, while Java is often preferred for large-scale, high-performance production AI systems.",
+      "Java's garbage collection mechanism is inherently more efficient for memory management in AI applications than Python's reference counting system."
+    ],
+    "a": [
+      "Python is primarily a compiled language, offering superior raw execution speed compared to Java's interpreted nature.",
+      "Java is a dynamically typed language, allowing variable types to be inferred at runtime, whereas Python requires explicit type declarations.",
+      "Python's extensive ecosystem of scientific computing libraries (e.g., NumPy, Pandas, Scikit-learn) makes it ideal for rapid AI prototyping, while Java is often preferred for large-scale, high-performance production AI systems.",
+      "Java's garbage collection mechanism is inherently more efficient for memory management in AI applications than Python's reference counting system."
+    ],
+    "correct": "Python's extensive ecosystem of scientific computing libraries (e.g., NumPy, Pandas, Scikit-learn) makes it ideal for rapid AI prototyping, while Java is often preferred for large-scale, high-performance production AI systems."
+  },
+  {
+    "id": "Q-CS101-4F85FA",
+    "course_code": "CS101",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "1",
+    "topic": "python and java",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "When considering the primary deep learning frameworks like TensorFlow and PyTorch, which language generally boasts more native and comprehensive API support, along with a larger community and resource base for these frameworks?",
+    "q": "When considering the primary deep learning frameworks like TensorFlow and PyTorch, which language generally boasts more native and comprehensive API support, along with a larger community and resource base for these frameworks?",
+    "source": "AI",
+    "options": [
+      "Java, due to its enterprise-grade robustness and long-standing presence in software development.",
+      "Python, owing to its roots in scientific computing and rapid adoption by the AI research community.",
+      "Both Java and Python offer equally robust and natively supported APIs for these frameworks, making the choice purely based on developer preference.",
+      "Neither, as specialized languages like R or Julia are universally preferred for deep learning due to their statistical capabilities."
+    ],
+    "a": [
+      "Java, due to its enterprise-grade robustness and long-standing presence in software development.",
+      "Python, owing to its roots in scientific computing and rapid adoption by the AI research community.",
+      "Both Java and Python offer equally robust and natively supported APIs for these frameworks, making the choice purely based on developer preference.",
+      "Neither, as specialized languages like R or Julia are universally preferred for deep learning due to their statistical capabilities."
+    ],
+    "correct": "Python, owing to its roots in scientific computing and rapid adoption by the AI research community."
+  },
+  {
+    "id": "Q-CS101-C08B90",
+    "course_code": "CS101",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "1",
+    "topic": "python and java",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Discuss two distinct advantages of using Python and two distinct advantages of using Java for Artificial Intelligence development, respectively. For each advantage, provide a brief explanation of why it is beneficial in an AI context.",
+    "q": "Discuss two distinct advantages of using Python and two distinct advantages of using Java for Artificial Intelligence development, respectively. For each advantage, provide a brief explanation of why it is beneficial in an AI context.",
+    "source": "AI",
+    "answer_key": "Model Answer:\nPython Advantages:\n1.  **Rich Ecosystem of AI/ML Libraries**: Python boasts an unparalleled collection of specialized libraries such as NumPy, SciPy, Pandas, Scikit-learn, TensorFlow, PyTorch, and Keras. These libraries provide pre-built functionalities for data manipulation, numerical computation, machine learning algorithms, and deep learning frameworks, significantly accelerating AI development and research.\n2.  **Rapid Prototyping and Development Speed**: Python's simple syntax, dynamic typing, and interpreted nature allow for quicker iteration cycles. This is highly beneficial in AI research and development where experimentation with various models and algorithms, data preprocessing, and visualization needs to be performed quickly.\n\nJava Advantages:\n1.  **Performance and Scalability for Production Systems**: Java, being a compiled language that runs on the Java Virtual Machine (JVM), offers excellent runtime performance and robust memory management. This makes it highly suitable for deploying large-scale, high-performance AI applications, such as real-time recommendation engines, fraud detection systems, or enterprise-level intelligent services where throughput and low latency are critical.\n2.  **Strong Type Checking and Robustness**: Java's static typing enforces type safety at compile time, leading to fewer runtime errors and more reliable, maintainable codebases. In complex AI systems, especially those integrated into larger enterprise architectures, this robustness helps prevent unexpected bugs and facilitates long-term maintenance and collaboration among large teams.\n\nGrading Criteria:\n-   1 mark for each correctly identified advantage (total 4 marks for 2 Python + 2 Java advantages).\n-   0.5 marks for each clear and concise explanation of why the advantage is beneficial in an AI context (total 2 marks, but capped to ensure total 5 marks).\n-   Overall quality, clarity, and relevance of explanations.",
+    "model_answer": "Model Answer:\nPython Advantages:\n1.  **Rich Ecosystem of AI/ML Libraries**: Python boasts an unparalleled collection of specialized libraries such as NumPy, SciPy, Pandas, Scikit-learn, TensorFlow, PyTorch, and Keras. These libraries provide pre-built functionalities for data manipulation, numerical computation, machine learning algorithms, and deep learning frameworks, significantly accelerating AI development and research.\n2.  **Rapid Prototyping and Development Speed**: Python's simple syntax, dynamic typing, and interpreted nature allow for quicker iteration cycles. This is highly beneficial in AI research and development where experimentation with various models and algorithms, data preprocessing, and visualization needs to be performed quickly.\n\nJava Advantages:\n1.  **Performance and Scalability for Production Systems**: Java, being a compiled language that runs on the Java Virtual Machine (JVM), offers excellent runtime performance and robust memory management. This makes it highly suitable for deploying large-scale, high-performance AI applications, such as real-time recommendation engines, fraud detection systems, or enterprise-level intelligent services where throughput and low latency are critical.\n2.  **Strong Type Checking and Robustness**: Java's static typing enforces type safety at compile time, leading to fewer runtime errors and more reliable, maintainable codebases. In complex AI systems, especially those integrated into larger enterprise architectures, this robustness helps prevent unexpected bugs and facilitates long-term maintenance and collaboration among large teams.\n\nGrading Criteria:\n-   1 mark for each correctly identified advantage (total 4 marks for 2 Python + 2 Java advantages).\n-   0.5 marks for each clear and concise explanation of why the advantage is beneficial in an AI context (total 2 marks, but capped to ensure total 5 marks).\n-   Overall quality, clarity, and relevance of explanations.",
+    "max_marks": 5
+  },
+  {
+    "id": "Q-CS101-81297F",
+    "course_code": "CS101",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "1",
+    "topic": "python and java",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "An AI startup is developing two distinct components for a new intelligent system:\n\n1.  A module for quickly experimenting with different machine learning algorithms and visualizing intermediate results.\n2.  A high-performance, multi-threaded recommendation engine that needs to handle millions of requests per second in a production environment.\n\nJustify which language (Python or Java) would be more suitable for each component, explaining your reasoning based on the typical strengths of each language in AI development.",
+    "q": "An AI startup is developing two distinct components for a new intelligent system:\n\n1.  A module for quickly experimenting with different machine learning algorithms and visualizing intermediate results.\n2.  A high-performance, multi-threaded recommendation engine that needs to handle millions of requests per second in a production environment.\n\nJustify which language (Python or Java) would be more suitable for each component, explaining your reasoning based on the typical strengths of each language in AI development.",
+    "source": "AI",
+    "answer_key": "Model Answer:\n\n1.  **Component 1: Experimentation and Visualization Module**\n    *   **Suitable Language: Python**\n    *   **Justification:** Python is exceptionally well-suited for this component due to its strengths in rapid prototyping, extensive scientific computing libraries, and interactive development capabilities. Its vast ecosystem includes libraries like Scikit-learn for various ML algorithms, NumPy for numerical operations, Pandas for data manipulation, and Matplotlib/Seaborn for visualization. Python's interpreted nature combined with interactive environments like Jupyter Notebooks allows researchers to quickly test hypotheses, modify code, visualize results, and iterate on models without extensive compilation steps. This accelerates the research and development phase significantly.\n\n2.  **Component 2: High-Performance Recommendation Engine**\n    *   **Suitable Language: Java**\n    *   **Justification:** Java is a better choice for a high-performance, multi-threaded recommendation engine designed for production. Its compiled nature and efficient execution on the Java Virtual Machine (JVM) provide superior runtime performance, critical for handling millions of requests per second with low latency. Java's robust concurrency features (e.g., `java.util.concurrent` package) are ideal for building highly parallel and scalable systems. Furthermore, its static typing and strong object-oriented principles contribute to building more maintainable and reliable large-scale applications, essential for critical production environments.\n\nGrading Criteria:\n-   1 mark for correctly identifying Python for Component 1.\n-   1.5 marks for a clear and relevant justification for Python's suitability (covering aspects like rapid prototyping, libraries, interactive development).\n-   1 mark for correctly identifying Java for Component 2.\n-   1.5 marks for a clear and relevant justification for Java's suitability (covering aspects like performance, scalability, concurrency, robustness/maintainability).",
+    "model_answer": "Model Answer:\n\n1.  **Component 1: Experimentation and Visualization Module**\n    *   **Suitable Language: Python**\n    *   **Justification:** Python is exceptionally well-suited for this component due to its strengths in rapid prototyping, extensive scientific computing libraries, and interactive development capabilities. Its vast ecosystem includes libraries like Scikit-learn for various ML algorithms, NumPy for numerical operations, Pandas for data manipulation, and Matplotlib/Seaborn for visualization. Python's interpreted nature combined with interactive environments like Jupyter Notebooks allows researchers to quickly test hypotheses, modify code, visualize results, and iterate on models without extensive compilation steps. This accelerates the research and development phase significantly.\n\n2.  **Component 2: High-Performance Recommendation Engine**\n    *   **Suitable Language: Java**\n    *   **Justification:** Java is a better choice for a high-performance, multi-threaded recommendation engine designed for production. Its compiled nature and efficient execution on the Java Virtual Machine (JVM) provide superior runtime performance, critical for handling millions of requests per second with low latency. Java's robust concurrency features (e.g., `java.util.concurrent` package) are ideal for building highly parallel and scalable systems. Furthermore, its static typing and strong object-oriented principles contribute to building more maintainable and reliable large-scale applications, essential for critical production environments.\n\nGrading Criteria:\n-   1 mark for correctly identifying Python for Component 1.\n-   1.5 marks for a clear and relevant justification for Python's suitability (covering aspects like rapid prototyping, libraries, interactive development).\n-   1 mark for correctly identifying Java for Component 2.\n-   1.5 marks for a clear and relevant justification for Java's suitability (covering aspects like performance, scalability, concurrency, robustness/maintainability).",
+    "max_marks": 5
+  },
+  {
+    "id": "Q-CS101-865B62",
+    "course_code": "CS101",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "unit": "1",
+    "topic": "python and java",
+    "type": "DESCRIPTIVE",
+    "level": "Medium",
+    "question": "Explain how Python's dynamic typing and Java's static typing philosophies influence the development process and potential outcomes of building complex AI systems. Consider aspects like development speed, error detection, and code maintainability.",
+    "q": "Explain how Python's dynamic typing and Java's static typing philosophies influence the development process and potential outcomes of building complex AI systems. Consider aspects like development speed, error detection, and code maintainability.",
+    "source": "AI",
+    "answer_key": "Model Answer:\n\n**Python's Dynamic Typing:**\nPython's dynamic typing means that variable types are checked at runtime, not at compile time. A variable can hold data of any type, and its type can change during execution.\n*   **Development Speed:** Significantly enhances initial development speed and flexibility. Developers can write code quickly without upfront type declarations, making rapid prototyping and experimentation (crucial in AI research) very efficient. It allows for more concise code.\n*   **Error Detection:** Type-related errors (e.g., trying to perform an invalid operation on a variable of an unexpected type) are typically caught only at runtime. This can lead to bugs being discovered later in the development cycle, potentially in production, which can be costly.\n*   **Code Maintainability:** For large and complex AI systems, dynamic typing can sometimes reduce maintainability. Without explicit type hints (which are optional in Python), it can be harder for developers to understand the expected types of data flowing through different parts of the system, especially when collaborating or revisiting old code. Refactoring can also be more challenging.\n\n**Java's Static Typing:**\nJava's static typing requires that all variable types are declared explicitly before compilation, and these types remain fixed. Type checks are performed by the compiler.\n*   **Development Speed:** Can initially slow down the development process due to the need for explicit type declarations and more upfront design. However, modern IDEs with strong type inference and auto-completion can mitigate some of this overhead.\n*   **Error Detection:** A major advantage is that most type-related errors are caught at compile time. This ensures a higher degree of code correctness before execution, reducing the likelihood of runtime type errors and enhancing the overall robustness and reliability of the AI system, especially in critical production environments.\n*   **Code Maintainability:** Greatly improves code maintainability and readability for complex AI systems. Explicit type declarations act as documentation, making it easier for developers to understand data structures, method signatures, and overall program flow. This facilitates collaboration, refactoring, and long-term support for large-scale AI applications.\n\n**Influence on AI Systems:**\nIn AI, Python's dynamic typing is often favored for the research, experimentation, and rapid iteration phases where flexibility and speed are paramount. Java's static typing, on the other hand, is preferred for building robust, scalable, and maintainable production AI systems where performance, reliability, and long-term support are critical requirements.\n\nGrading Criteria:\n-   1.5 marks for explaining the influence of Python's dynamic typing on development speed, error detection, and maintainability.\n-   1.5 marks for explaining the influence of Java's static typing on development speed, error detection, and maintainability.\n-   1 mark for clearly contrasting the two approaches with respect to specific AI development phases (e.g., research vs. production).\n-   1 mark for overall clarity, accuracy, and depth of explanation.",
+    "model_answer": "Model Answer:\n\n**Python's Dynamic Typing:**\nPython's dynamic typing means that variable types are checked at runtime, not at compile time. A variable can hold data of any type, and its type can change during execution.\n*   **Development Speed:** Significantly enhances initial development speed and flexibility. Developers can write code quickly without upfront type declarations, making rapid prototyping and experimentation (crucial in AI research) very efficient. It allows for more concise code.\n*   **Error Detection:** Type-related errors (e.g., trying to perform an invalid operation on a variable of an unexpected type) are typically caught only at runtime. This can lead to bugs being discovered later in the development cycle, potentially in production, which can be costly.\n*   **Code Maintainability:** For large and complex AI systems, dynamic typing can sometimes reduce maintainability. Without explicit type hints (which are optional in Python), it can be harder for developers to understand the expected types of data flowing through different parts of the system, especially when collaborating or revisiting old code. Refactoring can also be more challenging.\n\n**Java's Static Typing:**\nJava's static typing requires that all variable types are declared explicitly before compilation, and these types remain fixed. Type checks are performed by the compiler.\n*   **Development Speed:** Can initially slow down the development process due to the need for explicit type declarations and more upfront design. However, modern IDEs with strong type inference and auto-completion can mitigate some of this overhead.\n*   **Error Detection:** A major advantage is that most type-related errors are caught at compile time. This ensures a higher degree of code correctness before execution, reducing the likelihood of runtime type errors and enhancing the overall robustness and reliability of the AI system, especially in critical production environments.\n*   **Code Maintainability:** Greatly improves code maintainability and readability for complex AI systems. Explicit type declarations act as documentation, making it easier for developers to understand data structures, method signatures, and overall program flow. This facilitates collaboration, refactoring, and long-term support for large-scale AI applications.\n\n**Influence on AI Systems:**\nIn AI, Python's dynamic typing is often favored for the research, experimentation, and rapid iteration phases where flexibility and speed are paramount. Java's static typing, on the other hand, is preferred for building robust, scalable, and maintainable production AI systems where performance, reliability, and long-term support are critical requirements.\n\nGrading Criteria:\n-   1.5 marks for explaining the influence of Python's dynamic typing on development speed, error detection, and maintainability.\n-   1.5 marks for explaining the influence of Java's static typing on development speed, error detection, and maintainability.\n-   1 mark for clearly contrasting the two approaches with respect to specific AI development phases (e.g., research vs. production).\n-   1 mark for overall clarity, accuracy, and depth of explanation.",
+    "max_marks": 5
   }
 ]

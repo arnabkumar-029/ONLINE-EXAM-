@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Question Generator</title>
+
+<!-- SweetAlert -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+
+    background:
+        linear-gradient(rgba(10,15,35,0.75), rgba(10,15,35,0.75)),
+        url("/static/AI\ IMG.png");
+
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    background-attachment:fixed;
+
+    color:white;
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+
+    min-height:100vh;
+
+    padding:30px;
+}
+h1{
+    font-size:42px;
+    margin-bottom:35px;
+    font-weight:700;
+    animation:fadeDown .8s ease;
+}
+@keyframes fadeDown{
+    from{
+        opacity:0;
+        transform:translateY(-40px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+input::placeholder{
+    color:#888;
+    font-style:italic;
+}
+
+.box{
+    background:rgba(15,23,42,.65);
+    backdrop-filter:blur(18px);
+
+    border:1px solid rgba(255,255,255,.18);
+
+    padding:40px;
+    width:700px;
+
+    border-radius:25px;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.5);
+}
+form{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+/* ALL BOXES SAME SIZE */
+
+input,
+select,
+button{
+    width:100%;
+    height:60px;
+    border-radius:12px;
+    font-size:18px;
+    border:none;
+    outline:none;
+}
+
+/* INPUT & SELECT */
+
+input,
+select{
+    padding:0 20px;
+    background:#fff;
+}
+input:focus,
+select:focus{
+    border:2px solid #FFD84D;
+    box-shadow:0 0 15px rgba(255,216,77,.6);
+    transform:scale(1.02);
+    transition:.25s;
+}
+
+/* BUTTON */
+
+button{
+    position:relative;
+    overflow:hidden;
+    padding:12px 20px;
+    width:100%;
+    border-radius:10px;
+    border:none;
+    background:#FFD84D;
+    font-weight:600;
+    color:#333;
+    cursor:pointer;
+    transition:.3s;
+    font-size:17px;
+}
+button::before{
+    content:"";
+    position:absolute;
+    left:-120%;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(255,255,255,.4);
+    transform:skewX(-25deg);
+    transition:.6s;
+}
+
+button:hover::before{
+    left:120%;
+}
+
+button:hover{
+    background:#FFE77A;
+    transform:translateY(-2px);
+}
+
+/* BACK BUTTON */
+
+.back-box{
+    margin-top:30px;
+}
+
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    width:280px;
+    height:55px;
+    background:rgba(255,255,255,.12);
+    border:2px solid rgba(255,255,255,.2);
+    border-radius:12px;
+    color:white;
+    text-decoration:none;
+    font-size:18px;
+    font-weight:600;
+    transition:.3s;
+    backdrop-filter:blur(10px);
+}
+
+.back-btn:hover{
+    background:#FFD84D;
+    color:#333;
+    transform:translateY(-2px);
+}
+
+@media(max-width:768px){
+
+.box{
+    padding:30px;
+}
+
+h1{
+    font-size:34px;
+}
+
+}
+
+::-webkit-scrollbar{
+    width:10px;
+}
+
+::-webkit-scrollbar-track{
+    background:#dbe8ff;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#5563DE;
+    border-radius:20px;
+}
+
+/* AI Loading Animation */
+
+.loader{
+    width:fit-content;
+    margin:auto;
+    font-weight:bold;
+    font-family:monospace;
+    font-size:22px;
+
+    background:linear-gradient(90deg,#333 50%,transparent 0) right/200% 100%;
+    animation:loaderAnim 1.5s infinite linear;
+}
+
+.loader::before{
+    content:"Generating AI Questions...";
+    color:transparent;
+    padding:0 5px;
+
+    background:inherit;
+    background-image:linear-gradient(90deg,#ffffff 50%,#333 0);
+
+    -webkit-background-clip:text;
+    background-clip:text;
+}
+
+@keyframes loaderAnim{
+    100%{
+        background-position:left;
+    }
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>✨ AI Question Generator 🤖</h1>
+
+<!-- Flash Messages -->
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+{% for category, message in messages %}
+<script>
+Swal.fire({
+icon:"{{ 'success' if category=='success' else 'error' }}",
+title:"{{ 'Success' if category=='success' else 'Error' }}",
+text:"{{ message }}",
+confirmButtonColor:"#FFD84D"
+});
+</script>
+{% endfor %}
+{% endif %}
+{% endwith %}
+
+<div class="box">
+
+<form method="POST"
+action="{{ url_for('admin.api_generate') }}"
+id="genForm">
+
+<select name="qtype" required>
+<option value="">Select Question Type</option>
+<option value="mcq">MCQ Questions</option>
+<option value="descriptive">Descriptive Questions</option>
+</select>
+
+<input
+type="text"
+name="topic"
+placeholder="Enter Topic (e.g. Machine Learning)"
+required>
+
+<input
+type="number"
+name="count"
+min="1"
+max="20"
+value="10"
+required>
+
+<button
+type="submit"
+id="submitBtn">
+Generate Questions 🚀
+</button>
+
+</form>
+
+</div>
+
+<div class="back-box">
+<a href="{{ url_for('admin.admin_dashboard') }}" class="back-btn">
+<i class='bx bx-arrow-back'></i>
+Back to Dashboard
+</a>
+</div>
+
+<script>
+
+const form = document.getElementById("genForm");
+const btn = document.getElementById("submitBtn");
+
+form.addEventListener("submit", function () {
+
+    btn.disabled = true;
+
+    btn.style.background = "#ffffff";
+    btn.style.color = "#333";
+
+    btn.innerHTML = '<div class="loader"></div>';
+
+});
+</script>
+
+</body>
+</html>

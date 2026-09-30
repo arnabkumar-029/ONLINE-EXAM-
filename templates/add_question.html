@@ -1,0 +1,465 @@
+<!-- ==============================================================
+     ADD NEW QUESTION (templates/add_question.html)
+     ============================================================== -->
+
+<style>
+  .qadd-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 32px 36px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    max-width: 860px;
+    margin: 0 auto 40px auto;
+    animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .qadd-header {
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 18px;
+    margin-bottom: 26px;
+  }
+
+  .qadd-header h2 {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e1b4b;
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .qadd-header h2 i {
+    color: #4f46e5;
+  }
+
+  .qadd-header p {
+    color: #64748b;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  .qadd-section {
+    background: #fafbff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 22px 24px;
+    margin-bottom: 22px;
+    transition: all 0.25s ease;
+  }
+
+  .qadd-section:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.05);
+  }
+
+  .qadd-section-title {
+    font-size: 12.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #4f46e5;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .qadd-section-title span.badge-step {
+    background: #4f46e5;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+
+  .form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+
+  .form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  @media (max-width: 768px) {
+    .form-grid-3, .form-grid-2 {
+      grid-template-columns: 1fr;
+    }
+    .qadd-card {
+      padding: 22px 18px;
+    }
+  }
+
+  .form-group-custom {
+    margin-bottom: 12px;
+  }
+
+  .form-group-custom label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 6px;
+  }
+
+  .form-group-custom label span.req {
+    color: #ef4444;
+    font-weight: 700;
+  }
+
+  .form-group-custom label span.opt {
+    color: #94a3b8;
+    font-weight: 400;
+    font-size: 12px;
+  }
+
+  .form-group-custom input[type="text"],
+  .form-group-custom input[type="number"],
+  .form-group-custom select,
+  .form-group-custom textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    font-family: inherit;
+    color: #0f172a;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    margin-bottom: 0 !important;
+  }
+
+  .form-group-custom input:focus,
+  .form-group-custom select:focus,
+  .form-group-custom textarea:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  }
+
+  /* MCQ Options Grid */
+  .mcq-opts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  @media (max-width: 600px) {
+    .mcq-opts-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .opt-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .opt-badge-pill {
+    position: absolute;
+    left: 10px;
+    background: #e2e8f0;
+    color: #475569;
+    font-weight: 700;
+    font-size: 12px;
+    padding: 2px 7px;
+    border-radius: 6px;
+    pointer-events: none;
+  }
+
+  .opt-input-wrap input {
+    padding-left: 42px !important;
+  }
+
+  .btn-submit-q {
+    background: linear-gradient(135deg, #4f46e5, #6366f1);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 12px 28px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-submit-q:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(79, 70, 229, 0.5);
+  }
+
+  .btn-back-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 18px;
+    transition: color 0.2s;
+  }
+
+  .btn-back-link:hover {
+    color: #4f46e5;
+  }
+</style>
+
+<div class="qadd-card">
+
+  <div class="qadd-header">
+    <h2><i class="fa-solid fa-file-circle-plus"></i> Add New Question</h2>
+    <p>Configure course & subject classification, set difficulty, and input question details.</p>
+  </div>
+
+  <form action="{{ url_for('admin.add_question') }}" method="POST" id="addQuestionForm" onsubmit="return validateQuestionForm()">
+
+    <!-- =========================================================
+         STEP 1: COURSE & SUBJECT CLASSIFICATION
+         ========================================================= -->
+    <div class="qadd-section">
+      <div class="qadd-section-title">
+        <span class="badge-step">1</span>
+        <span>Course & Subject Classification</span>
+      </div>
+
+      <div class="form-grid-3">
+        <!-- Course Code (Required) -->
+        <div class="form-group-custom">
+          <label>Course Code <span class="req">*</span></label>
+          <input type="text" name="course_code" id="in_course_code" required
+                 list="dl_course_codes" placeholder="e.g. CS301" style="text-transform: uppercase;">
+          <datalist id="dl_course_codes">
+            {% for c in existing_courses|default([]) %}
+              <option value="{{ c }}"></option>
+            {% endfor %}
+          </datalist>
+        </div>
+
+        <!-- Course Name (Required) -->
+        <div class="form-group-custom">
+          <label>Course Name <span class="req">*</span></label>
+          <input type="text" name="course_name" id="in_course_name" required
+                 list="dl_course_names" placeholder="e.g. Artificial Intelligence">
+          <datalist id="dl_course_names">
+            {% for cn in existing_course_names|default([]) %}
+              <option value="{{ cn }}"></option>
+            {% endfor %}
+          </datalist>
+        </div>
+
+        <!-- Subject (Required) -->
+        <div class="form-group-custom">
+          <label>Subject <span class="req">*</span></label>
+          <input type="text" name="subject" id="in_subject" required
+                 list="dl_subjects" placeholder="e.g. Machine Learning">
+          <datalist id="dl_subjects">
+            {% for s in existing_subjects|default([]) %}
+              <option value="{{ s }}"></option>
+            {% endfor %}
+          </datalist>
+        </div>
+      </div>
+
+      <div class="form-grid-2" style="margin-top: 6px;">
+        <!-- Unit / Module (Optional) -->
+        <div class="form-group-custom">
+          <label>Unit / Module <span class="opt">(Optional)</span></label>
+          <input type="text" name="unit" id="in_unit" placeholder="e.g. Module III">
+        </div>
+
+        <!-- Topic (Optional) -->
+        <div class="form-group-custom">
+          <label>Topic <span class="opt">(Optional)</span></label>
+          <input type="text" name="topic" id="in_topic" placeholder="e.g. Classification Algorithms">
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         STEP 2: QUESTION TYPE & DIFFICULTY
+         ========================================================= -->
+    <div class="qadd-section">
+      <div class="qadd-section-title">
+        <span class="badge-step">2</span>
+        <span>Question Configuration</span>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group-custom">
+          <label>Question Type <span class="req">*</span></label>
+          <select name="type" id="qType" required>
+            <option value="MCQ" selected>MCQ (Objective / Multiple Choice)</option>
+            <option value="DESCRIPTIVE">Descriptive (Long / Subjective Answer)</option>
+          </select>
+        </div>
+
+        <div class="form-group-custom">
+          <label>Difficulty Level <span class="req">*</span></label>
+          <select name="level" required>
+            <option value="Easy" selected>Easy</option>
+            <option value="Medium">Medium</option>
+            <option value="Hard">Hard</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         STEP 3: QUESTION STATEMENT & ANSWERS
+         ========================================================= -->
+    <div class="qadd-section">
+      <div class="qadd-section-title">
+        <span class="badge-step">3</span>
+        <span>Question Content</span>
+      </div>
+
+      <div class="form-group-custom">
+        <label>Question Statement <span class="req">*</span></label>
+        <textarea name="question" id="in_question" rows="3" required
+                  placeholder="Enter the question text here..."></textarea>
+      </div>
+
+      <!-- MCQ Specific Fields -->
+      <div id="mcqFields">
+        <label style="font-size: 13px; font-weight: 600; color: #334155; margin-bottom: 8px; display: block;">
+          Options <span class="req">*</span>
+        </label>
+        <div class="mcq-opts-grid">
+          <div class="opt-input-wrap">
+            <span class="opt-badge-pill">A</span>
+            <input type="text" name="opt1" id="in_opt1" placeholder="Option A text">
+          </div>
+          <div class="opt-input-wrap">
+            <span class="opt-badge-pill">B</span>
+            <input type="text" name="opt2" id="in_opt2" placeholder="Option B text">
+          </div>
+          <div class="opt-input-wrap">
+            <span class="opt-badge-pill">C</span>
+            <input type="text" name="opt3" id="in_opt3" placeholder="Option C text">
+          </div>
+          <div class="opt-input-wrap">
+            <span class="opt-badge-pill">D</span>
+            <input type="text" name="opt4" id="in_opt4" placeholder="Option D text">
+          </div>
+        </div>
+
+        <div class="form-group-custom">
+          <label>Correct Answer <span class="req">*</span></label>
+          <input type="text" name="correct" id="in_correct"
+                 placeholder="Enter the exact correct option text (or select Option A/B/C/D)">
+          <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">
+            <i class="fa-solid fa-circle-info me-1"></i> Tip: Enter the exact matching option text or choose from options above.
+          </div>
+        </div>
+      </div>
+
+      <!-- Descriptive Specific Fields -->
+      <div id="descFields" style="display: none;">
+        <div class="form-group-custom">
+          <label>Model Answer / Key Points <span class="req">*</span></label>
+          <textarea name="answer_key" id="in_answer_key" rows="4"
+                    placeholder="Enter keywords or reference model answer for semantic similarity grading..."></textarea>
+          <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">
+            AI similarity analysis will evaluate student responses against these key points.
+          </div>
+        </div>
+
+        <div class="form-group-custom" style="max-width: 250px;">
+          <label>Maximum Marks</label>
+          <input type="number" name="max_marks" value="5" min="1" max="100">
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SUBMIT ACTIONS -->
+    <div style="display: flex; justify-content: flex-end; align-items: center; margin-top: 10px;">
+      <a href="{{ url_for('admin.all_questions') }}" class="btn-back-link">
+        <i class="fa-solid fa-arrow-left"></i> View All Questions
+      </a>
+      <button type="submit" class="btn-submit-q">
+        <i class="fa-solid fa-floppy-disk"></i> Save Question
+      </button>
+    </div>
+
+  </form>
+
+</div>
+
+<script>
+  const qTypeSelect = document.getElementById('qType');
+  const mcqFields = document.getElementById('mcqFields');
+  const descFields = document.getElementById('descFields');
+
+  qTypeSelect.addEventListener('change', () => {
+    if (qTypeSelect.value.toUpperCase() === 'MCQ') {
+      mcqFields.style.display = 'block';
+      descFields.style.display = 'none';
+    } else {
+      mcqFields.style.display = 'none';
+      descFields.style.display = 'block';
+    }
+  });
+
+  // Client-Side Validation conforming to required error messages
+  function validateQuestionForm() {
+    const code = document.getElementById('in_course_code').value.trim();
+    const name = document.getElementById('in_course_name').value.trim();
+    const subject = document.getElementById('in_subject').value.trim();
+    const qtext = document.getElementById('in_question').value.trim();
+    const qtype = qTypeSelect.value.toUpperCase();
+
+    if (!code) {
+      Swal.fire({ icon: 'error', title: 'Missing Field', text: 'Please enter Course Code.' });
+      return false;
+    }
+    if (!name) {
+      Swal.fire({ icon: 'error', title: 'Missing Field', text: 'Please enter Course Name.' });
+      return false;
+    }
+    if (!subject) {
+      Swal.fire({ icon: 'error', title: 'Missing Field', text: 'Please select/enter Subject.' });
+      return false;
+    }
+    if (!qtext) {
+      Swal.fire({ icon: 'error', title: 'Missing Field', text: 'Please enter question.' });
+      return false;
+    }
+
+    if (qtype === 'MCQ') {
+      const o1 = document.getElementById('in_opt1').value.trim();
+      const o2 = document.getElementById('in_opt2').value.trim();
+      const o3 = document.getElementById('in_opt3').value.trim();
+      const o4 = document.getElementById('in_opt4').value.trim();
+      const correct = document.getElementById('in_correct').value.trim();
+      if (!o1 || !o2 || !o3 || !o4 || !correct) {
+        Swal.fire({ icon: 'error', title: 'MCQ Incomplete', text: 'Please fill all 4 options and the correct answer.' });
+        return false;
+      }
+    } else {
+      const ak = document.getElementById('in_answer_key').value.trim();
+      if (!ak) {
+        Swal.fire({ icon: 'error', title: 'Descriptive Incomplete', text: 'Please enter model answer / answer key keywords.' });
+        return false;
+      }
+    }
+
+    return true;
+  }
+</script>

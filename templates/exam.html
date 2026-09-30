@@ -174,8 +174,14 @@
   <div class="quiz-container">
 
     <div class="difficulty">🧩 {{ difficulty }}</div>
-    <div class="timer" id="timer">⏳ 10:00</div>
+    <div class="timer" id="timer">⏳ {{ "%02d:%02d"|format((total_time|default(600)) // 60, (total_time|default(600)) % 60) }}</div>
     <div class="timer-bar" id="timerBar"></div>
+
+    {% if session.get('course_exam_title') %}
+    <div style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: rgba(59, 130, 246, 0.15); border: 1px solid rgba(96, 165, 250, 0.35); color: #93c5fd; padding: 6px 18px; border-radius: 999px; font-size: 13px; font-weight: 600; margin-bottom: 12px; letter-spacing: 0.5px;">
+      🎓 {{ session.get('course_code') }} &bull; {{ session.get('course_exam_title') }}
+    </div>
+    {% endif %}
 
     <h3>Question {{ index }} / {{ total }}</h3>
     <h2>{{ question.q }}</h2>
@@ -219,8 +225,11 @@
     const timerBar = document.getElementById('timerBar');
     const warningPopup = document.getElementById('warningPopup');
 
-    const TOTAL_TIME = 10 * 60;  
-    let remainingTime = parseInt(sessionStorage.getItem("remainingTime")) || TOTAL_TIME;
+    const TOTAL_TIME = {{ total_time|default(600) }};  
+    let remainingTime = parseInt(sessionStorage.getItem("remainingTime"));
+    if (isNaN(remainingTime) || remainingTime > TOTAL_TIME || remainingTime <= 0) {
+      remainingTime = TOTAL_TIME;
+    }
     let warned = sessionStorage.getItem("warned") === "true";
 
     function formatTime(sec) {

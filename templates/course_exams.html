@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Official Course Examinations • AI Portal</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    /* =========================================
+       CSS VARIABLES & FUTURISTIC PALETTE
+    ========================================= */
+    :root {
+      --bg-dark: #030712;
+      --bg-deep: #0a0f1d;
+      --bg-glass-card: rgba(15, 23, 42, 0.72);
+      --bg-glass-hover: rgba(22, 33, 62, 0.88);
+      --border-glass: rgba(255, 255, 255, 0.1);
+      
+      --cyan: #00f0ff;
+      --cyan-glow: rgba(0, 240, 255, 0.4);
+      --purple: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.45);
+      --emerald: #10b981;
+      --emerald-glow: rgba(16, 185, 129, 0.4);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.35);
+      --rose: #f43f5e;
+
+      --text-main: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+
+      --font-body: 'Outfit', sans-serif;
+      --font-tech: 'Orbitron', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100vh;
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 16px 80px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Ambient Background Elements */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .ambient-orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(120px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.35;
+    }
+    .orb-1 { width: 500px; height: 500px; background: #8b5cf6; top: -150px; left: -100px; }
+    .orb-2 { width: 450px; height: 450px; background: #00f0ff; bottom: -100px; right: -100px; }
+    .orb-3 { width: 350px; height: 350px; background: #10b981; top: 40%; left: 60%; }
+
+    /* =========================================
+       TOP NAVBAR
+    ========================================= */
+    .top-navbar {
+      width: 100%;
+      max-width: 1200px;
+      margin-bottom: 25px;
+      padding: 14px 26px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      z-index: 10;
+      position: relative;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #030712;
+      font-size: 18px;
+      box-shadow: 0 0 15px var(--cyan-glow);
+    }
+
+    .brand-text {
+      font-family: var(--font-tech);
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: 1.5px;
+    }
+    .brand-text span { color: var(--cyan); }
+
+    .nav-center-clock {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 240, 255, 0.08);
+      border: 1px solid rgba(0, 240, 255, 0.25);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.15);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; transform: scale(0.85); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .user-greeting {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .btn-back-options {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 16px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-glass);
+      transition: all 0.25s ease;
+    }
+
+    .btn-back-options:hover {
+      color: var(--cyan);
+      border-color: rgba(0, 240, 255, 0.4);
+      background: rgba(0, 240, 255, 0.1);
+      transform: translateX(-2px);
+    }
+
+    /* =========================================
+       MAIN CONTAINER & HERO HEADER
+    ========================================= */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      z-index: 5;
+      position: relative;
+    }
+
+    .hero-header {
+      margin-bottom: 28px;
+      text-align: left;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 14px;
+      background: rgba(139, 92, 246, 0.14);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      border-radius: 20px;
+      font-family: var(--font-tech);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      color: #c084fc;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-family: var(--font-tech);
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      background: linear-gradient(135deg, #ffffff 30%, #c084fc 70%, #00f0ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+    }
+
+    .hero-subtitle {
+      color: var(--text-secondary);
+      font-size: 15px;
+    }
+
+    /* =========================================
+       FILTER & SEARCH BAR
+    ========================================= */
+    .filter-bar-card {
+      background: var(--bg-glass-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glass);
+      border-radius: 18px;
+      padding: 18px 24px;
+      margin-bottom: 35px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+    }
+
+    .filter-group-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .filter-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-family: var(--font-tech);
+    }
+
+    .filter-select, .search-input {
+      height: 42px;
+      border-radius: 10px;
+      background: rgba(30, 41, 59, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #ffffff;
+      padding: 0 14px;
+      font-size: 13.5px;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .filter-select:focus, .search-input:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 12px rgba(0, 240, 255, 0.3);
+      background: rgba(30, 41, 59, 1);
+    }
+
+    .filter-select option {
+      background: #0f172a;
+      color: #ffffff;
+    }
+
+    .search-wrap {
+      position: relative;
+      min-width: 240px;
+      flex: 1;
+    }
+
+    .search-input {
+      width: 100%;
+      padding-left: 36px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .btn-reset-filters {
+      height: 42px;
+      padding: 0 16px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #cbd5e1;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-reset-filters:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+
+    .filter-stats-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.1);
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(0, 240, 255, 0.25);
+    }
+
+    /* =========================================
+       SECTION CONTAINERS & HEADERS
+    ========================================= */
+    .section-wrap {
+      margin-bottom: 48px;
+    }
+
+    .section-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .section-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-main-title {
+      font-family: var(--font-tech);
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-main-title.active {
+      color: var(--cyan);
+      text-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
+    }
+
+    .section-main-title.upcoming {
+      color: #c084fc;
+      text-shadow: 0 0 15px rgba(139, 92, 246, 0.35);
+    }
+
+    .section-count-chip {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-family: var(--font-mono);
+    }
+
+    .section-count-chip.active {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
+    }
+
+    .section-count-chip.upcoming {
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid var(--purple);
+      color: #c084fc;
+    }
+
+    /* =========================================
+       3D GLASS EXAMINATION CARDS
+    ========================================= */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 26px;
+    }
+
+    .exam-card {
+      background: var(--bg-glass-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 22px;
+      padding: 26px;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+    }
+
+    .exam-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: all 0.3s ease;
+    }
+
+    .exam-card.card-live:hover {
+      border-color: rgba(0, 240, 255, 0.5);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 240, 255, 0.2);
+      transform: translateY(-6px);
+    }
+    .exam-card.card-live::before {
+      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    }
+
+    .exam-card.card-upcoming:hover {
+      border-color: rgba(139, 92, 246, 0.45);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.2);
+      transform: translateY(-6px);
+    }
+    .exam-card.card-upcoming::before {
+      background: linear-gradient(90deg, transparent, var(--purple), transparent);
+    }
+
+    /* Card Top Bar */
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .course-badge {
+      font-family: var(--font-tech);
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--cyan);
+      background: rgba(0, 240, 255, 0.1);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 3px 10px;
+      border-radius: 8px;
+      letter-spacing: 1px;
+    }
+
+    .status-chip {
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-chip.live {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald);
+      color: #34d399;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .status-chip.locked {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+    }
+
+    /* Course Titles & Hierarchy */
+    .course-name-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .subject-name-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #38bdf8;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .exam-title-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: #ffffff;
+      line-height: 1.4;
+      margin-bottom: 16px;
+      min-height: 50px;
+    }
+
+    /* Metric Badges Row */
+    .metric-pills-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .metric-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .metric-pill i {
+      color: var(--cyan);
+      font-size: 11px;
+    }
+
+    /* Schedule Box */
+    .schedule-window-box {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 20px;
+      font-size: 12.5px;
+      color: #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .schedule-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .schedule-row i {
+      color: #a855f7;
+      width: 14px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    /* =========================================
+       ACTION BUTTONS & LOCKED BANNERS
+    ========================================= */
+    .btn-start-exam {
+      width: 100%;
+      height: 48px;
+      border-radius: 12px;
+      font-family: var(--font-tech);
+      font-size: 13.5px;
+      font-weight: 800;
+      letter-spacing: 1.2px;
+      text-align: center;
+      text-decoration: none;
+      background: linear-gradient(135deg, #059669 0%, #10b981 50%, #00f0ff 100%);
+      color: #030712;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-start-exam:hover {
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.7);
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .btn-start-exam i {
+      transition: transform 0.25s ease;
+    }
+    .btn-start-exam:hover i {
+      transform: translateX(4px);
+    }
+
+    /* Locked Card Holographic Banner */
+    .locked-card-banner {
+      width: 100%;
+      border-radius: 12px;
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px dashed rgba(245, 158, 11, 0.4);
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: #cbd5e1;
+      position: relative;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .locked-card-banner::after {
+      content: "";
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 45%,
+        rgba(255, 255, 255, 0.05) 50%,
+        transparent 55%
+      );
+      animation: scanline 4s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(-30%); }
+      100% { transform: translateY(30%); }
+    }
+
+    .locked-icon-badge {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fbbf24;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .locked-text-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      line-height: 1.25;
+    }
+
+    .locked-subtext {
+      font-family: var(--font-tech);
+      font-size: 10px;
+      font-weight: 700;
+      color: #fbbf24;
+      letter-spacing: 1px;
+    }
+
+    .locked-target-dt {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: #f8fafc;
+      margin-top: 2px;
+    }
+
+    /* Empty state cards */
+    .empty-section-card {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 45px 20px;
+      background: rgba(15, 23, 42, 0.5);
+      border: 1px dashed rgba(255, 255, 255, 0.12);
+      border-radius: 18px;
+    }
+
+    .empty-section-card i {
+      font-size: 36px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .empty-section-card h4 {
+      font-size: 16px;
+      color: #e2e8f0;
+      margin-bottom: 4px;
+    }
+
+    .empty-section-card p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+    }
+
+    /* Policy Card Footer */
+    .policy-footer-card {
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid var(--border-glass);
+      border-radius: 16px;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      margin-top: 10px;
+    }
+
+    .policy-icon {
+      font-size: 24px;
+      color: var(--cyan);
+      flex-shrink: 0;
+    }
+
+    .policy-content h5 {
+      font-family: var(--font-tech);
+      font-size: 13px;
+      font-weight: 700;
+      color: #e2e8f0;
+      letter-spacing: 1px;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .policy-content p {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* Responsiveness */
+    @media (max-width: 768px) {
+      .top-navbar {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .filter-bar-card {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-title {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Ambient Visuals -->
+  <div class="bg-grid"></div>
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+
+  <!-- TOP NAVBAR -->
+  <header class="top-navbar">
+    <a href="{{ url_for('auth.exam_options') }}" class="brand-wrap">
+      <div class="brand-icon">
+        <i class="fa-solid fa-graduation-cap"></i>
+      </div>
+      <div class="brand-text">AI <span>EXAM</span> PORTAL</div>
+    </a>
+
+    <!-- Live Synchronized Server Clock -->
+    <div class="nav-center-clock">
+      <div class="live-dot"></div>
+      <i class="fa-solid fa-clock" style="font-size: 11px;"></i>
+      <span id="liveClockDisplay">{{ current_time }}</span>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="nav-actions">
+      <div class="user-greeting">
+        <i class="fa-solid fa-user-graduate" style="color: var(--cyan);"></i>
+        <span>Welcome, {{ session.get('username', 'Student') }}</span>
+      </div>
+
+      <a href="{{ url_for('auth.exam_options') }}" class="btn-back-options">
+        <i class="fa-solid fa-arrow-left"></i>
+        <span>Back to Exam Options</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <main class="container">
+
+    <!-- PAGE HERO HEADER -->
+    <div class="hero-header">
+      <div class="hero-badge">
+        <i class="fa-solid fa-award"></i>
+        <span>ACADEMIC ASSESSMENT PLATFORM</span>
+      </div>
+      <h1 class="hero-title">OFFICIAL COURSE EXAMS</h1>
+      <p class="hero-subtitle">Examinations scheduled by your instructor.</p>
+    </div>
+
+    <!-- FILTER & SEARCH PANEL -->
+    <div class="filter-bar-card">
+      <div class="filter-group-left">
+        <span class="filter-label">
+          <i class="fa-solid fa-filter"></i> Filters:
+        </span>
+
+        <!-- Course Filter Dropdown -->
+        <select id="courseFilter" class="filter-select" onchange="applyFilters()">
+          <option value="ALL">All Courses</option>
+          {% for c in all_courses %}
+          <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+
+        <!-- Subject Filter Dropdown -->
+        <select id="subjectFilter" class="filter-select" onchange="applyFilters()">
+          <option value="ALL">All Subjects</option>
+          {% for s in all_subjects %}
+          <option value="{{ s }}">{{ s }}</option>
+          {% endfor %}
+        </select>
+
+        <!-- Instant Text Search -->
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass search-icon"></i>
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search by title, subject, or code..."
+            oninput="applyFilters()">
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span class="filter-stats-badge" id="filterStatsBadge">
+          {{ today_exams|length }} Active • {{ upcoming_exams|length }} Upcoming
+        </span>
+        <button type="button" class="btn-reset-filters" onclick="resetFilters()">
+          <i class="fa-solid fa-rotate-left"></i> Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         SECTION 1: TODAY / ACTIVE EXAMS (AVAILABLE TODAY)
+         ========================================================= -->
+    <section class="section-wrap" id="sectionToday">
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <div class="live-dot" style="background: var(--emerald); box-shadow: 0 0 10px var(--emerald);"></div>
+          <h2 class="section-main-title active">
+            <i class="fa-solid fa-bolt-lightning"></i>
+            AVAILABLE TODAY
+          </h2>
+        </div>
+        <span class="section-count-chip active" id="todayCountChip">
+          {{ today_exams|length }} Available Now
+        </span>
+      </div>
+
+      <div class="cards-grid" id="todayCardsGrid">
+        {% if today_exams %}
+          {% for exam in today_exams %}
+            <div class="exam-card card-live"
+                 data-course="{{ exam.course_code | upper }}"
+                 data-subject="{{ exam.subject | lower }}"
+                 data-search="{{ exam.course_code | lower }} {{ exam.course_name | lower }} {{ exam.subject | lower }} {{ exam.title | lower }}">
+              
+              <div>
+                <!-- Top Badge Row -->
+                <div class="card-top">
+                  <span class="course-badge">{{ exam.course_code }}</span>
+                  <span class="status-chip live">
+                    <span style="width:6px; height:6px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+                    AVAILABLE TODAY
+                  </span>
+                </div>
+
+                <!-- Academic Hierarchy -->
+                <div class="course-name-label" title="{{ exam.course_name }}">{{ exam.course_name }}</div>
+                <div class="subject-name-label">
+                  <i class="fa-solid fa-book-open"></i> {{ exam.subject }}
+                </div>
+
+                <!-- Exam Title -->
+                <h3 class="exam-title-text">{{ exam.title }}</h3>
+
+                <!-- Metric Pills -->
+                <div class="metric-pills-row">
+                  <div class="metric-pill">
+                    <i class="fa-solid fa-layer-group"></i>
+                    <span>{{ exam.exam_type_display }}</span>
+                  </div>
+                  <div class="metric-pill">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>{{ exam.num_questions }} Questions</span>
+                  </div>
+                  <div class="metric-pill">
+                    <i class="fa-solid fa-hourglass-half"></i>
+                    <span>{{ exam.duration }} Minutes</span>
+                  </div>
+                </div>
+
+                <!-- Schedule Window Box -->
+                <div class="schedule-window-box">
+                  <div class="schedule-row">
+                    <i class="fa-solid fa-calendar-day"></i>
+                    <span><strong>Date:</strong> {{ exam.formatted_date }}</span>
+                  </div>
+                  <div class="schedule-row">
+                    <i class="fa-solid fa-clock"></i>
+                    <span><strong>Window:</strong> {{ exam.formatted_start_time }} – {{ exam.formatted_end_time }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action: START EXAM (Shown only within configured window) -->
+              {% if exam.can_start %}
+                <a href="{{ url_for('exam.start_course_exam', exam_id=exam.id) }}" class="btn-start-exam">
+                  <span>[ START EXAM ]</span>
+                  <i class="fa-solid fa-arrow-right"></i>
+                </a>
+              {% else %}
+                <div class="locked-card-banner">
+                  <div class="locked-icon-badge">
+                    <i class="fa-solid fa-lock"></i>
+                  </div>
+                  <div class="locked-text-wrap">
+                    <span class="locked-subtext">AVAILABLE AT</span>
+                    <span class="locked-target-dt">{{ exam.formatted_start_time }}</span>
+                  </div>
+                </div>
+              {% endif %}
+
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-section-card" id="emptyTodayCard">
+            <i class="fa-solid fa-calendar-check"></i>
+            <h4>No Examinations Scheduled For Today</h4>
+            <p>There are no active or scheduled examinations available right now. Please check the upcoming exams below.</p>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 2: UPCOMING EXAMS (CHRONOLOGICALLY ORDERED)
+         ========================================================= -->
+    <section class="section-wrap" id="sectionUpcoming">
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <i class="fa-solid fa-lock" style="color: #c084fc;"></i>
+          <h2 class="section-main-title upcoming">
+            UPCOMING EXAMS
+          </h2>
+        </div>
+        <span class="section-count-chip upcoming" id="upcomingCountChip">
+          {{ upcoming_exams|length }} Scheduled
+        </span>
+      </div>
+
+      <div class="cards-grid" id="upcomingCardsGrid">
+        {% if upcoming_exams %}
+          {% for exam in upcoming_exams %}
+            <div class="exam-card card-upcoming"
+                 data-course="{{ exam.course_code | upper }}"
+                 data-subject="{{ exam.subject | lower }}"
+                 data-search="{{ exam.course_code | lower }} {{ exam.course_name | lower }} {{ exam.subject | lower }} {{ exam.title | lower }}">
+              
+              <div>
+                <!-- Top Badge Row -->
+                <div class="card-top">
+                  <span class="course-badge" style="color:#c084fc; background:rgba(139,92,246,0.12); border-color:rgba(139,92,246,0.35);">
+                    {{ exam.course_code }}
+                  </span>
+                  <span class="status-chip locked">
+                    <i class="fa-solid fa-lock" style="font-size: 10px;"></i>
+                    LOCKED
+                  </span>
+                </div>
+
+                <!-- Academic Hierarchy -->
+                <div class="course-name-label" title="{{ exam.course_name }}">{{ exam.course_name }}</div>
+                <div class="subject-name-label" style="color: #c084fc;">
+                  <i class="fa-solid fa-book-open"></i> {{ exam.subject }}
+                </div>
+
+                <!-- Exam Title -->
+                <h3 class="exam-title-text">{{ exam.title }}</h3>
+
+                <!-- Metric Pills -->
+                <div class="metric-pills-row">
+                  <div class="metric-pill">
+                    <i class="fa-solid fa-layer-group" style="color:#c084fc;"></i>
+                    <span>{{ exam.exam_type_display }}</span>
+                  </div>
+                  <div class="metric-pill">
+                    <i class="fa-solid fa-list-check" style="color:#c084fc;"></i>
+                    <span>{{ exam.num_questions }} Questions</span>
+                  </div>
+                  <div class="metric-pill">
+                    <i class="fa-solid fa-hourglass-half" style="color:#c084fc;"></i>
+                    <span>{{ exam.duration }} Minutes</span>
+                  </div>
+                </div>
+
+                <!-- Schedule Window Box -->
+                <div class="schedule-window-box">
+                  <div class="schedule-row">
+                    <i class="fa-solid fa-calendar-day"></i>
+                    <span><strong>Exam Date:</strong> {{ exam.formatted_date }}</span>
+                  </div>
+                  <div class="schedule-row">
+                    <i class="fa-solid fa-clock"></i>
+                    <span><strong>Start Time:</strong> {{ exam.formatted_start_time }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Locked Action Banner -->
+              <div class="locked-card-banner" style="cursor: pointer;" onclick="showLockedAlert('{{ exam.title | escape }}', '{{ exam.formatted_date }}', '{{ exam.formatted_start_time }}')">
+                <div class="locked-icon-badge">
+                  <i class="fa-solid fa-lock"></i>
+                </div>
+                <div class="locked-text-wrap">
+                  <span class="locked-subtext">AVAILABLE ON</span>
+                  <span class="locked-target-dt">{{ exam.available_on_date }} &bull; {{ exam.available_on_time }}</span>
+                </div>
+              </div>
+
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-section-card" id="emptyUpcomingCard">
+            <i class="fa-solid fa-calendar-xmark"></i>
+            <h4>No Upcoming Examinations</h4>
+            <p>There are no future course examinations currently scheduled by your instructor.</p>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- ASSESSMENT SECURITY NOTICE -->
+    <div class="policy-footer-card">
+      <i class="fa-solid fa-shield-halved policy-icon"></i>
+      <div class="policy-content">
+        <h5>Official University Assessment Integrity Policy</h5>
+        <p>Examination windows are synchronized directly with server-side university time. Automated lock mechanisms strictly prevent premature access or unauthorized exam submissions. If an assigned examination is missing or inaccessible, please contact your department instructor.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- =========================================
+       FLASH MESSAGES (SWEETALERT2)
+  ========================================= -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <script>
+          Swal.fire({
+            icon: {{ ('success' if category == 'success' else 'error' if category == 'error' else 'info')|tojson }},
+            title: {{ ('Success' if category == 'success' else 'Access Restricted' if category == 'error' else 'Notice')|tojson }},
+            text: {{ message|tojson }},
+            confirmButtonColor: "#00f0ff",
+            background: "#0f172a",
+            color: "#ffffff"
+          });
+        </script>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- =========================================
+       CLIENT-SIDE JAVASCRIPT
+  ========================================= -->
+  <script>
+    // Live Clock Simulation & Updates
+    function updateLiveClock() {
+      const now = new Date();
+      const options = { 
+        day: '2-digit', 
+        month: 'short', 
+        year: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true 
+      };
+      const formatted = now.toLocaleDateString('en-US', options);
+      const clockElem = document.getElementById("liveClockDisplay");
+      if (clockElem) {
+        clockElem.textContent = formatted;
+      }
+    }
+    setInterval(updateLiveClock, 1000);
+
+    // Locked Alert Pop-up
+    function showLockedAlert(title, date, time) {
+      Swal.fire({
+        icon: 'info',
+        title: 'Examination Locked 🔒',
+        html: `<strong>${title}</strong> is scheduled for a future time window.<br><br>It will become available on <strong>${date}</strong> at <strong>${time}</strong>.`,
+        confirmButtonColor: '#8b5cf6',
+        background: '#0f172a',
+        color: '#ffffff'
+      });
+    }
+
+    // Dynamic Filter Handler
+    function applyFilters() {
+      const selectedCourse = document.getElementById("courseFilter").value.toUpperCase();
+      const selectedSubject = document.getElementById("subjectFilter").value.toLowerCase();
+      const searchVal = document.getElementById("searchInput").value.trim().toLowerCase();
+
+      let visibleToday = 0;
+      let visibleUpcoming = 0;
+
+      // Filter Today Cards
+      const todayCards = document.querySelectorAll("#todayCardsGrid .exam-card");
+      todayCards.forEach(card => {
+        const cCourse = card.getAttribute("data-course");
+        const cSubject = card.getAttribute("data-subject");
+        const cSearch = card.getAttribute("data-search");
+
+        const matchCourse = (selectedCourse === "ALL" || cCourse === selectedCourse);
+        const matchSubject = (selectedSubject === "ALL" || cSubject === selectedSubject);
+        const matchSearch = (!searchVal || cSearch.includes(searchVal));
+
+        if (matchCourse && matchSubject && matchSearch) {
+          card.style.display = "flex";
+          visibleToday++;
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      // Filter Upcoming Cards
+      const upcomingCards = document.querySelectorAll("#upcomingCardsGrid .exam-card");
+      upcomingCards.forEach(card => {
+        const cCourse = card.getAttribute("data-course");
+        const cSubject = card.getAttribute("data-subject");
+        const cSearch = card.getAttribute("data-search");
+
+        const matchCourse = (selectedCourse === "ALL" || cCourse === selectedCourse);
+        const matchSubject = (selectedSubject === "ALL" || cSubject === selectedSubject);
+        const matchSearch = (!searchVal || cSearch.includes(searchVal));
+
+        if (matchCourse && matchSubject && matchSearch) {
+          card.style.display = "flex";
+          visibleUpcoming++;
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      // Update counters
+      const todayChip = document.getElementById("todayCountChip");
+      if (todayChip) todayChip.textContent = `${visibleToday} Available Now`;
+
+      const upcomingChip = document.getElementById("upcomingCountChip");
+      if (upcomingChip) upcomingChip.textContent = `${visibleUpcoming} Scheduled`;
+
+      const badge = document.getElementById("filterStatsBadge");
+      if (badge) badge.textContent = `${visibleToday} Active • ${visibleUpcoming} Upcoming`;
+
+      // Show/hide empty state cards
+      const emptyToday = document.getElementById("emptyTodayCard");
+      if (emptyToday) emptyToday.style.display = (visibleToday === 0) ? "block" : "none";
+
+      const emptyUpcoming = document.getElementById("emptyUpcomingCard");
+      if (emptyUpcoming) emptyUpcoming.style.display = (visibleUpcoming === 0) ? "block" : "none";
+    }
+
+    function resetFilters() {
+      document.getElementById("courseFilter").value = "ALL";
+      document.getElementById("subjectFilter").value = "ALL";
+      document.getElementById("searchInput").value = "";
+      applyFilters();
+    }
+  </script>
+
+</body>
+</html>

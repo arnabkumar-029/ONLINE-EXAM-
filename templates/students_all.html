@@ -1,51 +1,906 @@
 <!-- ===================== ALL STUDENTS ===================== -->
 
-<h2>All Students</h2>
-<p>Total Students: {{ students|length }}</p>
+<style>
+  .students-admin-wrapper {
+    margin-bottom: 30px;
+  }
 
-<table>
-<thead>
-<tr>
-<th>#</th>
-<th>Username</th>
-<th>Email</th>
-<th>Attempts</th>
-<th>Latest Score</th>
-<th>Best %</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody>
+  .students-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
 
-{% for s in students %}
-<tr>
-<td>{{ loop.index }}</td>
-<td>{{ s.username }}</td>
-<td>{{ s.email }}</td>
-<td>{{ s.attempts }}</td>
-<td>
-  {% if s.latest_score is not none %}
-    {{ s.latest_score }} / {{ s.latest_total }}
-  {% else %}
-    N/A
+  .students-header-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .students-header-title h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #1e293b;
+    font-weight: 700;
+  }
+
+  .student-count-chip {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* Filter Panel Box */
+  .students-filter-box {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+  }
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: 1.8fr 1.1fr 1.1fr 1fr 1fr auto;
+    gap: 14px;
+    align-items: end;
+  }
+
+  /* Add Student Modal */
+  .student-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .student-modal-dialog {
+    background: #ffffff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: modalSlide 0.25s ease;
+  }
+
+  .student-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+  }
+
+  @keyframes modalSlide {
+    from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .filter-item label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .filter-input-wrap {
+    position: relative;
+  }
+
+  .filter-input-wrap i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 14px;
+  }
+
+  .filter-input-wrap input {
+    width: 100%;
+    padding: 9px 12px 9px 34px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 13.5px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  .filter-input-wrap input:focus,
+  .filter-select:focus {
+    border-color: #6366f1;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  }
+
+  .filter-select {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    font-size: 13.5px;
+    color: #334155;
+    box-sizing: border-box;
+    cursor: pointer;
+  }
+
+  .btn-reset-filters {
+    padding: 9px 16px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    height: 38px;
+  }
+
+  .btn-reset-filters:hover {
+    background: #e2e8f0;
+    color: #1e293b;
+  }
+
+  .filter-summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #f1f5f9;
+    font-size: 12.5px;
+    color: #64748b;
+  }
+
+  /* Table Custom Badges */
+  .badge-code {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 12.5px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  .badge-code.none {
+    background: #f8fafc;
+    color: #94a3b8;
+    border-color: #e2e8f0;
+    font-family: inherit;
+    font-weight: normal;
+  }
+
+  .badge-prog {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .badge-year {
+    display: inline-block;
+    padding: 3px 8px;
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .table-responsive-box {
+    width: 100%;
+    overflow-x: auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .table-responsive-box table {
+    margin-bottom: 0;
+  }
+
+  .empty-filter-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #64748b;
+  }
+
+  .empty-filter-state i {
+    font-size: 36px;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+  }
+
+  @media (max-width: 900px) {
+    .filter-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .btn-reset-filters {
+      grid-column: span 2;
+    }
+  }
+
+  @media (max-width: 600px) {
+    .filter-grid {
+      grid-template-columns: 1fr;
+    }
+    .btn-reset-filters {
+      grid-column: span 1;
+    }
+  }
+</style>
+
+<div class="students-admin-wrapper">
+
+  <div class="students-header-row">
+    <div class="students-header-title">
+      <h2>All Registered Students</h2>
+      <span class="student-count-chip">{{ students|length }} Students</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ url_for('admin.programs_page') }}" class="btn" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+        <i class="fa-solid fa-shapes"></i> Manage Programs
+      </a>
+      <button type="button" class="btn" onclick="openAddStudentModal()" style="background: linear-gradient(135deg, #4f46e5, #6366f1); color: #fff; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 13.5px; border: none; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35); display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+        <i class="fa-solid fa-user-plus"></i> Add University Student
+      </button>
+    </div>
+  </div>
+
+  <!-- SEARCH & FILTER BAR -->
+  <div class="students-filter-box">
+    <div class="filter-grid">
+
+      <!-- Text Search -->
+      <div class="filter-item">
+        <label for="studentSearchInput">Search Student</label>
+        <div class="filter-input-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input
+            type="text"
+            id="studentSearchInput"
+            placeholder="Search by Name, Email, Student Code, or Department..."
+            autocomplete="off">
+        </div>
+      </div>
+
+      <!-- Account Type Filter -->
+      <div class="filter-item">
+        <label for="filterType">Account Type</label>
+        <select id="filterType" class="filter-select">
+          <option value="">All Types</option>
+          <option value="UNIVERSITY">🎓 University</option>
+          <option value="EXTERNAL">🧠 Practice</option>
+        </select>
+      </div>
+
+      <!-- Program Filter -->
+      <div class="filter-item">
+        <label for="filterProgram">Program</label>
+        <select id="filterProgram" class="filter-select">
+          <option value="">All Programs</option>
+          {% for prog in filter_programs or [] %}
+          <option value="{{ prog }}">{{ prog }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Admission Year Filter -->
+      <div class="filter-item">
+        <label for="filterAdmissionYear">Admission Year</label>
+        <select id="filterAdmissionYear" class="filter-select">
+          <option value="">All Admission Years</option>
+          {% for yr in filter_admission_years or [] %}
+          <option value="{{ yr }}">{{ yr }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Academic Year Filter -->
+      <div class="filter-item">
+        <label for="filterAcademicYear">Academic Year</label>
+        <select id="filterAcademicYear" class="filter-select">
+          <option value="">All Academic Years</option>
+          {% for ayr in filter_academic_years or [] %}
+          <option value="{{ ayr }}">{{ ayr }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Reset Action -->
+      <div class="filter-item">
+        <button type="button" class="btn-reset-filters" id="btnResetStudentFilters" onclick="resetStudentFilters()">
+          <i class="fa-solid fa-rotate-left me-1"></i> Reset
+        </button>
+      </div>
+
+    </div>
+
+    <div class="filter-summary-row">
+      <span id="studentsFilterStatus">Showing {{ students|length }} of {{ students|length }} students</span>
+      <span><i class="fa-solid fa-circle-info me-1"></i> Live academic search active</span>
+    </div>
+  </div>
+
+  <!-- STUDENTS TABLE -->
+  <div class="table-responsive-box">
+    <table id="studentsTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Type</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Student Code</th>
+          <th>Program</th>
+          <th>Code</th>
+          <th>Department</th>
+          <th>Batch</th>
+          <th>Year</th>
+          <th>Roll No</th>
+          <th>Attempts</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="studentsTableBody">
+        {% for s in students %}
+        <tr
+          class="student-row"
+          data-username="{{ s.username|lower }}"
+          data-email="{{ s.email|lower }}"
+          data-type="{{ s.user_type }}"
+          data-code="{{ s.student_code|lower }}"
+          data-program="{{ s.program_name }}"
+          data-dept="{{ s.department_name|lower }}"
+          data-admission="{{ s.admission_year }}"
+          data-year="{{ s.academic_year }}">
+          <td class="row-index">{{ loop.index }}</td>
+          <td>
+            {% if s.user_type == 'UNIVERSITY' %}
+              <span class="badge" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600;">
+                <i class="fa-solid fa-graduation-cap"></i> University
+              </span>
+            {% else %}
+              <span class="badge" style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: 600;">
+                <i class="fa-solid fa-user-pen"></i> Practice
+              </span>
+            {% endif %}
+          </td>
+          <td><strong>{{ s.username }}</strong></td>
+          <td>{{ s.email }}</td>
+          <td>
+            {% if s.student_code and s.student_code != '-' %}
+              <span class="badge-code">{{ s.student_code }}</span>
+            {% else %}
+              <span class="badge-code none">&mdash;</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.program_name and s.program_name != '-' %}
+              <span class="badge-prog">{{ s.program_name }}</span>
+            {% else %}
+              <span style="color: #94a3b8;">&mdash;</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.program_code and s.program_code != '-' %}
+              <span class="badge-code" style="background: #f8fafc; color: #4338ca; border-color: #cbd5e1;">{{ s.program_code }}</span>
+            {% else %}
+              <span style="color: #94a3b8;">&mdash;</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.department_name and s.department_name != '-' %}
+              {{ s.department_name }}
+            {% else %}
+              <span style="color: #94a3b8;">&mdash;</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.admission_year and s.admission_year != '-' %}
+              {{ s.admission_year }}
+            {% else %}
+              <span style="color: #94a3b8;">&mdash;</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.academic_year and s.academic_year != '-' and s.academic_year != 'N/A' %}
+              <span class="badge-year">{{ s.academic_year }}</span>
+            {% else %}
+              <span style="color: #94a3b8;">&mdash;</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if s.roll_number and s.roll_number != '-' %}
+              <strong>{{ s.roll_number }}</strong>
+            {% else %}
+              <span style="color: #94a3b8;">&mdash;</span>
+            {% endif %}
+          </td>
+          <td><strong>{{ s.attempts }}</strong></td>
+          <td style="white-space: nowrap;">
+            {% if s.attempts > 0 %}
+              <a href="{{ url_for('admin.admin_user_history', username=s.user_id) }}" class="btn" style="padding: 5px 8px; font-size: 12px;" title="View Exam History">
+                📜
+              </a>
+            {% endif %}
+            {% if s.user_type == 'UNIVERSITY' %}
+            <button
+              type="button"
+              class="btn"
+              style="padding: 5px 8px; font-size: 12px; margin-left: 3px; background: #4f46e5; color: white;"
+              title="Edit University Student"
+              data-id="{{ s.user_id }}"
+              data-name="{{ s.username|e }}"
+              data-email="{{ s.email|e }}"
+              data-progcode="{{ s.program_code }}"
+              data-dept="{{ s.department_name|e }}"
+              data-admyear="{{ s.admission_year }}"
+              data-roll="{{ s.roll_number }}"
+              onclick="openEditStudentModalFromBtn(this)">
+              <i class="fa-solid fa-pen-to-square"></i>
+            </button>
+            {% endif %}
+            <button type="button" onclick="openResetPasswordModal('{{ s.user_id }}', '{{ s.username }}')" class="btn" style="padding: 5px 8px; font-size: 12px; margin-left: 3px; background: #f59e0b; color: white;" title="Reset Student Password">
+              <i class="fa-solid fa-key"></i>
+            </button>
+            <a href="{{ url_for('admin.delete_student', username=s.user_id) }}" onclick="return confirm('Are you sure you want to delete student account {{ s.username }}?');" class="btn btn-danger" style="padding: 5px 8px; font-size: 12px; margin-left: 3px;" title="Delete Student">
+              <i class="fa-solid fa-trash"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div id="noMatchMessage" class="empty-filter-state" style="display: none;">
+      <i class="fa-solid fa-user-slash"></i>
+      <div style="font-weight: 600; font-size: 15px; margin-top: 6px;">No students match your filter criteria</div>
+      <div style="font-size: 13px; margin-top: 4px;">Try refining your search keyword or clearing dropdown filters.</div>
+    </div>
+  </div>
+
+  <!-- ADD UNIVERSITY STUDENT MODAL -->
+  <div id="addStudentModal" class="student-modal-backdrop" style="display: none;">
+    <div class="student-modal-dialog" style="max-width: 540px;">
+      <div class="student-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 17px; color: #1e293b; font-weight: 700;">Add University Student</h3>
+            <p style="margin: 0; font-size: 12px; color: #64748b;">Select program and provide student details to generate academic identity.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeAddStudentModal()" style="background: transparent; border: none; font-size: 24px; line-height: 1; color: #94a3b8; cursor: pointer;">&times;</button>
+      </div>
+
+      <form action="{{ url_for('admin.add_student') }}" method="POST" id="addStudentForm">
+        <div class="student-modal-body" style="padding: 20px; max-height: 75vh; overflow-y: auto;">
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Name *</label>
+            <input type="text" name="name" id="addStudentName" placeholder="e.g. Rahul Das" required style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Email *</label>
+            <input type="email" name="email" id="addStudentEmail" placeholder="e.g. rahul@gmail.com" required style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Password *</label>
+            <input type="password" name="password" id="addStudentPassword" placeholder="Set initial password" required style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Program *</label>
+            <select name="program_code" id="addStudentProgram" required onchange="calcAddStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px; background: #fff; cursor: pointer;">
+              <option value="" disabled selected>-- Select Program --</option>
+              {% for p in available_programs or [] %}
+              <option value="{{ p.code }}" data-name="{{ p.name }}">{{ p.name }} ({{ p.code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Department Name</label>
+            <input type="text" name="department_name" id="addStudentDept" placeholder="e.g. Computer Science and Engineering" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Admission Year *</label>
+              <input type="number" name="admission_year" id="addStudentAdmYear" value="2024" min="2000" max="2099" required oninput="calcAddStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Roll Number *</label>
+              <input type="text" name="roll_number" id="addStudentRoll" placeholder="e.g. 029" required oninput="calcAddStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+            </div>
+          </div>
+
+          <!-- Live Generated Student Code Display -->
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: #15803d; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-id-card"></i> Student Code (Automatically Generated)
+            </div>
+            <div id="addStudentCodeDisplay" style="font-family: monospace; font-size: 16px; font-weight: 700; color: #166534; letter-spacing: 0.5px;">
+              BWU/---/24/---
+            </div>
+            <small style="color: #15803d; font-size: 11px; display: block; margin-top: 3px;">
+              Formula: BWU / {PROGRAM_CODE} / {ADMISSION_YEAR} / {ROLL_NUMBER}
+            </small>
+          </div>
+
+          <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 10px 12px; font-size: 12px; color: #3730a3; line-height: 1.4;">
+            <i class="fa-solid fa-shield-halved"></i> <strong>Authentication Note:</strong> University students log in using ALL THREE credentials: <strong>Email</strong>, <strong>Student Code</strong>, and <strong>Password</strong>.
+          </div>
+        </div>
+
+        <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" onclick="closeAddStudentModal()" style="padding: 8px 16px; background: #e2e8f0; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #475569;">Cancel</button>
+          <button type="submit" style="padding: 8px 18px; background: #4f46e5; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #fff;">Save Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT UNIVERSITY STUDENT MODAL -->
+  <div id="editStudentModal" class="student-modal-backdrop" style="display: none;">
+    <div class="student-modal-dialog" style="max-width: 540px;">
+      <div class="student-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fa-solid fa-user-pen"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 17px; color: #1e293b; font-weight: 700;">Edit University Student</h3>
+            <p style="margin: 0; font-size: 12px; color: #64748b;">Changing program automatically updates the Student Code.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeEditStudentModal()" style="background: transparent; border: none; font-size: 24px; line-height: 1; color: #94a3b8; cursor: pointer;">&times;</button>
+      </div>
+
+      <form action="{{ url_for('admin.edit_student') }}" method="POST" id="editStudentForm">
+        <input type="hidden" name="user_id" id="editStudentUserId">
+
+        <div class="student-modal-body" style="padding: 20px; max-height: 75vh; overflow-y: auto;">
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Name *</label>
+            <input type="text" name="name" id="editStudentName" required style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Email *</label>
+            <input type="email" name="email" id="editStudentEmail" required style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Program *</label>
+            <select name="program_code" id="editStudentProgram" required onchange="calcEditStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px; background: #fff; cursor: pointer;">
+              {% for p in available_programs or [] %}
+              <option value="{{ p.code }}" data-name="{{ p.name }}">{{ p.name }} ({{ p.code }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Department Name</label>
+            <input type="text" name="department_name" id="editStudentDept" placeholder="e.g. Computer Science and Engineering" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Admission Year *</label>
+              <input type="number" name="admission_year" id="editStudentAdmYear" min="2000" max="2099" required oninput="calcEditStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+            </div>
+            <div>
+              <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Roll Number *</label>
+              <input type="text" name="roll_number" id="editStudentRoll" required oninput="calcEditStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+            </div>
+          </div>
+
+          <!-- Updated Student Code Display -->
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px;">
+            <div style="font-size: 11px; font-weight: 700; color: #15803d; text-transform: uppercase; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+              <i class="fa-solid fa-id-card"></i> Student Code (Updated Automatically)
+            </div>
+            <div id="editStudentCodeDisplay" style="font-family: monospace; font-size: 16px; font-weight: 700; color: #166534; letter-spacing: 0.5px;">
+              BWU/---/24/---
+            </div>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">New Password (Optional)</label>
+            <input type="password" name="new_password" placeholder="Leave blank to keep existing password" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+        </div>
+
+        <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" onclick="closeEditStudentModal()" style="padding: 8px 16px; background: #e2e8f0; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #475569;">Cancel</button>
+          <button type="submit" style="padding: 8px 18px; background: #4f46e5; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #fff;">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- RESET PASSWORD MODAL -->
+  <div id="resetPasswordModal" class="student-modal-backdrop" style="display: none;">
+    <div class="student-modal-dialog" style="max-width: 420px;">
+      <div class="student-modal-header">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <div style="width: 36px; height: 36px; border-radius: 8px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div>
+            <h3 style="margin: 0; font-size: 17px; color: #1e293b; font-weight: 700;">Reset Password</h3>
+            <p style="margin: 0; font-size: 12px; color: #64748b;">Set a new secure password for student.</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeResetPasswordModal()" style="background: transparent; border: none; font-size: 24px; line-height: 1; color: #94a3b8; cursor: pointer;">&times;</button>
+      </div>
+
+      <form action="{{ url_for('admin.reset_student_password') }}" method="POST">
+        <div class="student-modal-body" style="padding: 20px;">
+          <input type="hidden" name="username" id="resetUsernameInput">
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Student Account</label>
+            <div id="resetUsernameDisplay" style="margin-top: 5px; font-weight: 700; color: #1e293b; font-size: 14px;"></div>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">New Password *</label>
+            <input type="password" name="new_password" required placeholder="Enter new password" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+        </div>
+
+        <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px;">
+          <button type="button" onclick="closeResetPasswordModal()" style="padding: 8px 16px; background: #e2e8f0; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #475569;">Cancel</button>
+          <button type="submit" style="padding: 8px 18px; background: #d97706; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #fff;">Update Password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if not students %}
+  <p style="margin-top: 20px; color: #64748b;">No registered students yet.</p>
   {% endif %}
-</td>
-<td>{{ s.best_pct }}%</td>
-<td>
-  {% if s.attempts > 0 %}
-    <a href="{{ url_for('admin.admin_user_history', username=s.username) }}" class="btn">📜 View History</a>
-  {% else %}
-    &mdash;
-  {% endif %}
-</td>
-</tr>
-{% endfor %}
 
-</tbody>
-</table>
+</div>
 
-{% if not students %}
-<p>No registered students yet.</p>
-{% endif %}
+<!-- REAL-TIME FILTERING & MODAL JAVASCRIPT -->
+<script>
+  function calcAddStudentCode() {
+    const progSelect = document.getElementById('addStudentProgram');
+    const pcode = progSelect ? progSelect.value.trim().toUpperCase() : '';
+    const admYear = (document.getElementById('addStudentAdmYear') ? document.getElementById('addStudentAdmYear').value : '') || '2024';
+    const rollRaw = (document.getElementById('addStudentRoll') ? document.getElementById('addStudentRoll').value : '').trim();
 
+    const yy = admYear.length >= 2 ? admYear.slice(-2) : admYear.padStart(2, '0');
+    const roll = rollRaw ? (/^\d+$/.test(rollRaw) ? rollRaw.padStart(3, '0') : rollRaw.toUpperCase()) : '---';
+
+    const code = `BWU/${pcode || '---'}/${yy}/${roll}`;
+    const disp = document.getElementById('addStudentCodeDisplay');
+    if (disp) disp.textContent = code;
+  }
+
+  function calcEditStudentCode() {
+    const progSelect = document.getElementById('editStudentProgram');
+    const pcode = progSelect ? progSelect.value.trim().toUpperCase() : '';
+    const admYear = (document.getElementById('editStudentAdmYear') ? document.getElementById('editStudentAdmYear').value : '') || '2024';
+    const rollRaw = (document.getElementById('editStudentRoll') ? document.getElementById('editStudentRoll').value : '').trim();
+
+    const yy = admYear.length >= 2 ? admYear.slice(-2) : admYear.padStart(2, '0');
+    const roll = rollRaw ? (/^\d+$/.test(rollRaw) ? rollRaw.padStart(3, '0') : rollRaw.toUpperCase()) : '---';
+
+    const code = `BWU/${pcode || '---'}/${yy}/${roll}`;
+    const disp = document.getElementById('editStudentCodeDisplay');
+    if (disp) disp.textContent = code;
+  }
+
+  function openAddStudentModal() {
+    calcAddStudentCode();
+    const modal = document.getElementById('addStudentModal');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function closeAddStudentModal() {
+    const modal = document.getElementById('addStudentModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function openEditStudentModalFromBtn(btn) {
+    const id = btn.getAttribute('data-id');
+    const name = btn.getAttribute('data-name');
+    const email = btn.getAttribute('data-email');
+    const pcode = btn.getAttribute('data-progcode');
+    const dept = btn.getAttribute('data-dept');
+    const admyear = btn.getAttribute('data-admyear');
+    const roll = btn.getAttribute('data-roll');
+
+    document.getElementById('editStudentUserId').value = id || '';
+    document.getElementById('editStudentName').value = name || '';
+    document.getElementById('editStudentEmail').value = email || '';
+    const progSelect = document.getElementById('editStudentProgram');
+    if (progSelect && pcode && pcode !== '-') {
+      progSelect.value = pcode;
+    }
+    document.getElementById('editStudentDept').value = (dept && dept !== '-') ? dept : '';
+    document.getElementById('editStudentAdmYear').value = (admyear && admyear !== '-') ? admyear : 2024;
+    document.getElementById('editStudentRoll').value = (roll && roll !== '-') ? roll : '';
+
+    calcEditStudentCode();
+    const modal = document.getElementById('editStudentModal');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function closeEditStudentModal() {
+    const modal = document.getElementById('editStudentModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function openResetPasswordModal(userId, displayName) {
+    const uInput = document.getElementById('resetUsernameInput');
+    const uDisp = document.getElementById('resetUsernameDisplay');
+    const modal = document.getElementById('resetPasswordModal');
+    if (uInput) uInput.value = userId;
+    if (uDisp) uDisp.textContent = displayName || userId;
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function closeResetPasswordModal() {
+    const modal = document.getElementById('resetPasswordModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  // Close modals when clicking on backdrop
+  window.addEventListener('click', function(e) {
+    const addModal = document.getElementById('addStudentModal');
+    if (addModal && e.target === addModal) addModal.style.display = 'none';
+    const editModal = document.getElementById('editStudentModal');
+    if (editModal && e.target === editModal) editModal.style.display = 'none';
+    const resetModal = document.getElementById('resetPasswordModal');
+    if (resetModal && e.target === resetModal) resetModal.style.display = 'none';
+  });
+
+  function applyStudentFilters() {
+    const searchVal = (document.getElementById('studentSearchInput').value || '').trim().toLowerCase();
+    const typeVal = (document.getElementById('filterType') ? document.getElementById('filterType').value : '').trim();
+    const progVal = document.getElementById('filterProgram').value.trim();
+    const admVal = document.getElementById('filterAdmissionYear').value.trim();
+    const yrVal = document.getElementById('filterAcademicYear').value.trim();
+
+    const rows = document.querySelectorAll('#studentsTableBody .student-row');
+    const totalCount = rows.length;
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+      const uName = row.getAttribute('data-username') || '';
+      const email = row.getAttribute('data-email') || '';
+      const uType = row.getAttribute('data-type') || '';
+      const code = row.getAttribute('data-code') || '';
+      const prog = row.getAttribute('data-program') || '';
+      const dept = row.getAttribute('data-dept') || '';
+      const adm = row.getAttribute('data-admission') || '';
+      const yr = row.getAttribute('data-year') || '';
+
+      let matches = true;
+
+      // 1. Text Search across Name, Email, Student Code, Department
+      if (searchVal) {
+        if (!uName.includes(searchVal) && !email.includes(searchVal) && !code.includes(searchVal) && !dept.includes(searchVal)) {
+          matches = false;
+        }
+      }
+
+      // 2. Account Type Filter
+      if (matches && typeVal) {
+        if (uType !== typeVal) {
+          matches = false;
+        }
+      }
+
+      // 3. Program Filter
+      if (matches && progVal) {
+        if (prog !== progVal) {
+          matches = false;
+        }
+      }
+
+      // 4. Admission Year Filter
+      if (matches && admVal) {
+        if (adm !== admVal) {
+          matches = false;
+        }
+      }
+
+      // 5. Academic Year Filter
+      if (matches && yrVal) {
+        if (yr !== yrVal) {
+          matches = false;
+        }
+      }
+
+      if (matches) {
+        row.style.display = '';
+        visibleCount++;
+        const idxCell = row.querySelector('.row-index');
+        if (idxCell) idxCell.textContent = visibleCount;
+      } else {
+        row.style.display = 'none';
+      }
+    });
+
+    const statusEl = document.getElementById('studentsFilterStatus');
+    if (statusEl) {
+      statusEl.textContent = `Showing ${visibleCount} of ${totalCount} students`;
+    }
+
+    const noMatchBox = document.getElementById('noMatchMessage');
+    const tableEl = document.getElementById('studentsTable');
+    if (noMatchBox && tableEl) {
+      if (visibleCount === 0 && totalCount > 0) {
+        noMatchBox.style.display = 'block';
+      } else {
+        noMatchBox.style.display = 'none';
+      }
+    }
+  }
+
+  function resetStudentFilters() {
+    document.getElementById('studentSearchInput').value = '';
+    if (document.getElementById('filterType')) document.getElementById('filterType').value = '';
+    document.getElementById('filterProgram').value = '';
+    document.getElementById('filterAdmissionYear').value = '';
+    document.getElementById('filterAcademicYear').value = '';
+    applyStudentFilters();
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('studentSearchInput');
+    const typeSelect = document.getElementById('filterType');
+    const progSelect = document.getElementById('filterProgram');
+    const admSelect = document.getElementById('filterAdmissionYear');
+    const yrSelect = document.getElementById('filterAcademicYear');
+
+    if (searchInput) searchInput.addEventListener('input', applyStudentFilters);
+    if (typeSelect) typeSelect.addEventListener('change', applyStudentFilters);
+    if (progSelect) progSelect.addEventListener('change', applyStudentFilters);
+    if (admSelect) admSelect.addEventListener('change', applyStudentFilters);
+    if (yrSelect) yrSelect.addEventListener('change', applyStudentFilters);
+  });
+</script>
 <!-- ===================== END ===================== -->

@@ -10,9 +10,11 @@ def history():
     if "username" not in session:
         return redirect(url_for("auth.auth_page"))
     username = session["username"]
+    user_key = session.get("student_id") or session.get("user_id") or username
     results = load_results()
+    history_data = results.get(user_key, {}).get("history") or results.get(username, {}).get("history", [])
     return render_template("user_history.html", username=username,
-                           history=results.get(username, {}).get("history", []))
+                           history=history_data)
 
 
 @exam_bp.route("/exam", methods=["GET", "POST"])
@@ -181,19 +183,24 @@ def save_result():
         return redirect(url_for("auth.auth_page"))
 
     username = session["username"]
+    user_key = session.get("student_id") or session.get("user_id") or username
     results = load_results()
 
-    if username not in results:
-        results[username] = {"history": []}
+    # If results has existing history directly under username (for older accounts), keep using it; else use user_key
+    target_key = username if (username in results and user_key not in results) else user_key
 
-    results[username]["history"].append({
+    if target_key not in results:
+        results[target_key] = {"history": []}
+
+    results[target_key]["history"].append({
         "score": session["score"],
         "total": session["total_points"],
         "time_taken": session["time_taken"],
         "date": time.strftime("%Y-%m-%d %H:%M:%S"),
         "descriptive_reports": session["descriptive_reports"],
         "exam_title": session.get("course_exam_title", "Practice Examination"),
-        "course_code": session.get("course_code", "")
+        "course_code": session.get("course_code", ""),
+        "course_exam_id": session.get("course_exam_id", None)
     })
 
     save_results(results)
@@ -367,36 +374,57 @@ def _format_upcoming_available_on(date_str: str, time_str: str) -> dict:
 def course_exams():
     """
     Renders official course exams for students, divided into:
-      SECTION 1: AVAILABLE TODAY (Active live exams within schedule window)
-      SECTION 2: UPCOMING EXAMS (Chronologically ordered future exams, locked)
+      SECTION 1: LIVE EXAMS (Active live exams within schedule window, not completed)
+      SECTION 2: UPCOMING EXAMS (Chronologically ordered future exams, locked with countdown)
+      SECTION 3: COMPLETED / PAST EXAMS (Completed attempts with scores, or closed/missed exams)
     """
     if "username" not in session:
         flash("Please log in to view course examinations.", "error")
         return redirect(url_for("auth.auth_page"))
 
     from datetime import datetime
-    from utils import load_course_exams, parse_exam_datetimes, get_exam_live_status
+    from utils import (
+        load_course_exams,
+        load_results,
+        parse_exam_datetimes,
+        get_exam_live_status,
+        get_student_identity_from_session_or_db,
+        is_student_eligible_for_exam,
+        get_student_exam_result
+    )
+
+    student_info = get_student_identity_from_session_or_db(session)
+    if student_info.get("user_type") != "UNIVERSITY":
+        flash("Official university examinations are available only to registered university students.", "error")
+        return redirect(url_for("auth.exam_options"))
+
+    username = student_info.get("username", "")
 
     now = datetime.now()
-    today_str = now.strftime("%Y-%m-%d")
     all_exams = load_course_exams()
 
-    today_exams = []
+    live_exams = []
     upcoming_exams = []
+    past_exams = []
 
     courses_set = set()
     subjects_set = set()
 
     for e in all_exams:
+        # STRICT SERVER-SIDE ELIGIBILITY CHECK: Never expose cross-program or unauthorized exams
+        if not is_student_eligible_for_exam(student_info, e):
+            continue
+
         status_val = str(e.get("status") or "").strip()
         # Never expose Draft exams to students
-        if status_val.lower() != "published":
+        if status_val.lower() == "draft":
             continue
 
         c_code = (e.get("course_code") or "").strip().upper()
         c_name = (e.get("course_name") or "").strip()
         subj = (e.get("subject") or "").strip()
         if c_code: courses_set.add(c_code)
+        elif c_name: courses_set.add(c_name)
         if subj: subjects_set.add(subj)
 
         start_dt, end_dt = parse_exam_datetimes(e)
@@ -411,14 +439,56 @@ def course_exams():
         if str(exam_type_display).lower() == "mixed":
             exam_type_display = "MCQ + Descriptive"
 
-        # Check if student can start right now (within configured window)
-        can_start = False
+        # Check if student has already completed this exam
+        submission = get_student_exam_result(username, e)
+        is_taken = (submission is not None)
+
+        submission_score = None
+        submission_total = None
+        submission_pct = None
+        submission_date = None
+        submission_time_taken = None
+        if submission:
+            try:
+                submission_score = float(submission.get("score", 0))
+                submission_total = float(submission.get("total", 0))
+                if submission_total > 0:
+                    submission_pct = round((submission_score / submission_total) * 100, 1)
+            except Exception:
+                pass
+            submission_date = submission.get("date", "")
+            submission_time_taken = submission.get("time_taken", "")
+
+        # Check if exam is within the active live window
+        is_live_now = False
         if start_dt and end_dt:
-            can_start = (start_dt <= now <= end_dt)
+            is_live_now = (start_dt <= now <= end_dt)
         elif start_dt:
-            can_start = (now >= start_dt)
+            is_live_now = (now >= start_dt)
         else:
-            can_start = True
+            is_live_now = True
+
+        # Check if exam schedule has completely expired
+        is_expired = False
+        if end_dt and now > end_dt:
+            is_expired = True
+
+        # Countdown calculation for upcoming exams
+        starts_in_str = ""
+        target_iso = ""
+        if start_dt:
+            target_iso = start_dt.strftime("%Y-%m-%dT%H:%M:%S")
+            if now < start_dt:
+                diff = start_dt - now
+                days = diff.days
+                hours = diff.seconds // 3600
+                minutes = (diff.seconds % 3600) // 60
+                if days > 0:
+                    starts_in_str = f"Starts in: {days} Days {hours} Hours"
+                elif hours > 0:
+                    starts_in_str = f"Starts in: {hours} Hours {minutes} Mins"
+                else:
+                    starts_in_str = f"Starts in: {minutes} Mins"
 
         decorated = {
             **e,
@@ -431,30 +501,51 @@ def course_exams():
             "exam_type_display": exam_type_display,
             "start_dt_obj": start_dt,
             "end_dt_obj": end_dt,
-            "can_start": can_start,
+            "start_iso": target_iso,
+            "starts_in": starts_in_str,
+            "is_taken": is_taken,
+            "submission_score": submission_score,
+            "submission_total": submission_total,
+            "submission_pct": submission_pct,
+            "submission_date": submission_date,
+            "submission_time_taken": submission_time_taken,
+            "is_live_now": is_live_now,
+            "is_expired": is_expired,
+            "can_start": is_live_now and not is_taken and status_val.lower() == "published"
         }
 
-        # Classification into Sections
-        # SECTION 1: Active / Today (is_live or today within window)
-        is_today = (str(e.get("exam_date") or "").strip() == today_str)
-        if live_info["is_live"] or (is_today and (not end_dt or now <= end_dt)):
-            today_exams.append(decorated)
-        elif live_info["is_upcoming"]:
-            # SECTION 2: Upcoming (Future date/time, ordered chronologically)
+        # CATEGORIZE INTO 3 STRICT SECTIONS:
+        # SECTION 3: COMPLETED / PAST EXAMS
+        if is_taken:
+            decorated["completion_status"] = "Completed"
+            past_exams.append(decorated)
+        elif is_expired or status_val.lower() == "closed":
+            decorated["completion_status"] = "Closed"
+            past_exams.append(decorated)
+        # SECTION 2: UPCOMING EXAMS
+        elif start_dt and now < start_dt:
             upcoming_exams.append(decorated)
+        # SECTION 1: LIVE EXAMS
+        else:
+            live_exams.append(decorated)
 
-    # Sort upcoming exams chronologically by start date/time
+    # Sort upcoming chronologically (earliest first)
     upcoming_exams.sort(key=lambda x: x["start_dt_obj"] if x["start_dt_obj"] else datetime.max)
-    # Sort today exams by start date/time
-    today_exams.sort(key=lambda x: x["start_dt_obj"] if x["start_dt_obj"] else datetime.min)
+    # Sort live exams by start date/time
+    live_exams.sort(key=lambda x: x["start_dt_obj"] if x["start_dt_obj"] else datetime.min)
+    # Sort past/completed exams descending (most recent first)
+    past_exams.sort(key=lambda x: x["end_dt_obj"] if x["end_dt_obj"] else datetime.min, reverse=True)
 
     return render_template(
         "course_exams.html",
-        today_exams=today_exams,
+        live_exams=live_exams,
+        today_exams=live_exams,  # backward compatibility alias
         upcoming_exams=upcoming_exams,
+        past_exams=past_exams,
         all_courses=sorted(list(courses_set)),
         all_subjects=sorted(list(subjects_set)),
-        current_time=now.strftime("%d %B %Y, %I:%M %p")
+        current_time=now.strftime("%d %B %Y, %I:%M %p"),
+        student_info=student_info,
     )
 
 
@@ -466,11 +557,12 @@ def start_course_exam(exam_id):
     Strictly verifies:
       1. Student session authentication
       2. Valid exam ID in course_exams.json
-      3. Exam exists
-      4. Current date & time >= start_time (locks future attempts)
-      5. Current date & time <= end_time (locks ended exams)
-      6. Exam is active / published
-      7. Availability of questions matching course_code + subject
+      3. Student academic eligibility (program, batch, academic year or specific student inclusion)
+      4. Not already completed/submitted by the student
+      5. Current date & time >= start_time (locks future attempts)
+      6. Current date & time <= end_time (locks ended exams)
+      7. Exam is active / published
+      8. Availability of questions matching course_code + subject
     """
     # 1. Verify student is logged in
     if "username" not in session:
@@ -480,7 +572,15 @@ def start_course_exam(exam_id):
     import time
     import random
     from datetime import datetime
-    from utils import get_course_exam_by_id, parse_exam_datetimes, get_matching_questions
+    from utils import (
+        get_course_exam_by_id,
+        load_questions,
+        parse_exam_datetimes,
+        get_matching_questions,
+        get_student_identity_from_session_or_db,
+        is_student_eligible_for_exam,
+        get_student_exam_result
+    )
 
     # 2. Find exam & verify exists
     exam = get_course_exam_by_id(exam_id)
@@ -488,12 +588,28 @@ def start_course_exam(exam_id):
         flash("Invalid examination ID. The requested exam does not exist.", "error")
         return redirect(url_for("exam.course_exams"))
 
-    # 3. Verify exam is active / published
+    # 3. Verify student eligibility strictly on the server-side
+    student_info = get_student_identity_from_session_or_db(session)
+    if student_info.get("user_type") != "UNIVERSITY":
+        flash("Official university examinations are available only to registered university students.", "error")
+        return redirect(url_for("auth.exam_options"))
+
+    if not is_student_eligible_for_exam(student_info, exam):
+        flash("You are not eligible for this examination.", "error")
+        return redirect(url_for("exam.course_exams"))
+
+    # 4. Verify student has not already completed this exam
+    existing_result = get_student_exam_result(session["username"], exam)
+    if existing_result:
+        flash("You have already completed this examination.", "info")
+        return redirect(url_for("exam.course_exams"))
+
+    # 5. Verify exam is active / published
     if str(exam.get("status") or "").strip().lower() != "published":
         flash("This examination is not active.", "error")
         return redirect(url_for("exam.course_exams"))
 
-    # 4. Verify schedule datetime
+    # 6. Verify schedule datetime
     start_dt, end_dt = parse_exam_datetimes(exam)
     now = datetime.now()
 
@@ -517,8 +633,19 @@ def start_course_exam(exam_id):
         course_code=course_code,
         subject=subject,
         qtype=exam_type,
-        difficulty=difficulty
+        difficulty=difficulty,
+        program_code=exam.get("program_code"),
+        admission_year=exam.get("admission_year"),
+        academic_year=exam.get("academic_year")
     )
+
+    explicit_ids = exam.get("question_ids")
+    if isinstance(explicit_ids, list) and len(explicit_ids) > 0:
+        all_qs = load_questions()
+        qs_by_id = {str(q.get("id")): q for q in all_qs if q.get("id")}
+        explicit_qs = [qs_by_id[str(qid)] for qid in explicit_ids if str(qid) in qs_by_id]
+        if explicit_qs:
+            matching_qs = explicit_qs
 
     if not matching_qs:
         flash(f"No questions are currently available for Course {course_code} ({subject}). Please contact your instructor.", "error")

@@ -1082,11 +1082,11 @@ body.ai-page-bg .main-content {
             <!-- Students -->
             <li class="nav-item">
 
-                <a class="nav-link d-flex justify-content-between align-items-center {% if page in ['students', 'leaderboard', 'exam_history'] %}{% else %}collapsed{% endif %}"
+                <a class="nav-link d-flex justify-content-between align-items-center {% if page in ['students', 'programs', 'leaderboard', 'exam_history'] %}{% else %}collapsed{% endif %}"
                    data-bs-toggle="collapse"
                    href="#studentsMenu"
                    role="button"
-                   aria-expanded="{% if page in ['students', 'leaderboard', 'exam_history'] %}true{% else %}false{% endif %}">
+                   aria-expanded="{% if page in ['students', 'programs', 'leaderboard', 'exam_history'] %}true{% else %}false{% endif %}">
 
                     <span>
                         <i class="fa-solid fa-user-graduate"></i>
@@ -1097,7 +1097,7 @@ body.ai-page-bg .main-content {
 
                 </a>
 
-                <div class="collapse {% if page in ['students', 'leaderboard', 'exam_history', 'user_history'] %}show{% endif %}" id="studentsMenu">
+                <div class="collapse {% if page in ['students', 'programs', 'leaderboard', 'exam_history', 'user_history'] %}show{% endif %}" id="studentsMenu">
 
                     <ul class="nav flex-column submenu">
 
@@ -1105,6 +1105,13 @@ body.ai-page-bg .main-content {
                             <a class="nav-link {% if page in ['students', 'user_history'] %}active{% endif %}" href="{{ url_for('admin.students_page') }}">
                                 <i class="fa-solid fa-users"></i>
                                 All Students
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="nav-link {% if page == 'programs' %}active{% endif %}" href="{{ url_for('admin.programs_page') }}">
+                                <i class="fa-solid fa-shapes"></i>
+                                Academic Programs
                             </a>
                         </li>
 
@@ -1169,6 +1176,8 @@ body.ai-page-bg .main-content {
       {% include "course_exam_select_questions.html" %}
   {% elif page == "students" %}
       {% include "students_all.html" %}
+  {% elif page == "programs" %}
+      {% include "programs_all.html" %}
   {% elif page == "leaderboard" %}
       {% include "admin_leaderboard.html" %}
   {% elif page == "exam_history" %}

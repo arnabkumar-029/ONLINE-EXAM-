@@ -642,6 +642,423 @@
     color: #065f46;
     border-color: #a7f3d0;
   }
+
+  /* ==============================================================
+     STUDENT ELIGIBILITY & TARGETING STYLES
+     ============================================================== */
+  .target-prog-badge {
+    background: #e0e7ff;
+    color: #4338ca;
+    border-radius: 6px;
+    padding: 2px 7px;
+    font-weight: 700;
+    font-size: 11.5px;
+    border: 1px solid #c7d2fe;
+    display: inline-block;
+  }
+
+  /* Target Mode Radio Cards */
+  .target-mode-wrap {
+    margin-bottom: 14px;
+  }
+
+  .target-mode-label {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .target-mode-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  @media (max-width: 640px) {
+    .target-mode-options {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .target-radio-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.22s ease;
+  }
+
+  .target-radio-card:hover {
+    border-color: #a5b4fc;
+    background: #f8faff;
+  }
+
+  .target-radio-card.active {
+    border-color: #6366f1;
+    background: #f5f3ff;
+    box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12);
+  }
+
+  .target-radio-card input[type="radio"] {
+    margin-top: 3px;
+    accent-color: #4f46e5;
+    cursor: pointer;
+  }
+
+  .radio-card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .rc-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #1e1b4b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .rc-desc {
+    font-size: 11.5px;
+    color: #64748b;
+  }
+
+  /* Checkbox label */
+  .custom-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .custom-checkbox-label:hover {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+  }
+
+  .custom-checkbox-label input[type="checkbox"] {
+    margin-top: 3px;
+    accent-color: #4f46e5;
+    cursor: pointer;
+  }
+
+  .custom-chk-text strong {
+    font-size: 13px;
+    color: #1e293b;
+  }
+
+  /* 3D Glassmorphic Live Eligibility Preview Card */
+  .eligibility-preview-card {
+    background: linear-gradient(135deg, #090e1a 0%, #151c33 100%);
+    border: 1px solid rgba(99, 102, 241, 0.35);
+    border-radius: 14px;
+    padding: 16px 18px;
+    color: #f8fafc;
+    margin-top: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 10px 24px -6px rgba(15, 23, 42, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .eligibility-preview-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #00f0ff, #8b5cf6, #ec4899);
+  }
+
+  .ep-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .ep-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    color: #00f0ff;
+    text-transform: uppercase;
+  }
+
+  .ep-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(16, 185, 129, 0.18);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    letter-spacing: 0.5px;
+  }
+
+  .ep-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 640px) {
+    .ep-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .ep-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .ep-lbl {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #94a3b8;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+
+  .ep-val {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #f1f5f9;
+  }
+
+  .ep-val-badge {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #a5b4fc;
+    background: rgba(99, 102, 241, 0.2);
+    padding: 1px 7px;
+    border-radius: 5px;
+    display: inline-block;
+    width: fit-content;
+  }
+
+  .ep-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .ep-count-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #e2e8f0;
+  }
+
+  .ep-count-box i {
+    color: #34d399;
+  }
+
+  .ep-count-num {
+    font-size: 16px;
+    font-weight: 800;
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.2);
+    padding: 2px 10px;
+    border-radius: 12px;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+  }
+
+  .ep-summary-text {
+    font-size: 12px;
+    color: #94a3b8;
+  }
+
+  .ep-summary-text code {
+    color: #00f0ff;
+    background: rgba(0, 240, 255, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11.5px;
+  }
+
+  /* Specific Students Panel */
+  .specific-students-panel {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 14px;
+    margin-top: 12px;
+    margin-bottom: 14px;
+  }
+
+  .ssp-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .ssp-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e1b4b;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .ssp-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-ssp-action {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .btn-ssp-action:hover {
+    border-color: #6366f1;
+    color: #4f46e5;
+    background: #f5f3ff;
+  }
+
+  .ssp-selected-badge {
+    font-size: 11.5px;
+    font-weight: 700;
+    background: #eff6ff;
+    color: #1d4ed8;
+    padding: 3px 8px;
+    border-radius: 12px;
+    border: 1px solid #bfdbfe;
+  }
+
+  .ssp-search-row {
+    position: relative;
+    margin-bottom: 10px;
+  }
+
+  .ssp-search-row i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 12px;
+  }
+
+  .ssp-search-row input {
+    width: 100%;
+    padding: 7px 10px 7px 30px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 12.5px;
+    background: #ffffff;
+  }
+
+  .ssp-search-row input:focus {
+    outline: none;
+    border-color: #6366f1;
+  }
+
+  .ssp-students-list {
+    max-height: 190px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 4px;
+  }
+
+  .ssp-student-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+  }
+
+  .ssp-student-item:hover {
+    border-color: #a5b4fc;
+    background: #f8faff;
+  }
+
+  .ssp-student-item.selected {
+    border-color: #6366f1;
+    background: #eef2ff;
+  }
+
+  .ssp-student-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .ssp-student-item input[type="checkbox"] {
+    accent-color: #4f46e5;
+    cursor: pointer;
+  }
+
+  .ssp-scode-badge {
+    font-weight: 700;
+    font-family: monospace;
+    font-size: 11.5px;
+    background: #f1f5f9;
+    color: #334155;
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+
+  .ssp-sname {
+    font-weight: 600;
+    color: #0f172a;
+  }
+
+  .ssp-student-meta {
+    font-size: 11px;
+    color: #64748b;
+  }
 </style>
 
 <div class="cem-wrapper">
@@ -765,6 +1182,7 @@
             <th>Exam Title</th>
             <th>Course Code</th>
             <th>Subject</th>
+            <th>TARGET</th>
             <th>Date</th>
             <th>Start Time</th>
             <th>End Time</th>
@@ -788,6 +1206,27 @@
               </td>
               <td>
                 <span style="font-weight: 600; color: #334155;">{{ exam.subject }}</span>
+              </td>
+              <td>
+                {% if exam.program_code and exam.admission_year and exam.academic_year %}
+                  <div style="font-weight: 700; color: #1e1b4b; font-size: 12px; white-space: nowrap;">
+                    <span class="target-prog-badge">{{ exam.program_code }}</span>
+                    <span style="color: #475569; font-weight: 600;">• {{ exam.admission_year }} • {{ exam.academic_year }}</span>
+                  </div>
+                  {% if exam.target_mode == 'SPECIFIC_STUDENTS' %}
+                    <div style="font-size: 11px; color: #7c3aed; font-weight: 600; margin-top: 2px;">
+                      <i class="fa-solid fa-user-check"></i> Specific ({{ (exam.student_codes|length) if exam.student_codes else 0 }} students)
+                    </div>
+                  {% else %}
+                    <div style="font-size: 11px; color: #059669; font-weight: 600; margin-top: 2px;">
+                      <i class="fa-solid fa-users"></i> All in Batch
+                    </div>
+                  {% endif %}
+                {% else %}
+                  <span class="badge-unconfigured" style="background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.25); padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; white-space: nowrap;">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i> Target not configured
+                  </span>
+                {% endif %}
               </td>
               <td>
                 <span style="white-space: nowrap;"><i class="fa-regular fa-calendar me-1 text-muted"></i>{{ exam.exam_date }}</span>
@@ -1049,6 +1488,146 @@
           </span>
         </div>
 
+        <!-- SECTION 4: STUDENT ELIGIBILITY -->
+        <div class="form-section-title" style="margin-top: 24px;">
+          <i class="fa-solid fa-user-graduate me-1"></i> 4. Student Eligibility
+        </div>
+        <p style="font-size: 12px; color: #64748b; margin: -6px 0 14px 0;">
+          Specify which student program, admission batch, and academic year are authorized to view and attempt this course exam.
+        </p>
+
+        <!-- Target Mode Selector -->
+        <div class="target-mode-wrap">
+          <label class="target-mode-label">Target Mode</label>
+          <div class="target-mode-options">
+            <label class="target-radio-card active" id="modeCardBatch">
+              <input type="radio" name="target_mode" id="targetModeBatch" value="PROGRAM_BATCH_YEAR" checked onchange="toggleTargetMode('PROGRAM_BATCH_YEAR')">
+              <div class="radio-card-content">
+                <div class="rc-title"><i class="fa-solid fa-users-viewfinder"></i> Program + Batch + Year</div>
+                <div class="rc-desc">Recommended: Authorizes every eligible student in the selected batch</div>
+              </div>
+            </label>
+
+            <label class="target-radio-card" id="modeCardSpecific">
+              <input type="radio" name="target_mode" id="targetModeSpecific" value="SPECIFIC_STUDENTS" onchange="toggleTargetMode('SPECIFIC_STUDENTS')">
+              <div class="radio-card-content">
+                <div class="rc-title"><i class="fa-solid fa-user-check"></i> Specific Students</div>
+                <div class="rc-desc">Advanced: Select individual authorized student codes</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 3-Column Dropdowns: Program, Admission Year, Academic Year -->
+        <div class="form-row-3" style="margin-top: 14px;">
+          <div class="cem-form-group">
+            <label>Program / Course *</label>
+            <select name="program_code" id="m_program_code" required onchange="handleProgramChange()">
+              <option value="">[ Select Program ▼ ]</option>
+              {% for p in available_programs %}
+                <option value="{{ p.code }}" data-name="{{ p.name }}">{{ p.label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="cem-form-group">
+            <label>Admission Year *</label>
+            <select name="admission_year" id="m_admission_year" required onchange="handleAdmissionYearChange()">
+              <option value="">[ Select Admission Year ▼ ]</option>
+              {% for yr in available_admission_years %}
+                <option value="{{ yr }}">{{ yr }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="cem-form-group">
+            <label>Academic Year *</label>
+            <select name="academic_year" id="m_academic_year" required onchange="updateEligibilityPreview()">
+              <option value="">[ Select Academic Year ▼ ]</option>
+              {% for ay in available_academic_years %}
+                <option value="{{ ay }}">{{ ay }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+
+        <!-- Checkbox: All eligible students in this program/batch/year -->
+        <div class="all-in-batch-wrap" id="allInBatchWrap" style="margin-bottom: 12px;">
+          <label class="custom-checkbox-label">
+            <input type="checkbox" name="all_in_batch" id="m_all_in_batch" checked>
+            <span class="custom-chk-text">
+              <strong>All eligible students in this program/batch/year</strong>
+              <small style="display: block; color: #64748b;">Every student meeting the Program, Admission Year, and Academic Year will be authorized.</small>
+            </span>
+          </label>
+        </div>
+
+        <!-- 3D Glassmorphic Live Eligibility Preview Card -->
+        <div class="eligibility-preview-card" id="eligibilityPreviewCard">
+          <div class="ep-header">
+            <div class="ep-header-left">
+              <i class="fa-solid fa-shield-halved"></i>
+              <span>EXAM VISIBILITY</span>
+            </div>
+            <div class="ep-badge" id="epStatusBadge">LIVE PREVIEW</div>
+          </div>
+
+          <div class="ep-grid">
+            <div class="ep-item">
+              <span class="ep-lbl">Program:</span>
+              <span class="ep-val" id="prevProgramName">Not selected</span>
+            </div>
+            <div class="ep-item">
+              <span class="ep-lbl">Code:</span>
+              <span class="ep-val-badge" id="prevProgramCode">—</span>
+            </div>
+            <div class="ep-item">
+              <span class="ep-lbl">Admission Batch:</span>
+              <span class="ep-val" id="prevAdmissionYear">—</span>
+            </div>
+            <div class="ep-item">
+              <span class="ep-lbl">Academic Year:</span>
+              <span class="ep-val" id="prevAcademicYear">—</span>
+            </div>
+          </div>
+
+          <div class="ep-footer">
+            <div class="ep-count-box">
+              <i class="fa-solid fa-circle-check"></i>
+              <span>Eligible Students:</span>
+              <span class="ep-count-num" id="prevEligibleCount">0</span>
+            </div>
+            <div class="ep-summary-text" id="prevSummaryText">
+              Target: <code id="prevSummaryTarget">—</code>
+            </div>
+          </div>
+        </div>
+
+        <!-- Specific Students Picker (Displayed when SPECIFIC_STUDENTS mode is active) -->
+        <div class="specific-students-panel" id="specificStudentsPanel" style="display: none;">
+          <div class="ssp-header">
+            <div class="ssp-title">
+              <i class="fa-solid fa-list-check"></i> Select Specific Students
+            </div>
+            <div class="ssp-controls">
+              <button type="button" class="btn-ssp-action" onclick="selectAllFilteredStudents()">Select All</button>
+              <button type="button" class="btn-ssp-action" onclick="deselectAllStudents()">Deselect All</button>
+              <span class="ssp-selected-badge" id="sspSelectedBadge">Selected: 0</span>
+            </div>
+          </div>
+
+          <div class="ssp-search-row">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="sspSearchInput" onkeyup="filterSpecificStudentsList()" placeholder="Search by name, student code, email...">
+          </div>
+
+          <div class="ssp-students-list" id="sspStudentsList">
+            <!-- Dynamically rendered list of checkboxes -->
+          </div>
+
+          <input type="hidden" name="student_codes" id="m_student_codes" value="[]">
+        </div>
+
       </div>
 
       <div class="cem-modal-footer">
@@ -1130,6 +1709,220 @@
   }
 
   let currentEditingExamId = null;
+  const ALL_REGISTERED_STUDENTS = {{ all_students|tojson|safe }};
+
+  // Toggle Target Mode: PROGRAM_BATCH_YEAR vs SPECIFIC_STUDENTS
+  function toggleTargetMode(mode) {
+    const cardBatch = document.getElementById('modeCardBatch');
+    const cardSpecific = document.getElementById('modeCardSpecific');
+    const panelSpecific = document.getElementById('specificStudentsPanel');
+    const allInBatchWrap = document.getElementById('allInBatchWrap');
+
+    if (mode === 'SPECIFIC_STUDENTS') {
+      document.getElementById('targetModeSpecific').checked = true;
+      cardSpecific.classList.add('active');
+      cardBatch.classList.remove('active');
+      panelSpecific.style.display = 'block';
+      if (allInBatchWrap) allInBatchWrap.style.display = 'none';
+      renderSpecificStudentsList();
+    } else {
+      document.getElementById('targetModeBatch').checked = true;
+      cardBatch.classList.add('active');
+      cardSpecific.classList.remove('active');
+      panelSpecific.style.display = 'none';
+      if (allInBatchWrap) allInBatchWrap.style.display = 'block';
+    }
+    updateEligibilityPreview();
+  }
+
+  // Handle Program dropdown change
+  function handleProgramChange() {
+    updateEligibilityPreview();
+  }
+
+  // Handle Admission Year change (with academic year auto-suggestion)
+  function handleAdmissionYearChange() {
+    const adm = parseInt(document.getElementById('m_admission_year').value);
+    const acadSelect = document.getElementById('m_academic_year');
+    if (adm && !acadSelect.value) {
+      const currentYear = new Date().getFullYear();
+      const diff = currentYear - adm + 1;
+      let suggested = '1st Year';
+      if (diff === 2) suggested = '2nd Year';
+      else if (diff === 3) suggested = '3rd Year';
+      else if (diff === 4) suggested = '4th Year';
+      acadSelect.value = suggested;
+    }
+    updateEligibilityPreview();
+  }
+
+  // Update Live Eligibility Preview Card and dynamic student count
+  function updateEligibilityPreview() {
+    const pSelect = document.getElementById('m_program_code');
+    const pCode = (pSelect.value || '').trim().toUpperCase();
+    const pOption = pSelect.options[pSelect.selectedIndex];
+    const pName = pOption && pOption.dataset.name ? pOption.dataset.name : (pCode || 'Not selected');
+
+    const admYear = (document.getElementById('m_admission_year').value || '').trim();
+    const acadYear = (document.getElementById('m_academic_year').value || '').trim();
+
+    // Update preview labels
+    document.getElementById('prevProgramName').textContent = pCode ? pName : 'Not selected';
+    document.getElementById('prevProgramCode').textContent = pCode || '—';
+    document.getElementById('prevAdmissionYear').textContent = admYear || '—';
+    document.getElementById('prevAcademicYear').textContent = acadYear || '—';
+
+    // Target summary text
+    const summaryTarget = (pCode && admYear && acadYear)
+      ? `${pCode} • ${admYear} • ${acadYear}`
+      : (pCode || admYear || acadYear ? `${pCode || '?'} • ${admYear || '?'} • ${acadYear || '?'}` : '—');
+    document.getElementById('prevSummaryTarget').textContent = summaryTarget;
+
+    // Calculate eligible students count strictly matching Program + Batch + Year
+    let count = 0;
+    if (pCode && admYear && acadYear) {
+      ALL_REGISTERED_STUDENTS.forEach(s => {
+        const sProg = (s.program_code || '').trim().toUpperCase();
+        const sAdm = String(s.admission_year || '').trim();
+        const sAcad = (s.academic_year || '').trim().toLowerCase();
+
+        if (sProg === pCode && sAdm === admYear && sAcad === acadYear.toLowerCase()) {
+          count++;
+        }
+      });
+    }
+
+    const countNumEl = document.getElementById('prevEligibleCount');
+    countNumEl.textContent = count;
+
+    // Refresh specific students list if open
+    const targetMode = document.querySelector('input[name="target_mode"]:checked')?.value || 'PROGRAM_BATCH_YEAR';
+    if (targetMode === 'SPECIFIC_STUDENTS') {
+      renderSpecificStudentsList();
+    }
+  }
+
+  // Render Specific Students Checklist
+  function renderSpecificStudentsList() {
+    const container = document.getElementById('sspStudentsList');
+    if (!container) return;
+
+    let selectedCodes = [];
+    try {
+      selectedCodes = JSON.parse(document.getElementById('m_student_codes').value || '[]');
+    } catch(e) {
+      selectedCodes = [];
+    }
+
+    const pCode = (document.getElementById('m_program_code').value || '').trim().toUpperCase();
+    const admYear = (document.getElementById('m_admission_year').value || '').trim();
+    const acadYear = (document.getElementById('m_academic_year').value || '').trim().toLowerCase();
+
+    container.innerHTML = '';
+
+    if (!ALL_REGISTERED_STUDENTS || ALL_REGISTERED_STUDENTS.length === 0) {
+      container.innerHTML = '<div style="padding: 12px; text-align: center; color: #94a3b8; font-size: 12px;">No registered students found.</div>';
+      return;
+    }
+
+    ALL_REGISTERED_STUDENTS.forEach(s => {
+      const sIdentifier = s.student_code || s.username;
+      const isSelected = selectedCodes.includes(s.student_code) || selectedCodes.includes(s.username);
+      const isMatch = (!pCode || (s.program_code || '').toUpperCase() === pCode) &&
+                      (!admYear || String(s.admission_year) === admYear) &&
+                      (!acadYear || (s.academic_year || '').toLowerCase() === acadYear);
+
+      const div = document.createElement('div');
+      div.className = 'ssp-student-item' + (isSelected ? ' selected' : '');
+      div.dataset.studentCode = sIdentifier;
+      div.dataset.search = `${s.username} ${s.student_code} ${s.email} ${s.program_name} ${s.program_code}`.toLowerCase();
+
+      div.innerHTML = `
+        <div class="ssp-student-left">
+          <input type="checkbox" class="specific-student-checkbox" value="${sIdentifier}" ${isSelected ? 'checked' : ''} onchange="onStudentCheckboxChange(this)">
+          <div>
+            <span class="ssp-scode-badge">${s.student_code || 'NO-CODE'}</span>
+            <span class="ssp-sname">${s.username}</span>
+            ${isMatch ? '<span style="color: #10b981; font-size: 10px; font-weight: 700; margin-left: 4px;">● Target Match</span>' : ''}
+          </div>
+        </div>
+        <div class="ssp-student-meta">
+          ${s.program_code || 'N/A'} &bull; ${s.academic_year || 'N/A'}
+        </div>
+      `;
+      container.appendChild(div);
+    });
+
+    syncSelectedStudentCount();
+  }
+
+  function onStudentCheckboxChange(checkbox) {
+    const parentItem = checkbox.closest('.ssp-student-item');
+    if (checkbox.checked) {
+      parentItem.classList.add('selected');
+    } else {
+      parentItem.classList.remove('selected');
+    }
+    syncSelectedStudentCodes();
+  }
+
+  function syncSelectedStudentCodes() {
+    const checkboxes = document.querySelectorAll('.specific-student-checkbox:checked');
+    const codes = Array.from(checkboxes).map(cb => cb.value);
+    document.getElementById('m_student_codes').value = JSON.stringify(codes);
+    syncSelectedStudentCount();
+  }
+
+  function syncSelectedStudentCount() {
+    let count = 0;
+    try {
+      const codes = JSON.parse(document.getElementById('m_student_codes').value || '[]');
+      count = Array.isArray(codes) ? codes.length : 0;
+    } catch(e) {
+      count = 0;
+    }
+    const badge = document.getElementById('sspSelectedBadge');
+    if (badge) {
+      badge.textContent = `Selected: ${count}`;
+    }
+  }
+
+  function selectAllFilteredStudents() {
+    const visibleItems = document.querySelectorAll('.ssp-student-item');
+    visibleItems.forEach(item => {
+      if (item.style.display !== 'none') {
+        const cb = item.querySelector('.specific-student-checkbox');
+        if (cb) {
+          cb.checked = true;
+          item.classList.add('selected');
+        }
+      }
+    });
+    syncSelectedStudentCodes();
+  }
+
+  function deselectAllStudents() {
+    const visibleItems = document.querySelectorAll('.ssp-student-item');
+    visibleItems.forEach(item => {
+      if (item.style.display !== 'none') {
+        const cb = item.querySelector('.specific-student-checkbox');
+        if (cb) {
+          cb.checked = false;
+          item.classList.remove('selected');
+        }
+      }
+    });
+    syncSelectedStudentCodes();
+  }
+
+  function filterSpecificStudentsList() {
+    const val = (document.getElementById('sspSearchInput').value || '').trim().toLowerCase();
+    const items = document.querySelectorAll('.ssp-student-item');
+    items.forEach(item => {
+      const searchKey = item.dataset.search || '';
+      item.style.display = searchKey.includes(val) ? 'flex' : 'none';
+    });
+  }
 
   // Synchronize question counts in modal
   function syncNumQuestionsDisplay() {
@@ -1186,6 +1979,15 @@
     document.getElementById('m_question_ids').value = '[]';
     updateSelectedCountDisplay(0, 10);
 
+    // Reset targeting & eligibility fields
+    document.getElementById('m_program_code').value = '';
+    document.getElementById('m_admission_year').value = '';
+    document.getElementById('m_academic_year').value = '';
+    document.getElementById('m_student_codes').value = '[]';
+    document.getElementById('m_all_in_batch').checked = true;
+    toggleTargetMode('PROGRAM_BATCH_YEAR');
+    updateEligibilityPreview();
+
     document.getElementById('examModal').style.display = 'flex';
   }
 
@@ -1216,10 +2018,21 @@
     document.getElementById('m_question_ids').value = JSON.stringify(qids);
     updateSelectedCountDisplay(qids.length, numQ);
 
+    // Restore targeting fields
+    document.getElementById('m_program_code').value = draft.program_code || '';
+    document.getElementById('m_admission_year').value = draft.admission_year || '';
+    document.getElementById('m_academic_year').value = draft.academic_year || '';
+    document.getElementById('m_all_in_batch').checked = draft.all_in_batch !== false;
+
+    const sCodes = Array.isArray(draft.student_codes) ? draft.student_codes : [];
+    document.getElementById('m_student_codes').value = JSON.stringify(sCodes);
+    toggleTargetMode(draft.target_mode === 'SPECIFIC_STUDENTS' ? 'SPECIFIC_STUDENTS' : 'PROGRAM_BATCH_YEAR');
+    updateEligibilityPreview();
+
     document.getElementById('examModal').style.display = 'flex';
   }
 
-  // Open Edit Modal
+  // Open Edit Modal with loaded targeting information
   function openEditModal(exam) {
     currentEditingExamId = exam.id;
     document.getElementById('modalHeading').innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit Course Exam';
@@ -1245,10 +2058,21 @@
     document.getElementById('m_question_ids').value = JSON.stringify(qids);
     updateSelectedCountDisplay(qids.length, numQ);
 
+    // Load existing targeting information
+    document.getElementById('m_program_code').value = exam.program_code || '';
+    document.getElementById('m_admission_year').value = exam.admission_year || '';
+    document.getElementById('m_academic_year').value = exam.academic_year || '';
+    document.getElementById('m_all_in_batch').checked = exam.all_in_batch !== false;
+
+    const sCodes = Array.isArray(exam.student_codes) ? exam.student_codes : [];
+    document.getElementById('m_student_codes').value = JSON.stringify(sCodes);
+    toggleTargetMode(exam.target_mode === 'SPECIFIC_STUDENTS' ? 'SPECIFIC_STUDENTS' : 'PROGRAM_BATCH_YEAR');
+    updateEligibilityPreview();
+
     document.getElementById('examModal').style.display = 'flex';
   }
 
-  // Navigate to Question Selection page while preserving form context
+  // Navigate to Question Selection page while preserving form and targeting context
   function goToSelectQuestions() {
     const title = (document.getElementById('m_title').value || '').trim();
     const cCode = (document.getElementById('m_course_code').value || '').trim();
@@ -1264,6 +2088,19 @@
     const numQ = (document.getElementById('m_num_questions').value || '10').trim();
     const diff = (document.getElementById('m_difficulty').value || 'All').trim();
     const rawQids = document.getElementById('m_question_ids').value || '[]';
+
+    // Targeting fields
+    const targetMode = document.querySelector('input[name="target_mode"]:checked')?.value || 'PROGRAM_BATCH_YEAR';
+    const pCode = (document.getElementById('m_program_code').value || '').trim().toUpperCase();
+    const admYear = (document.getElementById('m_admission_year').value || '').trim();
+    const acadYear = (document.getElementById('m_academic_year').value || '').trim();
+    const allInBatch = document.getElementById('m_all_in_batch').checked;
+    let studentCodes = [];
+    try {
+      studentCodes = JSON.parse(document.getElementById('m_student_codes').value || '[]');
+    } catch(e) {
+      studentCodes = [];
+    }
 
     if (!cCode || !subj) {
       Swal.fire({
@@ -1302,7 +2139,13 @@
       duration: duration,
       num_questions: numQ,
       difficulty: diff,
-      question_ids: parsedQids
+      question_ids: parsedQids,
+      target_mode: targetMode,
+      program_code: pCode,
+      admission_year: admYear,
+      academic_year: acadYear,
+      all_in_batch: allInBatch,
+      student_codes: studentCodes
     };
 
     fetch('/admin/course-exams/prepare-selection', {
@@ -1327,6 +2170,78 @@
       window.location.href = '/admin/course-exams/select-questions/' + examId;
     });
   }
+
+  // Validate form before submission
+  document.getElementById('examFormAction').addEventListener('submit', function(e) {
+    const pCode = (document.getElementById('m_program_code').value || '').trim();
+    const admYear = (document.getElementById('m_admission_year').value || '').trim();
+    const acadYear = (document.getElementById('m_academic_year').value || '').trim();
+
+    if (!pCode) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Target Program Required',
+        text: 'Please select a target program.',
+        confirmButtonColor: '#4f46e5',
+        background: '#0d1527',
+        color: '#f8fafc',
+        iconColor: '#f59e0b'
+      });
+      return false;
+    }
+
+    if (!admYear) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Admission Year Required',
+        text: 'Please select an admission year.',
+        confirmButtonColor: '#4f46e5',
+        background: '#0d1527',
+        color: '#f8fafc',
+        iconColor: '#f59e0b'
+      });
+      return false;
+    }
+
+    if (!acadYear) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'warning',
+        title: 'Academic Year Required',
+        text: 'Please select an academic year.',
+        confirmButtonColor: '#4f46e5',
+        background: '#0d1527',
+        color: '#f8fafc',
+        iconColor: '#f59e0b'
+      });
+      return false;
+    }
+
+    const targetMode = document.querySelector('input[name="target_mode"]:checked')?.value || 'PROGRAM_BATCH_YEAR';
+    if (targetMode === 'SPECIFIC_STUDENTS') {
+      let selectedList = [];
+      try {
+        selectedList = JSON.parse(document.getElementById('m_student_codes').value || '[]');
+      } catch(err) {
+        selectedList = [];
+      }
+      if (!selectedList || selectedList.length === 0) {
+        e.preventDefault();
+        Swal.fire({
+          icon: 'warning',
+          title: 'No Students Selected',
+          text: 'Please select at least one student or switch to Program + Batch + Year mode.',
+          confirmButtonColor: '#4f46e5',
+          background: '#0d1527',
+          color: '#f8fafc',
+          iconColor: '#f59e0b'
+        });
+        return false;
+      }
+    }
+  });
 
   function closeExamModal() {
     document.getElementById('examModal').style.display = 'none';

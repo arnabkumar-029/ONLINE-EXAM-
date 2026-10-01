@@ -899,6 +899,26 @@
         "total": 20,
         "time_taken": "1m 0s",
         "date": "2025-11-05 23:39:37"
+      },
+      {
+        "score": 4.0,
+        "total": 5.0,
+        "time_taken": "5m 20s",
+        "date": "2026-09-30 23:01:45",
+        "descriptive_reports": [],
+        "exam_title": "Completed Examination",
+        "course_code": "CS301",
+        "course_exam_id": "EXAM-TEST-COMPLETED"
+      },
+      {
+        "score": 4.0,
+        "total": 5.0,
+        "time_taken": "5m 20s",
+        "date": "2026-09-30 23:04:54",
+        "descriptive_reports": [],
+        "exam_title": "Completed Examination",
+        "course_code": "CS301",
+        "course_exam_id": "EXAM-TEST-COMPLETED"
       }
     ],
     "score": 17,
@@ -1059,6 +1079,28 @@
         ],
         "exam_title": "Midterm: Artificial Intelligence & Search Algorithms",
         "course_code": "CS301"
+      }
+    ]
+  },
+  "ATANUQ": {
+    "history": [
+      {
+        "score": 0.0,
+        "total": 7.0,
+        "time_taken": "0m 10s",
+        "date": "2026-09-30 23:43:15",
+        "descriptive_reports": [
+          {
+            "grade": "Not Answered",
+            "marks": 0,
+            "originality": 100,
+            "q": "Explain the difference between a Binary Search Tree (BST) and an AVL Tree regarding self-balancing.",
+            "similarity": 0
+          }
+        ],
+        "exam_title": "Practice Examination",
+        "course_code": "",
+        "course_exam_id": null
       }
     ]
   }

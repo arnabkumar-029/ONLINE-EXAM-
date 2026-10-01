@@ -230,14 +230,15 @@
   <form action="{{ url_for('admin.add_question') }}" method="POST" id="addQuestionForm" onsubmit="return validateQuestionForm()">
 
     <!-- =========================================================
-         STEP 1: COURSE & SUBJECT CLASSIFICATION
+         STEP 1: ACADEMIC CLASSIFICATION
          ========================================================= -->
     <div class="qadd-section">
       <div class="qadd-section-title">
         <span class="badge-step">1</span>
-        <span>Course & Subject Classification</span>
+        <span>Academic Classification</span>
       </div>
 
+      <!-- Row 1: Course Code, Course Name, Subject -->
       <div class="form-grid-3">
         <!-- Course Code (Required) -->
         <div class="form-group-custom">
@@ -276,7 +277,44 @@
         </div>
       </div>
 
-      <div class="form-grid-2" style="margin-top: 6px;">
+      <!-- Row 2: Program, Admission Year/Batch, Academic Year -->
+      <div class="form-grid-3" style="margin-top: 10px;">
+        <!-- Program -->
+        <div class="form-group-custom">
+          <label>Academic Program <span class="req">*</span></label>
+          <select name="program_code" id="in_program_code">
+            <option value="ALL">ALL — General / All Programs</option>
+            {% for p in available_programs|default([]) %}
+              <option value="{{ p.code }}">{{ p.code }} — {{ p.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Admission Year / Batch -->
+        <div class="form-group-custom">
+          <label>Admission Year / Batch <span class="req">*</span></label>
+          <select name="admission_year" id="in_admission_year">
+            <option value="ALL">ALL — All Batches</option>
+            {% for y in available_admission_years|default([2026, 2025, 2024, 2023, 2022, 2021]) %}
+              <option value="{{ y }}">{{ y }} Batch</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Academic Year -->
+        <div class="form-group-custom">
+          <label>Academic Year <span class="req">*</span></label>
+          <select name="academic_year" id="in_academic_year">
+            <option value="ALL">ALL — All Academic Years</option>
+            {% for ay in available_academic_years|default(['1st Year', '2nd Year', '3rd Year', '4th Year']) %}
+              <option value="{{ ay }}">{{ ay }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 3: Unit & Topic -->
+      <div class="form-grid-2" style="margin-top: 10px;">
         <!-- Unit / Module (Optional) -->
         <div class="form-group-custom">
           <label>Unit / Module <span class="opt">(Optional)</span></label>

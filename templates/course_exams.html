@@ -405,14 +405,20 @@
       gap: 10px;
     }
 
-    .section-main-title.active {
-      color: var(--cyan);
-      text-shadow: 0 0 15px rgba(0, 240, 255, 0.35);
+    .section-main-title.active,
+    .section-main-title.live-sec {
+      color: #f87171;
+      text-shadow: 0 0 15px rgba(239, 68, 68, 0.45);
     }
 
     .section-main-title.upcoming {
-      color: #c084fc;
-      text-shadow: 0 0 15px rgba(139, 92, 246, 0.35);
+      color: #fbbf24;
+      text-shadow: 0 0 15px rgba(245, 158, 11, 0.35);
+    }
+
+    .section-main-title.past {
+      color: #34d399;
+      text-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
     }
 
     .section-count-chip {
@@ -423,16 +429,23 @@
       font-family: var(--font-mono);
     }
 
-    .section-count-chip.active {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid var(--emerald);
-      color: var(--emerald);
+    .section-count-chip.active,
+    .section-count-chip.live {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
     }
 
     .section-count-chip.upcoming {
-      background: rgba(139, 92, 246, 0.15);
-      border: 1px solid var(--purple);
-      color: #c084fc;
+      background: rgba(245, 158, 11, 0.15);
+      border: 1px solid #f59e0b;
+      color: #fbbf24;
+    }
+
+    .section-count-chip.past {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald);
+      color: var(--emerald);
     }
 
     /* =========================================
@@ -472,21 +485,43 @@
     }
 
     .exam-card.card-live:hover {
-      border-color: rgba(0, 240, 255, 0.5);
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(0, 240, 255, 0.2);
+      border-color: rgba(239, 68, 68, 0.55);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(239, 68, 68, 0.25);
       transform: translateY(-6px);
     }
     .exam-card.card-live::before {
-      background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+      background: linear-gradient(90deg, transparent, #ef4444, transparent);
     }
 
     .exam-card.card-upcoming:hover {
-      border-color: rgba(139, 92, 246, 0.45);
-      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(139, 92, 246, 0.2);
+      border-color: rgba(245, 158, 11, 0.5);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(245, 158, 11, 0.2);
       transform: translateY(-6px);
     }
     .exam-card.card-upcoming::before {
-      background: linear-gradient(90deg, transparent, var(--purple), transparent);
+      background: linear-gradient(90deg, transparent, #f59e0b, transparent);
+    }
+
+    .exam-card.card-completed {
+      border-color: rgba(16, 185, 129, 0.25);
+    }
+    .exam-card.card-completed:hover {
+      border-color: rgba(16, 185, 129, 0.6);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), 0 0 25px rgba(16, 185, 129, 0.25);
+      transform: translateY(-6px);
+    }
+    .exam-card.card-completed::before {
+      background: linear-gradient(90deg, transparent, var(--emerald), transparent);
+    }
+
+    .exam-card.card-closed {
+      border-color: rgba(148, 163, 184, 0.2);
+      opacity: 0.88;
+    }
+    .exam-card.card-closed:hover {
+      border-color: rgba(148, 163, 184, 0.45);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6);
+      transform: translateY(-4px);
     }
 
     /* Card Top Bar */
@@ -522,16 +557,43 @@
     }
 
     .status-chip.live {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid var(--emerald);
-      color: #34d399;
-      box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.25);
     }
 
     .status-chip.locked {
       background: rgba(245, 158, 11, 0.12);
       border: 1px solid rgba(245, 158, 11, 0.35);
       color: #fbbf24;
+    }
+
+    .status-chip.completed {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--emerald);
+      color: #34d399;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.25);
+    }
+
+    .status-chip.closed-missed {
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #fb7185;
+    }
+
+    .live-pulse-dot-red {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+      animation: pulseRedDot 1.4s infinite;
+      display: inline-block;
+    }
+    @keyframes pulseRedDot {
+      0%, 100% { opacity: 0.5; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.3); }
     }
 
     /* Course Titles & Hierarchy */
@@ -731,6 +793,101 @@
       margin-top: 2px;
     }
 
+    /* Completed Score Card Box */
+    .score-summary-box {
+      background: rgba(16, 185, 129, 0.08);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .score-primary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .score-badge-val {
+      font-family: var(--font-tech);
+      font-size: 14.5px;
+      font-weight: 800;
+      color: #34d399;
+      letter-spacing: 0.8px;
+    }
+    .score-pct-badge {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      color: #a7f3d0;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+    .score-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11.5px;
+      color: #94a3b8;
+      flex-wrap: wrap;
+    }
+
+    .btn-view-result {
+      width: 100%;
+      height: 46px;
+      border-radius: 12px;
+      font-family: var(--font-tech);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.45);
+      color: #34d399;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    .btn-view-result:hover {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: #10b981;
+      color: #ffffff;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .closed-card-banner {
+      width: 100%;
+      height: 46px;
+      border-radius: 12px;
+      background: rgba(30, 41, 59, 0.4);
+      border: 1px dashed rgba(148, 163, 184, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-family: var(--font-tech);
+      font-size: 12px;
+      font-weight: 700;
+      color: #94a3b8;
+      letter-spacing: 1px;
+      user-select: none;
+    }
+
+    .live-countdown-text {
+      font-family: var(--font-tech);
+      font-size: 11px;
+      font-weight: 700;
+      color: #fbbf24;
+      letter-spacing: 1px;
+    }
+
     /* Empty state cards */
     .empty-section-card {
       grid-column: 1 / -1;
@@ -844,6 +1001,16 @@
 
     <!-- Right Actions -->
     <div class="nav-actions">
+      {% if student_info and student_info.program_code %}
+        <div class="student-target-badge" style="display: inline-flex; align-items: center; gap: 7px; background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.35); padding: 5px 12px; border-radius: 20px; font-size: 12px; color: #a5b4fc; font-weight: 600;">
+          <i class="fa-solid fa-graduation-cap" style="color: var(--cyan);"></i>
+          <span>{{ student_info.program_code }} &bull; {{ student_info.admission_year }} &bull; {{ student_info.academic_year }}</span>
+          {% if student_info.student_code %}
+            <code style="background: rgba(0, 240, 255, 0.15); color: var(--cyan); padding: 1px 6px; border-radius: 4px; font-size: 11px;">{{ student_info.student_code }}</code>
+          {% endif %}
+        </div>
+      {% endif %}
+
       <div class="user-greeting">
         <i class="fa-solid fa-user-graduate" style="color: var(--cyan);"></i>
         <span>Welcome, {{ session.get('username', 'Student') }}</span>
@@ -906,7 +1073,7 @@
 
       <div style="display: flex; align-items: center; gap: 10px;">
         <span class="filter-stats-badge" id="filterStatsBadge">
-          {{ today_exams|length }} Active • {{ upcoming_exams|length }} Upcoming
+          {{ live_exams|length }} Live • {{ upcoming_exams|length }} Upcoming • {{ past_exams|length }} Past
         </span>
         <button type="button" class="btn-reset-filters" onclick="resetFilters()">
           <i class="fa-solid fa-rotate-left"></i> Reset
@@ -915,105 +1082,92 @@
     </div>
 
     <!-- =========================================================
-         SECTION 1: TODAY / ACTIVE EXAMS (AVAILABLE TODAY)
+         SECTION 1: LIVE EXAMS (AVAILABLE & ACTIVE NOW)
          ========================================================= -->
-    <section class="section-wrap" id="sectionToday">
+    <section class="section-wrap" id="sectionLive">
       <div class="section-header-row">
         <div class="section-title-wrap">
-          <div class="live-dot" style="background: var(--emerald); box-shadow: 0 0 10px var(--emerald);"></div>
-          <h2 class="section-main-title active">
-            <i class="fa-solid fa-bolt-lightning"></i>
-            AVAILABLE TODAY
+          <div class="live-pulse-dot-red"></div>
+          <h2 class="section-main-title live-sec">
+            <i class="fa-solid fa-tower-broadcast"></i>
+            LIVE EXAMINATIONS
           </h2>
         </div>
-        <span class="section-count-chip active" id="todayCountChip">
-          {{ today_exams|length }} Available Now
+        <span class="section-count-chip live" id="liveCountChip">
+          {{ live_exams|length }} Live Now
         </span>
       </div>
 
-      <div class="cards-grid" id="todayCardsGrid">
-        {% if today_exams %}
-          {% for exam in today_exams %}
-            <div class="exam-card card-live"
-                 data-course="{{ exam.course_code | upper }}"
-                 data-subject="{{ exam.subject | lower }}"
-                 data-search="{{ exam.course_code | lower }} {{ exam.course_name | lower }} {{ exam.subject | lower }} {{ exam.title | lower }}">
-              
-              <div>
-                <!-- Top Badge Row -->
-                <div class="card-top">
-                  <span class="course-badge">{{ exam.course_code }}</span>
-                  <span class="status-chip live">
-                    <span style="width:6px; height:6px; border-radius:50%; background:#10b981; display:inline-block;"></span>
-                    AVAILABLE TODAY
-                  </span>
+      <div class="cards-grid" id="liveCardsGrid">
+        {% for exam in live_exams %}
+          <div class="exam-card card-live"
+               data-course="{{ (exam.course_code or '') | trim | upper }}"
+               data-course-name="{{ (exam.course_name or '') | trim | upper }}"
+               data-course-id="{{ (exam.id or '') | trim | upper }}"
+               data-subject="{{ (exam.subject or '') | trim | lower }}"
+               data-search="{{ ((exam.course_code or '') ~ ' ' ~ (exam.course_name or '') ~ ' ' ~ (exam.subject or '') ~ ' ' ~ (exam.title or '')) | lower }}">
+            
+            <div>
+              <!-- Top Badge Row -->
+              <div class="card-top">
+                <span class="course-badge">{{ exam.course_code }}</span>
+                <span class="status-chip live">
+                  <span class="live-pulse-dot-red"></span>
+                  LIVE NOW
+                </span>
+              </div>
+
+              <!-- Academic Hierarchy -->
+              <div class="course-name-label" title="{{ exam.course_name }}">{{ exam.course_name }}</div>
+              <div class="subject-name-label">
+                <i class="fa-solid fa-book-open"></i> {{ exam.subject }}
+              </div>
+
+              <!-- Exam Title -->
+              <h3 class="exam-title-text">{{ exam.title }}</h3>
+
+              <!-- Metric Pills -->
+              <div class="metric-pills-row">
+                <div class="metric-pill">
+                  <i class="fa-solid fa-layer-group"></i>
+                  <span>{{ exam.exam_type_display }}</span>
                 </div>
-
-                <!-- Academic Hierarchy -->
-                <div class="course-name-label" title="{{ exam.course_name }}">{{ exam.course_name }}</div>
-                <div class="subject-name-label">
-                  <i class="fa-solid fa-book-open"></i> {{ exam.subject }}
+                <div class="metric-pill">
+                  <i class="fa-solid fa-list-check"></i>
+                  <span>{{ exam.num_questions }} Questions</span>
                 </div>
-
-                <!-- Exam Title -->
-                <h3 class="exam-title-text">{{ exam.title }}</h3>
-
-                <!-- Metric Pills -->
-                <div class="metric-pills-row">
-                  <div class="metric-pill">
-                    <i class="fa-solid fa-layer-group"></i>
-                    <span>{{ exam.exam_type_display }}</span>
-                  </div>
-                  <div class="metric-pill">
-                    <i class="fa-solid fa-list-check"></i>
-                    <span>{{ exam.num_questions }} Questions</span>
-                  </div>
-                  <div class="metric-pill">
-                    <i class="fa-solid fa-hourglass-half"></i>
-                    <span>{{ exam.duration }} Minutes</span>
-                  </div>
-                </div>
-
-                <!-- Schedule Window Box -->
-                <div class="schedule-window-box">
-                  <div class="schedule-row">
-                    <i class="fa-solid fa-calendar-day"></i>
-                    <span><strong>Date:</strong> {{ exam.formatted_date }}</span>
-                  </div>
-                  <div class="schedule-row">
-                    <i class="fa-solid fa-clock"></i>
-                    <span><strong>Window:</strong> {{ exam.formatted_start_time }} – {{ exam.formatted_end_time }}</span>
-                  </div>
+                <div class="metric-pill">
+                  <i class="fa-solid fa-hourglass-half"></i>
+                  <span>{{ exam.duration }} Minutes</span>
                 </div>
               </div>
 
-              <!-- Action: START EXAM (Shown only within configured window) -->
-              {% if exam.can_start %}
-                <a href="{{ url_for('exam.start_course_exam', exam_id=exam.id) }}" class="btn-start-exam">
-                  <span>[ START EXAM ]</span>
-                  <i class="fa-solid fa-arrow-right"></i>
-                </a>
-              {% else %}
-                <div class="locked-card-banner">
-                  <div class="locked-icon-badge">
-                    <i class="fa-solid fa-lock"></i>
-                  </div>
-                  <div class="locked-text-wrap">
-                    <span class="locked-subtext">AVAILABLE AT</span>
-                    <span class="locked-target-dt">{{ exam.formatted_start_time }}</span>
-                  </div>
+              <!-- Schedule Window Box -->
+              <div class="schedule-window-box">
+                <div class="schedule-row">
+                  <i class="fa-solid fa-calendar-day" style="color: #ef4444;"></i>
+                  <span><strong>Date:</strong> {{ exam.formatted_date }}</span>
                 </div>
-              {% endif %}
-
+                <div class="schedule-row">
+                  <i class="fa-solid fa-clock" style="color: #ef4444;"></i>
+                  <span><strong>Window:</strong> {{ exam.formatted_start_time }} – {{ exam.formatted_end_time }}</span>
+                </div>
+              </div>
             </div>
-          {% endfor %}
-        {% else %}
-          <div class="empty-section-card" id="emptyTodayCard">
-            <i class="fa-solid fa-calendar-check"></i>
-            <h4>No Examinations Scheduled For Today</h4>
-            <p>There are no active or scheduled examinations available right now. Please check the upcoming exams below.</p>
+
+            <!-- Action: START EXAM -->
+            <a href="{{ url_for('exam.start_course_exam', exam_id=exam.id) }}" class="btn-start-exam">
+              <span>[ START EXAM ]</span>
+              <i class="fa-solid fa-arrow-right"></i>
+            </a>
+
           </div>
-        {% endif %}
+        {% endfor %}
+        <div class="empty-section-card" id="emptyLiveCard" style="{% if live_exams %}display: none;{% endif %}">
+          <i class="fa-solid fa-circle-check"></i>
+          <h4>No Active Live Examinations Right Now</h4>
+          <p>You have no examinations currently active in this time slot. Check your upcoming examinations scheduled below.</p>
+        </div>
       </div>
     </section>
 
@@ -1023,7 +1177,7 @@
     <section class="section-wrap" id="sectionUpcoming">
       <div class="section-header-row">
         <div class="section-title-wrap">
-          <i class="fa-solid fa-lock" style="color: #c084fc;"></i>
+          <i class="fa-solid fa-lock" style="color: #fbbf24;"></i>
           <h2 class="section-main-title upcoming">
             UPCOMING EXAMS
           </h2>
@@ -1034,83 +1188,209 @@
       </div>
 
       <div class="cards-grid" id="upcomingCardsGrid">
-        {% if upcoming_exams %}
-          {% for exam in upcoming_exams %}
-            <div class="exam-card card-upcoming"
-                 data-course="{{ exam.course_code | upper }}"
-                 data-subject="{{ exam.subject | lower }}"
-                 data-search="{{ exam.course_code | lower }} {{ exam.course_name | lower }} {{ exam.subject | lower }} {{ exam.title | lower }}">
-              
-              <div>
-                <!-- Top Badge Row -->
-                <div class="card-top">
-                  <span class="course-badge" style="color:#c084fc; background:rgba(139,92,246,0.12); border-color:rgba(139,92,246,0.35);">
-                    {{ exam.course_code }}
-                  </span>
-                  <span class="status-chip locked">
-                    <i class="fa-solid fa-lock" style="font-size: 10px;"></i>
-                    LOCKED
-                  </span>
+        {% for exam in upcoming_exams %}
+          <div class="exam-card card-upcoming"
+               data-course="{{ (exam.course_code or '') | trim | upper }}"
+               data-course-name="{{ (exam.course_name or '') | trim | upper }}"
+               data-course-id="{{ (exam.id or '') | trim | upper }}"
+               data-subject="{{ (exam.subject or '') | trim | lower }}"
+               data-search="{{ ((exam.course_code or '') ~ ' ' ~ (exam.course_name or '') ~ ' ' ~ (exam.subject or '') ~ ' ' ~ (exam.title or '')) | lower }}">
+            
+            <div>
+              <!-- Top Badge Row -->
+              <div class="card-top">
+                <span class="course-badge" style="color:#fbbf24; background:rgba(245,158,11,0.12); border-color:rgba(245,158,11,0.35);">
+                  {{ exam.course_code }}
+                </span>
+                <span class="status-chip locked">
+                  <i class="fa-solid fa-lock" style="font-size: 10px;"></i>
+                  LOCKED
+                </span>
+              </div>
+
+              <!-- Academic Hierarchy -->
+              <div class="course-name-label" title="{{ exam.course_name }}">{{ exam.course_name }}</div>
+              <div class="subject-name-label" style="color: #fbbf24;">
+                <i class="fa-solid fa-book-open"></i> {{ exam.subject }}
+              </div>
+
+              <!-- Exam Title -->
+              <h3 class="exam-title-text">{{ exam.title }}</h3>
+
+              <!-- Metric Pills -->
+              <div class="metric-pills-row">
+                <div class="metric-pill">
+                  <i class="fa-solid fa-layer-group" style="color:#fbbf24;"></i>
+                  <span>{{ exam.exam_type_display }}</span>
                 </div>
-
-                <!-- Academic Hierarchy -->
-                <div class="course-name-label" title="{{ exam.course_name }}">{{ exam.course_name }}</div>
-                <div class="subject-name-label" style="color: #c084fc;">
-                  <i class="fa-solid fa-book-open"></i> {{ exam.subject }}
+                <div class="metric-pill">
+                  <i class="fa-solid fa-list-check" style="color:#fbbf24;"></i>
+                  <span>{{ exam.num_questions }} Questions</span>
                 </div>
-
-                <!-- Exam Title -->
-                <h3 class="exam-title-text">{{ exam.title }}</h3>
-
-                <!-- Metric Pills -->
-                <div class="metric-pills-row">
-                  <div class="metric-pill">
-                    <i class="fa-solid fa-layer-group" style="color:#c084fc;"></i>
-                    <span>{{ exam.exam_type_display }}</span>
-                  </div>
-                  <div class="metric-pill">
-                    <i class="fa-solid fa-list-check" style="color:#c084fc;"></i>
-                    <span>{{ exam.num_questions }} Questions</span>
-                  </div>
-                  <div class="metric-pill">
-                    <i class="fa-solid fa-hourglass-half" style="color:#c084fc;"></i>
-                    <span>{{ exam.duration }} Minutes</span>
-                  </div>
-                </div>
-
-                <!-- Schedule Window Box -->
-                <div class="schedule-window-box">
-                  <div class="schedule-row">
-                    <i class="fa-solid fa-calendar-day"></i>
-                    <span><strong>Exam Date:</strong> {{ exam.formatted_date }}</span>
-                  </div>
-                  <div class="schedule-row">
-                    <i class="fa-solid fa-clock"></i>
-                    <span><strong>Start Time:</strong> {{ exam.formatted_start_time }}</span>
-                  </div>
+                <div class="metric-pill">
+                  <i class="fa-solid fa-hourglass-half" style="color:#fbbf24;"></i>
+                  <span>{{ exam.duration }} Minutes</span>
                 </div>
               </div>
 
-              <!-- Locked Action Banner -->
-              <div class="locked-card-banner" style="cursor: pointer;" onclick="showLockedAlert('{{ exam.title | escape }}', '{{ exam.formatted_date }}', '{{ exam.formatted_start_time }}')">
-                <div class="locked-icon-badge">
-                  <i class="fa-solid fa-lock"></i>
+              <!-- Schedule Window Box -->
+              <div class="schedule-window-box">
+                <div class="schedule-row">
+                  <i class="fa-solid fa-calendar-day" style="color:#fbbf24;"></i>
+                  <span><strong>Exam Date:</strong> {{ exam.formatted_date }}</span>
                 </div>
-                <div class="locked-text-wrap">
-                  <span class="locked-subtext">AVAILABLE ON</span>
-                  <span class="locked-target-dt">{{ exam.available_on_date }} &bull; {{ exam.available_on_time }}</span>
+                <div class="schedule-row">
+                  <i class="fa-solid fa-clock" style="color:#fbbf24;"></i>
+                  <span><strong>Start Time:</strong> {{ exam.formatted_start_time }}</span>
                 </div>
               </div>
-
             </div>
-          {% endfor %}
-        {% else %}
-          <div class="empty-section-card" id="emptyUpcomingCard">
-            <i class="fa-solid fa-calendar-xmark"></i>
-            <h4>No Upcoming Examinations</h4>
-            <p>There are no future course examinations currently scheduled by your instructor.</p>
+
+            <!-- Locked Action Banner with Live Dynamic Countdown -->
+            <div class="locked-card-banner" style="cursor: pointer;" onclick="showLockedAlert('{{ exam.title | escape }}', '{{ exam.formatted_date }}', '{{ exam.formatted_start_time }}')">
+              <div class="locked-icon-badge">
+                <i class="fa-solid fa-lock"></i>
+              </div>
+              <div class="locked-text-wrap">
+                <span class="locked-subtext live-countdown-text" data-start="{{ exam.start_iso }}">
+                  {{ exam.starts_in or 'STARTS SOON' }}
+                </span>
+                <span class="locked-target-dt">{{ exam.available_on_date }} &bull; {{ exam.available_on_time }}</span>
+              </div>
+            </div>
+
           </div>
-        {% endif %}
+        {% endfor %}
+        <div class="empty-section-card" id="emptyUpcomingCard" style="{% if upcoming_exams %}display: none;{% endif %}">
+          <i class="fa-solid fa-calendar-xmark"></i>
+          <h4>No Upcoming Examinations</h4>
+          <p>There are no future course examinations matching your filter or scheduled by your instructor.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         SECTION 3: COMPLETED / PAST EXAMS
+         ========================================================= -->
+    <section class="section-wrap" id="sectionPast">
+      <div class="section-header-row">
+        <div class="section-title-wrap">
+          <i class="fa-solid fa-clock-rotate-left" style="color: var(--emerald);"></i>
+          <h2 class="section-main-title past">
+            COMPLETED &amp; PAST EXAMS
+          </h2>
+        </div>
+        <span class="section-count-chip past" id="pastCountChip">
+          {{ past_exams|length }} Completed / Past
+        </span>
+      </div>
+
+      <div class="cards-grid" id="pastCardsGrid">
+        {% for exam in past_exams %}
+          <div class="exam-card {% if exam.is_taken %}card-completed{% else %}card-closed{% endif %}"
+               data-course="{{ (exam.course_code or '') | trim | upper }}"
+               data-course-name="{{ (exam.course_name or '') | trim | upper }}"
+               data-course-id="{{ (exam.id or '') | trim | upper }}"
+               data-subject="{{ (exam.subject or '') | trim | lower }}"
+               data-search="{{ ((exam.course_code or '') ~ ' ' ~ (exam.course_name or '') ~ ' ' ~ (exam.subject or '') ~ ' ' ~ (exam.title or '')) | lower }}">
+            
+            <div>
+              <!-- Top Badge Row -->
+              <div class="card-top">
+                <span class="course-badge" style="color: {% if exam.is_taken %}#34d399{% else %}#94a3b8{% endif %}; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15);">
+                  {{ exam.course_code }}
+                </span>
+                {% if exam.is_taken %}
+                  <span class="status-chip completed">
+                    <i class="fa-solid fa-circle-check"></i>
+                    COMPLETED
+                  </span>
+                {% else %}
+                  <span class="status-chip closed-missed">
+                    <i class="fa-solid fa-hourglass-end"></i>
+                    CLOSED / MISSED
+                  </span>
+                {% endif %}
+              </div>
+
+              <!-- Academic Hierarchy -->
+              <div class="course-name-label" title="{{ exam.course_name }}">{{ exam.course_name }}</div>
+              <div class="subject-name-label" style="color: {% if exam.is_taken %}#34d399{% else %}#94a3b8{% endif %};">
+                <i class="fa-solid fa-book-open"></i> {{ exam.subject }}
+              </div>
+
+              <!-- Exam Title -->
+              <h3 class="exam-title-text">{{ exam.title }}</h3>
+
+              <!-- Metric Pills -->
+              <div class="metric-pills-row">
+                <div class="metric-pill">
+                  <i class="fa-solid fa-layer-group"></i>
+                  <span>{{ exam.exam_type_display }}</span>
+                </div>
+                <div class="metric-pill">
+                  <i class="fa-solid fa-list-check"></i>
+                  <span>{{ exam.num_questions }} Questions</span>
+                </div>
+                <div class="metric-pill">
+                  <i class="fa-solid fa-hourglass-half"></i>
+                  <span>{{ exam.duration }} Minutes</span>
+                </div>
+              </div>
+
+              <!-- Completed or Closed Status Details -->
+              {% if exam.is_taken %}
+                <div class="score-summary-box">
+                  <div class="score-primary-row">
+                    <span class="score-badge-val">
+                      <i class="fa-solid fa-star"></i> Score: {{ exam.submission_score }} / {{ exam.submission_total }}
+                    </span>
+                    {% if exam.submission_pct is not none %}
+                      <span class="score-pct-badge">{{ exam.submission_pct }}%</span>
+                    {% endif %}
+                  </div>
+                  <div class="score-meta-row">
+                    <span><i class="fa-regular fa-calendar-check"></i> {{ exam.submission_date }}</span>
+                    {% if exam.submission_time_taken %}
+                      <span>&bull;</span>
+                      <span><i class="fa-solid fa-stopwatch"></i> {{ exam.submission_time_taken }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+              {% else %}
+                <div class="schedule-window-box" style="border-color: rgba(244,63,94,0.25); background: rgba(244,63,94,0.05);">
+                  <div class="schedule-row" style="color: #fb7185;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: #fb7185;"></i>
+                    <span><strong>Examination Ended:</strong> {{ exam.formatted_date }}</span>
+                  </div>
+                  <div class="schedule-row" style="color: #94a3b8;">
+                    <i class="fa-solid fa-clock" style="color: #94a3b8;"></i>
+                    <span>Window was: {{ exam.formatted_start_time }} – {{ exam.formatted_end_time }}</span>
+                  </div>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Action button: View leaderboard / closed banner -->
+            {% if exam.is_taken %}
+              <a href="{{ url_for('exam.leaderboard') }}" class="btn-view-result">
+                <i class="fa-solid fa-trophy"></i>
+                <span>[ VIEW LEADERBOARD ]</span>
+              </a>
+            {% else %}
+              <div class="closed-card-banner">
+                <i class="fa-solid fa-ban"></i>
+                <span>EXAM CLOSED</span>
+              </div>
+            {% endif %}
+
+          </div>
+        {% endfor %}
+        <div class="empty-section-card" id="emptyPastCard" style="{% if past_exams %}display: none;{% endif %}">
+          <i class="fa-solid fa-folder-open"></i>
+          <h4>No Past or Completed Examinations</h4>
+          <p>You have not completed any course examinations yet, and there are no expired examinations.</p>
+        </div>
       </div>
     </section>
 
@@ -1169,87 +1449,164 @@
     }
     setInterval(updateLiveClock, 1000);
 
+    // Live Dynamic Countdown Updater for Upcoming Exams
+    function updateUpcomingCountdowns() {
+      const countdownElements = document.querySelectorAll(".live-countdown-text");
+      const now = new Date().getTime();
+
+      countdownElements.forEach(el => {
+        const startIso = el.getAttribute("data-start");
+        if (!startIso) return;
+        const startTime = new Date(startIso).getTime();
+        const distance = startTime - now;
+
+        if (distance <= 0) {
+          el.textContent = "AVAILABLE NOW • REFRESH";
+          el.style.color = "#10b981";
+        } else {
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+          if (days > 0) {
+            el.textContent = `Starts in: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+          } else if (hours > 0) {
+            el.textContent = `Starts in: ${hours}h ${minutes}m ${seconds}s`;
+          } else {
+            el.textContent = `Starts in: ${minutes}m ${seconds}s`;
+          }
+        }
+      });
+    }
+    setInterval(updateUpcomingCountdowns, 1000);
+    updateUpcomingCountdowns();
+
     // Locked Alert Pop-up
     function showLockedAlert(title, date, time) {
       Swal.fire({
         icon: 'info',
         title: 'Examination Locked 🔒',
         html: `<strong>${title}</strong> is scheduled for a future time window.<br><br>It will become available on <strong>${date}</strong> at <strong>${time}</strong>.`,
-        confirmButtonColor: '#8b5cf6',
+        confirmButtonColor: '#fbbf24',
         background: '#0f172a',
         color: '#ffffff'
       });
     }
 
-    // Dynamic Filter Handler
+    // =========================================
+    // IMMUTABLE EXAM REGISTRY & FILTERING ENGINE
+    // =========================================
+    let ALL_EXAMS = [];
+
+    function initExamDataset() {
+      ALL_EXAMS = [];
+      const cards = document.querySelectorAll(".exam-card");
+      cards.forEach(card => {
+        const grid = card.closest(".cards-grid");
+        const gridId = grid ? grid.id : "";
+        ALL_EXAMS.push({
+          element: card,
+          sectionId: gridId,
+          courseCode: (card.getAttribute("data-course") || "").trim().toUpperCase(),
+          courseName: (card.getAttribute("data-course-name") || "").trim().toUpperCase(),
+          courseId: (card.getAttribute("data-course-id") || "").trim().toUpperCase(),
+          subject: (card.getAttribute("data-subject") || "").trim().toLowerCase(),
+          searchText: (card.getAttribute("data-search") || "").trim().toLowerCase()
+        });
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initExamDataset);
+    } else {
+      initExamDataset();
+    }
+
+    // Dynamic Filter Handler across all 3 Sections
     function applyFilters() {
-      const selectedCourse = document.getElementById("courseFilter").value.toUpperCase();
-      const selectedSubject = document.getElementById("subjectFilter").value.toLowerCase();
-      const searchVal = document.getElementById("searchInput").value.trim().toLowerCase();
+      if (!ALL_EXAMS || ALL_EXAMS.length === 0) {
+        initExamDataset();
+      }
 
-      let visibleToday = 0;
+      const courseSelect = document.getElementById("courseFilter");
+      const subjectSelect = document.getElementById("subjectFilter");
+      const searchInput = document.getElementById("searchInput");
+
+      const rawCourse = courseSelect ? courseSelect.value.trim().toUpperCase() : "ALL";
+      const rawSubject = subjectSelect ? subjectSelect.value.trim().toLowerCase() : "all";
+      const searchVal = searchInput ? searchInput.value.trim().toLowerCase() : "";
+
+      const isAllCourse = (!rawCourse || rawCourse === "ALL" || rawCourse === "ALL COURSES");
+      const isAllSubject = (!rawSubject || rawSubject === "all" || rawSubject === "all subjects" || rawSubject === "ALL");
+
+      let visibleLive = 0;
       let visibleUpcoming = 0;
+      let visiblePast = 0;
 
-      // Filter Today Cards
-      const todayCards = document.querySelectorAll("#todayCardsGrid .exam-card");
-      todayCards.forEach(card => {
-        const cCourse = card.getAttribute("data-course");
-        const cSubject = card.getAttribute("data-subject");
-        const cSearch = card.getAttribute("data-search");
+      // Always filter from the immutable original dataset
+      ALL_EXAMS.forEach(item => {
+        // 1. Course filter (matches course_code, course_name, or course_id)
+        const matchCourse = isAllCourse || (
+          item.courseCode === rawCourse ||
+          item.courseName === rawCourse ||
+          item.courseId === rawCourse
+        );
 
-        const matchCourse = (selectedCourse === "ALL" || cCourse === selectedCourse);
-        const matchSubject = (selectedSubject === "ALL" || cSubject === selectedSubject);
-        const matchSearch = (!searchVal || cSearch.includes(searchVal));
+        // 2. Subject filter (case-insensitive exact comparison against exam subject)
+        const matchSubject = isAllSubject || (
+          item.subject === rawSubject
+        );
 
-        if (matchCourse && matchSubject && matchSearch) {
-          card.style.display = "flex";
-          visibleToday++;
+        // 3. Search filter (contains in title, subject, course code, or course name)
+        const matchSearch = (!searchVal || item.searchText.includes(searchVal));
+
+        const isVisible = matchCourse && matchSubject && matchSearch;
+
+        if (isVisible) {
+          item.element.style.display = "flex";
+          if (item.sectionId === "liveCardsGrid") visibleLive++;
+          else if (item.sectionId === "upcomingCardsGrid") visibleUpcoming++;
+          else if (item.sectionId === "pastCardsGrid") visiblePast++;
         } else {
-          card.style.display = "none";
+          item.element.style.display = "none";
         }
       });
 
-      // Filter Upcoming Cards
-      const upcomingCards = document.querySelectorAll("#upcomingCardsGrid .exam-card");
-      upcomingCards.forEach(card => {
-        const cCourse = card.getAttribute("data-course");
-        const cSubject = card.getAttribute("data-subject");
-        const cSearch = card.getAttribute("data-search");
-
-        const matchCourse = (selectedCourse === "ALL" || cCourse === selectedCourse);
-        const matchSubject = (selectedSubject === "ALL" || cSubject === selectedSubject);
-        const matchSearch = (!searchVal || cSearch.includes(searchVal));
-
-        if (matchCourse && matchSubject && matchSearch) {
-          card.style.display = "flex";
-          visibleUpcoming++;
-        } else {
-          card.style.display = "none";
-        }
-      });
-
-      // Update counters
-      const todayChip = document.getElementById("todayCountChip");
-      if (todayChip) todayChip.textContent = `${visibleToday} Available Now`;
+      // Update counters dynamically
+      const liveChip = document.getElementById("liveCountChip");
+      if (liveChip) liveChip.textContent = `${visibleLive} Live Now`;
 
       const upcomingChip = document.getElementById("upcomingCountChip");
       if (upcomingChip) upcomingChip.textContent = `${visibleUpcoming} Scheduled`;
 
+      const pastChip = document.getElementById("pastCountChip");
+      if (pastChip) pastChip.textContent = `${visiblePast} Completed / Past`;
+
       const badge = document.getElementById("filterStatsBadge");
-      if (badge) badge.textContent = `${visibleToday} Active • ${visibleUpcoming} Upcoming`;
+      if (badge) badge.textContent = `${visibleLive} Live • ${visibleUpcoming} Upcoming • ${visiblePast} Past`;
 
       // Show/hide empty state cards
-      const emptyToday = document.getElementById("emptyTodayCard");
-      if (emptyToday) emptyToday.style.display = (visibleToday === 0) ? "block" : "none";
+      const emptyLive = document.getElementById("emptyLiveCard");
+      if (emptyLive) emptyLive.style.display = (visibleLive === 0) ? "block" : "none";
 
       const emptyUpcoming = document.getElementById("emptyUpcomingCard");
       if (emptyUpcoming) emptyUpcoming.style.display = (visibleUpcoming === 0) ? "block" : "none";
+
+      const emptyPast = document.getElementById("emptyPastCard");
+      if (emptyPast) emptyPast.style.display = (visiblePast === 0) ? "block" : "none";
     }
 
+    // Reset Filter Handler: Restores original unfiltered dataset and all counters
     function resetFilters() {
-      document.getElementById("courseFilter").value = "ALL";
-      document.getElementById("subjectFilter").value = "ALL";
-      document.getElementById("searchInput").value = "";
+      const courseSelect = document.getElementById("courseFilter");
+      const subjectSelect = document.getElementById("subjectFilter");
+      const searchInput = document.getElementById("searchInput");
+
+      if (courseSelect) courseSelect.value = "ALL";
+      if (subjectSelect) subjectSelect.value = "ALL";
+      if (searchInput) searchInput.value = "";
+
       applyFilters();
     }
   </script>

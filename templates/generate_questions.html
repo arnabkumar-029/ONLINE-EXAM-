@@ -86,6 +86,41 @@
                 <span class="field-hint">Departmental subject / paper</span>
             </div>
 
+            <div class="grid-3-col">
+                <div class="form-group">
+                    <label class="field-label">Target Program <span class="req-star">*</span></label>
+                    <select name="program_code" id="programCodeSelect" required>
+                        <option value="ALL">ALL — General / All Programs</option>
+                        {% for p in available_programs|default([]) %}
+                            <option value="{{ p.code }}">{{ p.code }} — {{ p.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="field-hint">Degree / Academic Program</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label">Admission Year / Batch <span class="req-star">*</span></label>
+                    <select name="admission_year" id="admissionYearSelect" required>
+                        <option value="ALL">ALL — All Batches</option>
+                        {% for y in available_admission_years|default([2026, 2025, 2024, 2023, 2022, 2021]) %}
+                            <option value="{{ y }}">{{ y }} Batch</option>
+                        {% endfor %}
+                    </select>
+                    <span class="field-hint">Student admission batch</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label">Academic Year <span class="req-star">*</span></label>
+                    <select name="academic_year" id="academicYearSelect" required>
+                        <option value="ALL">ALL — All Years</option>
+                        {% for ay in available_academic_years|default(['1st Year', '2nd Year', '3rd Year', '4th Year']) %}
+                            <option value="{{ ay }}">{{ ay }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="field-hint">Target student academic stage</span>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label class="field-label">Unit / Module <span class="req-star">*</span></label>
                 <input
@@ -1461,6 +1496,9 @@ genForm.addEventListener("submit", async function (e) {
     const courseCode = document.getElementById("courseCodeInput").value.trim().toUpperCase();
     const courseName = document.getElementById("courseNameInput").value.trim();
     const subject = document.getElementById("subjectInput").value.trim();
+    const programCode = document.getElementById("programCodeSelect").value;
+    const admissionYear = document.getElementById("admissionYearSelect").value;
+    const academicYear = document.getElementById("academicYearSelect").value;
     const unit = document.getElementById("unitInput").value.trim();
     const topic = document.getElementById("topicInput").value.trim();
     const qtype = document.getElementById("qtypeSelect").value;
@@ -1506,13 +1544,13 @@ genForm.addEventListener("submit", async function (e) {
         return;
     }
 
-    currentAcademicMeta = { courseCode, courseName, subject, unit, topic, difficulty, qtype };
+    currentAcademicMeta = { courseCode, courseName, subject, programCode, admissionYear, academicYear, unit, topic, difficulty, qtype };
 
     // Update UI for Loading State
     submitBtn.disabled = true;
     submitBtn.style.opacity = "0.5";
     aiLoader.style.display = "flex";
-    loaderMetadata.textContent = `${courseCode} | ${subject} | ${topic}`;
+    loaderMetadata.textContent = `${courseCode} | ${subject} | ${programCode} | ${topic}`;
 
     // Cycle through exciting loader status messages
     const statusMessages = [
@@ -1540,6 +1578,9 @@ genForm.addEventListener("submit", async function (e) {
                 course_code: courseCode,
                 course_name: courseName,
                 subject: subject,
+                program_code: programCode,
+                admission_year: admissionYear,
+                academic_year: academicYear,
                 unit: unit,
                 topic: topic,
                 qtype: qtype,
@@ -1576,7 +1617,7 @@ genForm.addEventListener("submit", async function (e) {
         Swal.fire({
             icon: 'success',
             title: 'Questions Generated!',
-            text: `Generated ${generatedQuestions.length} questions for ${courseCode} - ${subject}. Please review below.`,
+            text: `Generated ${generatedQuestions.length} questions for ${courseCode} - ${subject} (${programCode}). Please review below.`,
             timer: 2500,
             showConfirmButton: false,
             background: '#0f172a',
@@ -1611,7 +1652,7 @@ function renderPreview() {
 
     const metaPill = document.getElementById("previewMetaPill");
     const firstQ = generatedQuestions[0];
-    metaPill.innerHTML = `<strong>Course:</strong> ${escapeHtml(firstQ.course_code)} (${escapeHtml(firstQ.course_name)}) &nbsp;|&nbsp; <strong>Subject:</strong> ${escapeHtml(firstQ.subject)} &nbsp;|&nbsp; <strong>Topic:</strong> ${escapeHtml(firstQ.topic)}`;
+    metaPill.innerHTML = `<strong>Course:</strong> ${escapeHtml(firstQ.course_code)} (${escapeHtml(firstQ.course_name)}) &nbsp;|&nbsp; <strong>Subject:</strong> ${escapeHtml(firstQ.subject)} &nbsp;|&nbsp; <strong>Program:</strong> ${escapeHtml(firstQ.program_code || 'ALL')} &nbsp;|&nbsp; <strong>Batch:</strong> ${escapeHtml(firstQ.admission_year || 'ALL')} &nbsp;|&nbsp; <strong>Topic:</strong> ${escapeHtml(firstQ.topic)}`;
 
     const cardsContainer = document.getElementById("previewCardsList");
     cardsContainer.innerHTML = "";
@@ -1674,6 +1715,9 @@ function renderPreview() {
                     <span class="chip-level ${levelClass}">${escapeHtml(q.level || 'Medium')}</span>
                     <span class="chip-academic">${escapeHtml(q.course_code)}</span>
                     <span class="chip-academic">${escapeHtml(q.subject)}</span>
+                    <span class="chip-academic" style="background: rgba(14, 165, 233, 0.2); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;">${escapeHtml(q.program_code || 'ALL')}</span>
+                    <span class="chip-academic" style="background: rgba(168, 85, 247, 0.2); border-color: rgba(192, 132, 252, 0.4); color: #c084fc;">${escapeHtml(q.admission_year || 'ALL')}</span>
+                    <span class="chip-academic" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(52, 211, 153, 0.4); color: #34d399;">${escapeHtml(q.academic_year || 'ALL')}</span>
                     <span class="chip-academic"><i class="fa-solid fa-tag"></i> ${escapeHtml(q.topic || 'General')}</span>
                 </div>
 

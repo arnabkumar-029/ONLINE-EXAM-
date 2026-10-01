@@ -139,6 +139,221 @@
     color: #38bdf8;
   }
 
+  /* 4-Card Live Metrics Dashboard */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+  }
+
+  @media (max-width: 992px) {
+    .metrics-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 576px) {
+    .metrics-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .metric-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px 18px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .metric-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  .metric-icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .icon-cyan {
+    background: rgba(14, 165, 233, 0.12);
+    color: #0284c7;
+    border: 1px solid rgba(14, 165, 233, 0.25);
+  }
+
+  .icon-purple {
+    background: rgba(139, 92, 246, 0.12);
+    color: #7c3aed;
+    border: 1px solid rgba(139, 92, 246, 0.25);
+  }
+
+  .icon-emerald {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+  }
+
+  .icon-amber {
+    background: rgba(245, 158, 11, 0.12);
+    color: #d97706;
+    border: 1px solid rgba(245, 158, 11, 0.25);
+  }
+
+  .metric-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .metric-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 2px;
+  }
+
+  .metric-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .metric-num {
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+  }
+
+  .metric-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+  }
+
+  .badge-quota { background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; }
+  .badge-pct { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+  .badge-rem { background: #fffbeb; color: #b45309; border: 1px solid #fef3c7; }
+  .badge-complete { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+  .badge-danger { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+
+  .metric-subtext {
+    font-size: 11.5px;
+    color: #94a3b8;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Bank Inventory Alert Banner */
+  .bank-inventory-alert {
+    border-radius: 16px;
+    padding: 18px 22px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  }
+
+  .alert-warning-banner {
+    background: linear-gradient(135deg, #fffbeb, #fef3c7);
+    border: 1px solid #fde68a;
+    color: #92400e;
+  }
+
+  .alert-success-banner {
+    background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+    border: 1px solid #bbf7d0;
+    color: #166534;
+  }
+
+  .inventory-alert-icon {
+    font-size: 26px;
+    line-height: 1;
+    margin-top: 2px;
+  }
+
+  .inventory-alert-body {
+    flex: 1;
+  }
+
+  .inventory-alert-title {
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .inventory-alert-desc {
+    font-size: 13px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .inventory-alert-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn-alert-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    border: none;
+  }
+
+  .btn-alert-manual {
+    background: #4f46e5;
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(79, 70, 229, 0.3);
+  }
+
+  .btn-alert-manual:hover {
+    background: #4338ca;
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  .btn-alert-ai {
+    background: linear-gradient(135deg, #9333ea, #0284c7);
+    color: #ffffff;
+    box-shadow: 0 3px 10px rgba(147, 51, 234, 0.3);
+  }
+
+  .btn-alert-ai:hover {
+    background: linear-gradient(135deg, #7e22ce, #0369a1);
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
   /* Two Column Main Layout */
   .select-mode-layout {
     display: grid;
@@ -355,6 +570,48 @@
   .q-badge-level-med { background: #fef9c3; color: #a16207; border: 1px solid #fef08a; }
   .q-badge-level-hard { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
   .q-badge-source { background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; }
+  .badge-target-prog {
+    background: #ede9fe;
+    color: #6d28d9;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid #ddd6fe;
+    display: inline-block;
+  }
+  .badge-target-batch {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid #bae6fd;
+    display: inline-block;
+  }
+  .badge-target-year {
+    background: #f0fdf4;
+    color: #15803d;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid #bbf7d0;
+    display: inline-block;
+  }
+  .badge-unconfigured {
+    background: #fffbeb;
+    color: #b45309;
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 5px;
+    border: 1px solid #fef3c7;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
 
   .q-id-code {
     font-size: 11px;
@@ -818,6 +1075,18 @@
         <span class="info-lbl">QUESTIONS REQUIRED</span>
         <span class="info-val" style="font-size: 18px;">{{ exam.num_questions }}</span>
       </div>
+      <div class="exam-info-item">
+        <span class="info-lbl">TARGET AUDIENCE</span>
+        <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 2px;">
+          {% if exam.program_code and exam.program_code != 'ALL' %}
+            <span class="badge-target-prog" title="{{ exam.program_name|default('') }}"><i class="fa-solid fa-graduation-cap me-1"></i>{{ exam.program_code }}</span>
+          {% else %}
+            <span class="badge-target-prog">All Programs</span>
+          {% endif %}
+          <span class="badge-target-batch"><i class="fa-solid fa-calendar me-1"></i>Batch {{ exam.admission_year|default('ALL') }}</span>
+          <span class="badge-target-year"><i class="fa-solid fa-user-graduate me-1"></i>{{ exam.academic_year|default('ALL') }}</span>
+        </div>
+      </div>
       <div class="exam-counter-box">
         <div>
           <span class="info-lbl" style="color: #cbd5e1;">SELECTED</span>
@@ -826,6 +1095,102 @@
           </div>
         </div>
         <i class="fa-solid fa-circle-check" style="font-size: 26px; color: #38bdf8;"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4-CARD LIVE METRICS DASHBOARD -->
+  <div class="metrics-grid">
+    <!-- 1. Available in Bank -->
+    <div class="metric-card">
+      <div class="metric-icon-wrap icon-cyan">
+        <i class="fa-solid fa-database"></i>
+      </div>
+      <div class="metric-content">
+        <div class="metric-label">AVAILABLE IN BANK</div>
+        <div class="metric-value-row">
+          <span class="metric-num" id="metricAvailableNum">0</span>
+          <span class="metric-badge" id="metricCoverageBadge">Matching</span>
+        </div>
+        <div class="metric-subtext" id="metricAvailableSubtext">Matching Exam Criteria</div>
+      </div>
+    </div>
+
+    <!-- 2. Required by Exam -->
+    <div class="metric-card">
+      <div class="metric-icon-wrap icon-purple">
+        <i class="fa-solid fa-bullseye"></i>
+      </div>
+      <div class="metric-content">
+        <div class="metric-label">REQUIRED BY EXAM</div>
+        <div class="metric-value-row">
+          <span class="metric-num" id="metricRequiredNum">{{ exam.num_questions }}</span>
+          <span class="metric-badge badge-quota">Target Quota</span>
+        </div>
+        <div class="metric-subtext">Total Questions to Present</div>
+      </div>
+    </div>
+
+    <!-- 3. Currently Selected -->
+    <div class="metric-card">
+      <div class="metric-icon-wrap icon-emerald">
+        <i class="fa-solid fa-square-check"></i>
+      </div>
+      <div class="metric-content">
+        <div class="metric-label">CURRENTLY SELECTED</div>
+        <div class="metric-value-row">
+          <span class="metric-num" id="metricSelectedNum">{{ selected_ids|length }}</span>
+          <span class="metric-badge badge-pct" id="metricSelectedPct">0%</span>
+        </div>
+        <div class="metric-subtext">Chosen for this exam</div>
+      </div>
+    </div>
+
+    <!-- 4. Remaining Needed -->
+    <div class="metric-card" id="cardMetricRemaining">
+      <div class="metric-icon-wrap icon-amber" id="metricRemainingIconWrap">
+        <i class="fa-solid fa-hourglass-half" id="metricRemainingIcon"></i>
+      </div>
+      <div class="metric-content">
+        <div class="metric-label">REMAINING NEEDED</div>
+        <div class="metric-value-row">
+          <span class="metric-num" id="metricRemainingNum">0</span>
+          <span class="metric-badge badge-rem" id="metricRemainingBadge">Pending</span>
+        </div>
+        <div class="metric-subtext" id="metricRemainingSubtext">to reach exam requirement</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIGH-VISIBILITY BANK INVENTORY ALERT (WARNING / SUFFICIENCY) -->
+  <div class="bank-inventory-alert alert-warning-banner" id="inventoryWarningBanner" style="display: none;">
+    <div class="inventory-alert-icon">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+    </div>
+    <div class="inventory-alert-body">
+      <div class="inventory-alert-title">INSUFFICIENT QUESTIONS IN QUESTION BANK</div>
+      <div class="inventory-alert-desc" id="inventoryWarningText">
+        There are fewer matching questions in the bank than required for this examination.
+      </div>
+      <div class="inventory-alert-actions">
+        <button type="button" class="btn-alert-action btn-alert-manual" onclick="openManualModal()">
+          <i class="fa-solid fa-plus-circle"></i> + Add Question Manually
+        </button>
+        <a href="{{ url_for('admin.generate_questions_page') }}?course_code={{ exam.course_code }}&course_name={{ exam.course_name|urlencode }}&subject={{ exam.subject|urlencode }}&program_code={{ exam.program_code|default('ALL') }}&admission_year={{ exam.admission_year|default('ALL') }}&academic_year={{ exam.academic_year|default('ALL')|urlencode }}" class="btn-alert-action btn-alert-ai">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> ⚡ AI Question Generator
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="bank-inventory-alert alert-success-banner" id="inventorySuccessBanner" style="display: none;">
+    <div class="inventory-alert-icon" style="color: #10b981;">
+      <i class="fa-solid fa-circle-check"></i>
+    </div>
+    <div class="inventory-alert-body">
+      <div class="inventory-alert-title" style="color: #065f46;">SUFFICIENT BANK INVENTORY</div>
+      <div class="inventory-alert-desc" id="inventorySuccessText" style="color: #047857; margin-bottom: 0;">
+        The Question Bank has sufficient matching questions for this course exam.
       </div>
     </div>
   </div>
@@ -875,6 +1240,43 @@
               <option value="">All Subjects</option>
               {% for s in existing_subjects %}
                 <option value="{{ s }}" {% if s|lower == exam.subject|lower %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Academic Program -->
+          <div class="selection-filter-item">
+            <label>Program</label>
+            <select id="filterProgram" onchange="applyFilters()">
+              <option value="">All Programs</option>
+              <option value="ALL">General (ALL Programs)</option>
+              {% for p in available_programs|default([]) %}
+                <option value="{{ p.code }}" {% if p.code == exam.program_code %}selected{% endif %}>{{ p.code }} — {{ p.name }}</option>
+              {% endfor %}
+              <option value="UNCONFIGURED">⚠️ Not Configured</option>
+            </select>
+          </div>
+
+          <!-- Admission Year / Batch -->
+          <div class="selection-filter-item">
+            <label>Batch / Year</label>
+            <select id="filterAdmissionYear" onchange="applyFilters()">
+              <option value="">All Batches</option>
+              <option value="ALL">ALL Batches</option>
+              {% for y in available_admission_years|default([]) %}
+                <option value="{{ y }}" {% if y|string == exam.admission_year|string %}selected{% endif %}>{{ y }} Batch</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Academic Year -->
+          <div class="selection-filter-item">
+            <label>Academic Year</label>
+            <select id="filterAcademicYear" onchange="applyFilters()">
+              <option value="">All Academic Years</option>
+              <option value="ALL">ALL Years</option>
+              {% for ay in available_academic_years|default([]) %}
+                <option value="{{ ay }}" {% if ay == exam.academic_year %}selected{% endif %}>{{ ay }}</option>
               {% endfor %}
             </select>
           </div>
@@ -932,10 +1334,14 @@
              data-qid="{{ q_id }}"
              data-course-code="{{ q.course_code|default('')|upper }}"
              data-subject="{{ q.subject|default('')|lower }}"
+             data-program="{{ q.program_code|default('ALL')|upper }}"
+             data-admission-year="{{ q.admission_year|default('ALL')|string|upper }}"
+             data-academic-year="{{ q.academic_year|default('ALL')|lower }}"
+             data-unit="{{ q.unit|default('')|lower }}"
              data-type="{{ q.type|default('MCQ')|upper }}"
              data-level="{{ q.level|default('Easy') }}"
              data-source="{{ q.source|default('MANUAL')|upper }}"
-             data-search="{{ (q.question|default(q.q)|default('') ~ ' ' ~ q_id ~ ' ' ~ q.topic|default('') ~ ' ' ~ q.unit|default(''))|lower }}"
+             data-search="{{ (q.question|default(q.q)|default('') ~ ' ' ~ q_id ~ ' ' ~ q.topic|default('') ~ ' ' ~ q.unit|default('') ~ ' ' ~ q.program_code|default('') ~ ' ' ~ q.admission_year|default('') ~ ' ' ~ q.academic_year|default(''))|lower }}"
              onclick="handleCardClick(event, '{{ q_id }}')">
 
           <div class="q-card-top">
@@ -956,6 +1362,18 @@
                   {{ q.level|default('Easy') }}
                 </span>
                 <span class="q-badge q-badge-source">{{ q.source|default('MANUAL') }}</span>
+                {% if q.program_code and q.program_code != 'ALL' %}
+                  <span class="badge-target-prog" title="{{ q.program_name|default('') }}"><i class="fa-solid fa-graduation-cap me-1"></i>{{ q.program_code }}</span>
+                {% endif %}
+                {% if q.admission_year and q.admission_year != 'ALL' %}
+                  <span class="badge-target-batch"><i class="fa-solid fa-calendar me-1"></i>Batch {{ q.admission_year }}</span>
+                {% endif %}
+                {% if q.academic_year and q.academic_year != 'ALL' %}
+                  <span class="badge-target-year"><i class="fa-solid fa-user-graduate me-1"></i>{{ q.academic_year }}</span>
+                {% endif %}
+                {% if not q.program_code and not q.admission_year and not q.academic_year %}
+                  <span class="badge-unconfigured" title="Targeting not configured"><i class="fa-solid fa-circle-info me-1"></i>General / Unconfigured</span>
+                {% endif %}
               </div>
             </div>
             <span class="q-id-code">ID: {{ q_id }}</span>
@@ -1066,6 +1484,37 @@
         <input type="hidden" id="mq_course_code" value="{{ exam.course_code }}">
         <input type="hidden" id="mq_course_name" value="{{ exam.course_name }}">
         <input type="hidden" id="mq_subject" value="{{ exam.subject }}">
+
+        <!-- Academic Classification Targeting (Pre-selected from Exam) -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 16px; background: rgba(255, 255, 255, 0.04); padding: 14px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.2);">
+          <div class="manual-form-group" style="margin-bottom: 0;">
+            <label>Program *</label>
+            <select id="mq_program_code">
+              <option value="ALL">General (ALL Programs)</option>
+              {% for p in available_programs|default([]) %}
+                <option value="{{ p.code }}" {% if p.code == exam.program_code %}selected{% endif %}>{{ p.code }} — {{ p.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="manual-form-group" style="margin-bottom: 0;">
+            <label>Batch / Year *</label>
+            <select id="mq_admission_year">
+              <option value="ALL">ALL Batches</option>
+              {% for y in available_admission_years|default([]) %}
+                <option value="{{ y }}" {% if y|string == exam.admission_year|string %}selected{% endif %}>{{ y }} Batch</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="manual-form-group" style="margin-bottom: 0;">
+            <label>Academic Year *</label>
+            <select id="mq_academic_year">
+              <option value="ALL">ALL Years</option>
+              {% for ay in available_academic_years|default([]) %}
+                <option value="{{ ay }}" {% if ay == exam.academic_year %}selected{% endif %}>{{ ay }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
 
         <!-- Unit & Topic -->
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
@@ -1182,78 +1631,143 @@
   document.addEventListener('DOMContentLoaded', function() {
     applyFilters();
     renderSelectedPanel();
+    updateLiveMetrics();
   });
 
-  // Toggle selection on Card click
-  function handleCardClick(event, qid) {
-    // If clicked on interactive elements directly, ignore card wrapper click
-    if (event.target.closest('input, button, a, select, textarea')) {
-      return;
-    }
-    toggleQuestion(qid);
-  }
+  // Live Metrics & Bank Inventory Calculation
+  function updateLiveMetrics() {
+    const targetCourse = (examData.course_code || '').toUpperCase().trim();
+    const targetSubj = (examData.subject || '').toLowerCase().trim();
+    const targetType = (examData.exam_type || 'ALL').toUpperCase().trim();
+    const targetDiff = (examData.difficulty || 'ALL').toLowerCase().trim();
+    const targetProg = (examData.program_code || 'ALL').toUpperCase().trim();
+    const targetBatch = String(examData.admission_year || 'ALL').trim();
+    const targetAcad = (examData.academic_year || 'ALL').toLowerCase().trim();
 
-  // Toggle selection on Checkbox click
-  function handleCheckboxClick(event, qid) {
-    event.stopPropagation();
-    toggleQuestion(qid);
-  }
+    let matchingAvailable = 0;
+    Object.values(questionsMap).forEach(q => {
+      const qCourse = (q.course_code || '').toUpperCase().trim();
+      const qSubj = (q.subject || '').toLowerCase().trim();
+      if (!qCourse || !qSubj || qCourse !== targetCourse || qSubj !== targetSubj) return;
 
-  function toggleQuestion(qid) {
-    const idx = selectedIds.indexOf(qid);
-    if (idx > -1) {
-      // Unselect
-      selectedIds.splice(idx, 1);
-      updateQuestionCardState(qid, false);
-    } else {
-      // Check limit
-      if (selectedIds.length >= requiredCount) {
-        Swal.fire({
-          icon: 'warning',
-          title: 'MAXIMUM QUESTIONS REACHED',
-          text: `Maximum ${requiredCount} questions can be selected for this examination.`,
-          timer: 2500,
-          timerProgressBar: true,
-          showConfirmButton: false,
-          background: '#0d1527',
-          color: '#f8fafc',
-          iconColor: '#f59e0b'
-        });
-        // Ensure checkbox is unchecked
-        const chk = document.getElementById('chk-' + qid);
-        if (chk) chk.checked = false;
-        return;
+      const qType = (q.type || 'MCQ').toUpperCase().trim();
+      if (targetType !== 'ALL' && targetType !== 'MIXED') {
+        if (qType !== targetType) return;
       }
-      selectedIds.push(qid);
-      updateQuestionCardState(qid, true);
-    }
-    renderSelectedPanel();
-  }
 
-  function updateQuestionCardState(qid, isSelected) {
-    const card = document.getElementById('card-' + qid);
-    const chk = document.getElementById('chk-' + qid);
-    if (card) {
-      if (isSelected) card.classList.add('is-selected');
-      else card.classList.remove('is-selected');
-    }
-    if (chk) {
-      chk.checked = isSelected;
-    }
-  }
+      const qLvl = (q.level || 'Easy').toLowerCase().trim();
+      if (targetDiff !== 'all') {
+        if (qLvl !== targetDiff) return;
+      }
 
-  // Remove question from exam selection only (NEVER deletes from question bank)
-  function removeSelected(qid) {
-    const idx = selectedIds.indexOf(qid);
-    if (idx > -1) {
-      selectedIds.splice(idx, 1);
-      updateQuestionCardState(qid, false);
-      renderSelectedPanel();
+      const qProg = (q.program_code || '').toUpperCase().trim();
+      const qBatch = String(q.admission_year || '').trim();
+      const qAcad = (q.academic_year || '').toLowerCase().trim();
+
+      if (targetProg && targetProg !== 'ALL') {
+        if (qProg && qProg !== targetProg && qProg !== 'ALL') return;
+      }
+
+      if (targetBatch && targetBatch !== 'ALL') {
+        if (qBatch && qBatch !== 'ALL' && qBatch !== targetBatch) {
+          if (qProg !== 'ALL') return;
+        }
+      }
+
+      if (targetAcad && targetAcad !== 'all') {
+        if (qAcad && qAcad !== 'all' && qAcad !== targetAcad) {
+          if (qProg !== 'ALL') return;
+        }
+      }
+
+      matchingAvailable++;
+    });
+
+    const selectedCount = selectedIds.length;
+    const remainingCount = Math.max(0, requiredCount - selectedCount);
+
+    // Update DOM metric values
+    const elAvail = document.getElementById('metricAvailableNum');
+    const elReq = document.getElementById('metricRequiredNum');
+    const elSel = document.getElementById('metricSelectedNum');
+    const elRem = document.getElementById('metricRemainingNum');
+    const elCovBadge = document.getElementById('metricCoverageBadge');
+    const elSelPct = document.getElementById('metricSelectedPct');
+    const elRemBadge = document.getElementById('metricRemainingBadge');
+    const elRemSubtext = document.getElementById('metricRemainingSubtext');
+    const elRemIconWrap = document.getElementById('metricRemainingIconWrap');
+    const elRemIcon = document.getElementById('metricRemainingIcon');
+
+    if (elAvail) elAvail.textContent = matchingAvailable;
+    if (elReq) elReq.textContent = requiredCount;
+    if (elSel) elSel.textContent = selectedCount;
+    if (elRem) elRem.textContent = remainingCount;
+
+    const pct = Math.min(100, Math.round((selectedCount / requiredCount) * 100));
+    if (elSelPct) {
+      if (selectedCount >= requiredCount) {
+        elSelPct.className = 'metric-badge badge-complete';
+        elSelPct.textContent = '100% Ready';
+      } else {
+        elSelPct.className = 'metric-badge badge-pct';
+        elSelPct.textContent = `${pct}%`;
+      }
+    }
+
+    if (elCovBadge) {
+      if (matchingAvailable >= requiredCount) {
+        elCovBadge.className = 'metric-badge badge-pct';
+        elCovBadge.textContent = 'Sufficient';
+      } else {
+        elCovBadge.className = 'metric-badge badge-danger';
+        elCovBadge.textContent = 'Low Inventory';
+      }
+    }
+
+    if (elRemBadge) {
+      if (remainingCount === 0) {
+        elRemBadge.className = 'metric-badge badge-complete';
+        elRemBadge.textContent = 'Ready to Save';
+        if (elRemSubtext) elRemSubtext.textContent = 'Exam quota satisfied';
+        if (elRemIconWrap) elRemIconWrap.className = 'metric-icon-wrap icon-emerald';
+        if (elRemIcon) elRemIcon.className = 'fa-solid fa-circle-check';
+      } else {
+        elRemBadge.className = 'metric-badge badge-rem';
+        elRemBadge.textContent = 'Pending';
+        if (elRemSubtext) elRemSubtext.textContent = `${remainingCount} more needed`;
+        if (elRemIconWrap) elRemIconWrap.className = 'metric-icon-wrap icon-amber';
+        if (elRemIcon) elRemIcon.className = 'fa-solid fa-hourglass-half';
+      }
+    }
+
+    // Show/Hide Warning or Success Banner
+    const warnBanner = document.getElementById('inventoryWarningBanner');
+    const warnText = document.getElementById('inventoryWarningText');
+    const succBanner = document.getElementById('inventorySuccessBanner');
+
+    if (matchingAvailable < requiredCount) {
+      if (warnBanner) {
+        warnBanner.style.display = 'flex';
+        if (warnText) {
+          warnText.innerHTML = `Only <strong>${matchingAvailable}</strong> question${matchingAvailable === 1 ? '' : 's'} in the Question Bank match this exam's academic criteria (<strong>${escapeHtml(examData.course_code)} • ${escapeHtml(examData.subject)} • ${escapeHtml(examData.program_code || 'ALL')}</strong>), but <strong>${requiredCount}</strong> are required. Please add questions manually or generate new questions using the AI Generator.`;
+        }
+      }
+      if (succBanner) succBanner.style.display = 'none';
+    } else {
+      if (warnBanner) warnBanner.style.display = 'none';
+      if (succBanner) {
+        succBanner.style.display = 'flex';
+        const succText = document.getElementById('inventorySuccessText');
+        if (succText) {
+          succText.innerHTML = `Question bank inventory has <strong>${matchingAvailable}</strong> matching questions for this course exam (Required: <strong>${requiredCount}</strong>).`;
+        }
+      }
     }
   }
 
   // Render the Selected Questions Sticky Panel
   function renderSelectedPanel() {
+    updateLiveMetrics();
     const container = document.getElementById('selectedItemsContainer');
     const headerDisplay = document.getElementById('headerSelectedCount');
     const panelDisplay = document.getElementById('panelHeaderCount');
@@ -1319,6 +1833,9 @@
   function applyFilters() {
     const codeVal = document.getElementById('filterCourseCode').value.toUpperCase().trim();
     const subjVal = document.getElementById('filterSubject').value.toLowerCase().trim();
+    const progVal = (document.getElementById('filterProgram') ? document.getElementById('filterProgram').value : '').toUpperCase().trim();
+    const batchVal = (document.getElementById('filterAdmissionYear') ? document.getElementById('filterAdmissionYear').value : '').toUpperCase().trim();
+    const acadVal = (document.getElementById('filterAcademicYear') ? document.getElementById('filterAcademicYear').value : '').toLowerCase().trim();
     const typeVal = document.getElementById('filterType').value.toUpperCase().trim();
     const diffVal = document.getElementById('filterDifficulty').value.toLowerCase().trim();
     const sourceVal = document.getElementById('filterSource').value.toUpperCase().trim();
@@ -1330,6 +1847,9 @@
     cards.forEach(card => {
       const cCode = (card.getAttribute('data-course-code') || '').toUpperCase();
       const cSubj = (card.getAttribute('data-subject') || '').toLowerCase();
+      const cProg = (card.getAttribute('data-program') || 'ALL').toUpperCase();
+      const cBatch = (card.getAttribute('data-admission-year') || 'ALL').toUpperCase();
+      const cAcad = (card.getAttribute('data-academic-year') || 'ALL').toLowerCase();
       const cType = (card.getAttribute('data-type') || '').toUpperCase();
       const cLevel = (card.getAttribute('data-level') || '').toLowerCase();
       const cSource = (card.getAttribute('data-source') || '').toUpperCase();
@@ -1338,6 +1858,26 @@
       let match = true;
       if (codeVal && cCode !== codeVal) match = false;
       if (subjVal && cSubj !== subjVal) match = false;
+
+      // Program filter
+      if (progVal) {
+        if (progVal === 'UNCONFIGURED') {
+          if (!card.querySelector('.badge-unconfigured')) match = false;
+        } else if (progVal !== 'ALL') {
+          if (cProg !== 'ALL' && cProg !== progVal) match = false;
+        }
+      }
+
+      // Batch filter
+      if (batchVal && batchVal !== 'ALL') {
+        if (cBatch !== 'ALL' && cBatch !== batchVal) match = false;
+      }
+
+      // Academic Year filter
+      if (acadVal && acadVal !== 'all') {
+        if (cAcad !== 'all' && cAcad !== acadVal) match = false;
+      }
+
       if (typeVal && cType !== typeVal) match = false;
       if (diffVal && cLevel !== diffVal) match = false;
       if (sourceVal && cSource !== sourceVal) match = false;
@@ -1358,8 +1898,17 @@
   function resetFilters() {
     document.getElementById('filterCourseCode').value = examData.course_code || '';
     document.getElementById('filterSubject').value = examData.subject || '';
-    document.getElementById('filterType').value = '';
-    document.getElementById('filterDifficulty').value = '';
+    if (document.getElementById('filterProgram')) {
+      document.getElementById('filterProgram').value = examData.program_code || '';
+    }
+    if (document.getElementById('filterAdmissionYear')) {
+      document.getElementById('filterAdmissionYear').value = examData.admission_year ? String(examData.admission_year) : '';
+    }
+    if (document.getElementById('filterAcademicYear')) {
+      document.getElementById('filterAcademicYear').value = examData.academic_year || '';
+    }
+    document.getElementById('filterType').value = (examData.exam_type && examData.exam_type !== 'ALL' && examData.exam_type !== 'Mixed' && examData.exam_type !== 'MIXED') ? examData.exam_type.toUpperCase() : '';
+    document.getElementById('filterDifficulty').value = (examData.difficulty && examData.difficulty !== 'All' && examData.difficulty !== 'ALL') ? examData.difficulty : '';
     document.getElementById('filterSource').value = '';
     document.getElementById('filterSearchInput').value = '';
     applyFilters();
@@ -1511,6 +2060,9 @@
     const cCode = document.getElementById('mq_course_code').value.trim();
     const cName = document.getElementById('mq_course_name').value.trim();
     const subj = document.getElementById('mq_subject').value.trim();
+    const progCode = (document.getElementById('mq_program_code') ? document.getElementById('mq_program_code').value.trim() : 'ALL') || 'ALL';
+    const admYr = (document.getElementById('mq_admission_year') ? document.getElementById('mq_admission_year').value.trim() : 'ALL') || 'ALL';
+    const acadYr = (document.getElementById('mq_academic_year') ? document.getElementById('mq_academic_year').value.trim() : 'ALL') || 'ALL';
     const unit = document.getElementById('mq_unit').value.trim();
     const topic = document.getElementById('mq_topic').value.trim();
     const qtype = document.getElementById('mq_type').value.trim();
@@ -1526,6 +2078,9 @@
       course_code: cCode,
       course_name: cName,
       subject: subj,
+      program_code: progCode,
+      admission_year: admYr,
+      academic_year: acadYr,
       unit: unit,
       topic: topic,
       type: qtype,
@@ -1603,8 +2158,9 @@
         // Prepend card to questions list
         insertNewQuestionCard(newQ, selectedIds.includes(qid));
 
-        // Refresh panel and counters
+        // Refresh panel, live metrics and counters
         renderSelectedPanel();
+        updateLiveMetrics();
         closeManualModal();
         document.getElementById('manualQuestionForm').reset();
         setManualType('MCQ');
@@ -1653,10 +2209,14 @@
     card.setAttribute('data-qid', qid);
     card.setAttribute('data-course-code', (q.course_code || '').toUpperCase());
     card.setAttribute('data-subject', (q.subject || '').toLowerCase());
+    card.setAttribute('data-program', (q.program_code || 'ALL').toUpperCase());
+    card.setAttribute('data-admission-year', String(q.admission_year || 'ALL').toUpperCase());
+    card.setAttribute('data-academic-year', (q.academic_year || 'ALL').toLowerCase());
+    card.setAttribute('data-unit', (q.unit || '').toLowerCase());
     card.setAttribute('data-type', (q.type || 'MCQ').toUpperCase());
     card.setAttribute('data-level', q.level || 'Easy');
-    card.setAttribute('data-source', 'MANUAL');
-    card.setAttribute('data-search', ((q.question || q.q || '') + ' ' + qid).toLowerCase());
+    card.setAttribute('data-source', (q.source || 'MANUAL').toUpperCase());
+    card.setAttribute('data-search', ((q.question || q.q || '') + ' ' + qid + ' ' + (q.topic || '') + ' ' + (q.unit || '') + ' ' + (q.program_code || '') + ' ' + (q.admission_year || '') + ' ' + (q.academic_year || '')).toLowerCase());
     card.onclick = function(e) { handleCardClick(e, qid); };
 
     let optHtml = '';
@@ -1686,6 +2246,20 @@
       `;
     }
 
+    let targetBadges = '';
+    if (q.program_code && q.program_code !== 'ALL') {
+      targetBadges += `<span class="badge-target-prog" title="${escapeHtml(q.program_name || '')}"><i class="fa-solid fa-graduation-cap me-1"></i>${escapeHtml(q.program_code)}</span> `;
+    }
+    if (q.admission_year && q.admission_year !== 'ALL') {
+      targetBadges += `<span class="badge-target-batch"><i class="fa-solid fa-calendar me-1"></i>Batch ${escapeHtml(q.admission_year)}</span> `;
+    }
+    if (q.academic_year && q.academic_year !== 'ALL') {
+      targetBadges += `<span class="badge-target-year"><i class="fa-solid fa-user-graduate me-1"></i>${escapeHtml(q.academic_year)}</span> `;
+    }
+    if (!q.program_code && !q.admission_year && !q.academic_year) {
+      targetBadges += `<span class="badge-unconfigured" title="Targeting not configured"><i class="fa-solid fa-circle-info me-1"></i>General / Unconfigured</span> `;
+    }
+
     card.innerHTML = `
       <div class="q-card-top">
         <div class="q-card-select-trigger">
@@ -1696,22 +2270,24 @@
                  ${isSelected ? 'checked' : ''}
                  onclick="handleCheckboxClick(event, '${qid}')">
           <div class="q-meta-badges">
-            <span class="q-badge q-badge-code">${q.course_code}</span>
-            <span class="q-badge q-badge-subj">${q.subject}</span>
-            <span class="q-badge ${isMcq ? 'q-badge-type-mcq' : 'q-badge-type-desc'}">${q.type}</span>
-            <span class="q-badge q-badge-level-${(q.level || 'easy').toLowerCase()}">${q.level || 'Easy'}</span>
-            <span class="q-badge q-badge-source">MANUAL</span>
+            <span class="q-badge q-badge-code">${escapeHtml(q.course_code)}</span>
+            <span class="q-badge q-badge-subj">${escapeHtml(q.subject)}</span>
+            <span class="q-badge ${isMcq ? 'q-badge-type-mcq' : 'q-badge-type-desc'}">${escapeHtml(q.type || 'MCQ')}</span>
+            <span class="q-badge q-badge-level-${(q.level || 'easy').toLowerCase()}">${escapeHtml(q.level || 'Easy')}</span>
+            <span class="q-badge q-badge-source">${escapeHtml(q.source || 'MANUAL')}</span>
+            ${targetBadges}
           </div>
         </div>
         <span class="q-id-code">ID: ${qid}</span>
       </div>
-      ${(q.unit || q.topic) ? `<div class="q-unit-topic"><i class="fa-solid fa-folder-tree me-1 text-primary"></i>${q.unit ? q.unit : ''}${(q.unit && q.topic) ? ' • ' : ''}${q.topic ? q.topic : ''}</div>` : ''}
+      ${(q.unit || q.topic) ? `<div class="q-unit-topic"><i class="fa-solid fa-folder-tree me-1 text-primary"></i>${q.unit ? escapeHtml(q.unit) : ''}${(q.unit && q.topic) ? ' • ' : ''}${q.topic ? escapeHtml(q.topic) : ''}</div>` : ''}
       <div class="q-text-body">${escapeHtml(q.question || q.q)}</div>
       ${optHtml}
     `;
 
     list.insertBefore(card, list.firstChild);
     applyFilters();
+    updateLiveMetrics();
   }
 
   function escapeHtml(text) {

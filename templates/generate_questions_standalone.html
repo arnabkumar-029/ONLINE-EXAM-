@@ -266,16 +266,69 @@ confirmButtonColor:"#FFD84D"
 action="{{ url_for('admin.api_generate') }}"
 id="genForm">
 
+<input
+type="text"
+name="course_code"
+placeholder="Course Code (e.g. CS301)"
+value="CS301"
+required>
+
+<input
+type="text"
+name="course_name"
+placeholder="Course Name (e.g. Artificial Intelligence)"
+value="Artificial Intelligence"
+required>
+
+<input
+type="text"
+name="subject"
+placeholder="Subject (e.g. Machine Learning)"
+value="Machine Learning"
+required>
+
+<select name="program_code">
+<option value="ALL">ALL — All Programs</option>
+<option value="AIR">AIR — AI & Robotics</option>
+<option value="CSE">CSE — Computer Science & Engineering</option>
+<option value="ECE">ECE — Electronics & Communication Engineering</option>
+<option value="IT">IT — Information Technology</option>
+</select>
+
+<select name="admission_year">
+<option value="ALL">ALL — All Batches</option>
+<option value="2026">2026 Batch</option>
+<option value="2025">2025 Batch</option>
+<option value="2024" selected>2024 Batch</option>
+<option value="2023">2023 Batch</option>
+<option value="2022">2022 Batch</option>
+</select>
+
+<select name="academic_year">
+<option value="ALL">ALL — All Academic Years</option>
+<option value="1st Year">1st Year</option>
+<option value="2nd Year">2nd Year</option>
+<option value="3rd Year" selected>3rd Year</option>
+<option value="4th Year">4th Year</option>
+</select>
+
+<input
+type="text"
+name="unit"
+placeholder="Unit / Module (e.g. Module III)"
+value="Module III"
+required>
+
 <select name="qtype" required>
 <option value="">Select Question Type</option>
-<option value="mcq">MCQ Questions</option>
-<option value="descriptive">Descriptive Questions</option>
+<option value="MCQ" selected>MCQ Questions</option>
+<option value="DESCRIPTIVE">Descriptive Questions</option>
 </select>
 
 <input
 type="text"
 name="topic"
-placeholder="Enter Topic (e.g. Machine Learning)"
+placeholder="Enter Topic (e.g. Decision Trees)"
 required>
 
 <input
@@ -283,7 +336,7 @@ type="number"
 name="count"
 min="1"
 max="20"
-value="10"
+value="5"
 required>
 
 <button

@@ -63,6 +63,216 @@
             box-shadow: 0 0 18px rgba(85, 99, 222, 0.8);
             transform: translateY(-2px);
         }
+
+        /* Container sizing for registration */
+        .container {
+            width: 880px !important;
+            height: 650px !important;
+            max-height: 94vh;
+        }
+
+        .form-box.register {
+            padding: 24px 38px !important;
+            overflow-y: auto;
+        }
+
+        .form-box.register h1 {
+            font-size: 28px;
+            margin: 0 0 8px 0 !important;
+        }
+
+        .form-box.register .input-box {
+            margin: 9px 0 !important;
+        }
+
+        .form-box.register .input-box input {
+            padding: 11px 45px 11px 16px;
+            font-size: 14.5px;
+        }
+
+        .form-box.register .btn {
+            height: 44px;
+            margin-top: 8px;
+        }
+
+        .form-box.login {
+            padding: 24px 38px !important;
+            overflow-y: auto;
+        }
+
+        .form-box.login .input-box {
+            margin: 10px 0 !important;
+        }
+
+        .form-box.login .input-box input {
+            padding: 11px 45px 11px 16px;
+            font-size: 14.5px;
+        }
+
+        .form-box.login .btn {
+            height: 44px;
+            margin-top: 8px;
+        }
+
+        /* Tabbed Login Switcher */
+        .login-tab-container {
+            display: flex;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 30px;
+            padding: 3px;
+            margin: 8px 0 14px 0;
+            gap: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+        }
+
+        .login-tab {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #cbd5e1;
+            padding: 7px 8px;
+            border-radius: 25px;
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .login-tab.active {
+            background: linear-gradient(135deg, #00f0ff, #3b82f6);
+            color: #020617;
+            font-weight: 700;
+            box-shadow: 0 2px 10px rgba(0, 240, 255, 0.4);
+        }
+
+        /* High-Visibility Authentication Information Pill / Banner */
+        .login-info-pill {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(8, 24, 48, 0.94);
+            border: 1px solid rgba(0, 240, 255, 0.45);
+            border-left: 4px solid #00f0ff;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin: 10px 0 14px 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #EAF7FF;
+            text-align: left;
+            line-height: 1.6;
+            opacity: 1;
+            text-shadow: 0 1px 8px rgba(0, 200, 255, 0.18);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35), inset 0 0 12px rgba(0, 240, 255, 0.08);
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        .login-info-pill i {
+            color: #00f0ff;
+            font-size: 20px;
+            margin-top: 2px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.5));
+        }
+
+        /* High-Contrast Emphasis for Key Authentication Terms */
+        .auth-term,
+        .login-info-pill strong,
+        .univ-student-notice strong {
+            color: #ffffff;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+            text-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+        }
+
+        .register-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            color: #60a5fa;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            margin-bottom: 4px;
+        }
+
+        .register-subtitle {
+            font-size: 12.5px;
+            color: #94a3b8;
+            margin: 0 0 10px 0;
+            line-height: 1.35;
+        }
+
+        /* High-Visibility Admin Credential Notice */
+        .univ-student-notice {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: rgba(15, 23, 42, 0.94);
+            border: 1px solid rgba(56, 217, 255, 0.35);
+            border-left: 4px solid #f59e0b;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin: 12px 0 14px 0;
+            font-size: 15px;
+            font-weight: 600;
+            color: #F2F7FF;
+            text-align: left;
+            line-height: 1.6;
+            opacity: 1;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+            max-width: 100%;
+            word-wrap: break-word;
+        }
+
+        .univ-student-notice i {
+            color: #f59e0b;
+            font-size: 20px;
+            margin-top: 2px;
+            flex-shrink: 0;
+            filter: drop-shadow(0 0 6px rgba(245, 158, 11, 0.4));
+        }
+
+        /* Highly Visible Interactive "Log in here" Link */
+        .univ-student-notice a {
+            color: #38D9FF;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            cursor: pointer;
+            transition: color 0.2s ease, text-shadow 0.2s ease;
+        }
+
+        .univ-student-notice a:hover {
+            color: #67e8f9;
+            text-shadow: 0 0 10px rgba(56, 217, 255, 0.6);
+        }
+
+        @media screen and (max-width: 650px) {
+            .login-info-pill,
+            .univ-student-notice {
+                font-size: 14px;
+                padding: 10px 12px;
+                gap: 8px;
+                line-height: 1.5;
+            }
+
+            .login-info-pill i,
+            .univ-student-notice i {
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 
@@ -89,20 +299,56 @@
 
         <!-- Login Form -->
         <div class="form-box login">
-            <form action="{{ url_for('auth.login') }}" method="POST">
-                <h1>Login</h1>
+            <form action="{{ url_for('auth.login') }}" method="POST" id="loginForm">
+                <h1 style="margin-bottom: 4px;">Login</h1>
 
-                <div class="input-box">
-                    <input type="text" name="username" placeholder="Username" required>
-                    <i class='bx bxs-user'></i>
+                <!-- Tab Switcher for Student Type -->
+                <div class="login-tab-container">
+                    <button type="button" class="login-tab active" id="tabUniversity" onclick="selectLoginMode('UNIVERSITY')">
+                        <i class='bx bxs-graduation'></i> University Student
+                    </button>
+                    <button type="button" class="login-tab" id="tabPractice" onclick="selectLoginMode('EXTERNAL')">
+                        <i class='bx bxs-brain'></i> Practice Student
+                    </button>
                 </div>
 
-                <div class="input-box">
-                    <input type="password" name="password" placeholder="Password" required>
-                    <i class='bx bxs-lock-alt'></i>
+                <input type="hidden" name="login_type" id="loginTypeInput" value="UNIVERSITY">
+
+                <!-- Main Authentication Information Text -->
+                <div class="login-info-pill">
+                    <i class='bx bxs-info-circle'></i>
+                    <span><span class="auth-term">University Student</span> login requires <span class="auth-term">Email</span>, <span class="auth-term">Student Code</span>, and <span class="auth-term">Password</span>. <span class="auth-term">Practice candidates</span> sign in with registered <span class="auth-term">Email</span> &amp; <span class="auth-term">Password</span>.</span>
                 </div>
 
-                <button type="submit" class="btn">Login</button>
+                <!-- 1. University Student Fields (Email + Student Code + Password) -->
+                <div id="univFields" class="auth-fields-group">
+                    <div class="input-box">
+                        <input type="email" name="univ_email" id="univEmail" placeholder="Email" required autocomplete="email">
+                        <i class='bx bxs-envelope'></i>
+                    </div>
+                    <div class="input-box">
+                        <input type="text" name="univ_student_code" id="univCode" placeholder="Student Code (e.g. BWU/AIR/24/029)" style="text-transform: uppercase;" required autocomplete="off">
+                        <i class='bx bxs-id-card'></i>
+                    </div>
+                    <div class="input-box">
+                        <input type="password" name="univ_password" id="univPassword" placeholder="Password" required autocomplete="current-password">
+                        <i class='bx bxs-lock-alt'></i>
+                    </div>
+                </div>
+
+                <!-- 2. Practice Student Fields (Email/Username + Password) -->
+                <div id="extFields" class="auth-fields-group" style="display: none;">
+                    <div class="input-box">
+                        <input type="text" name="ext_email" id="extEmail" placeholder="Email or Username" autocomplete="username">
+                        <i class='bx bxs-user'></i>
+                    </div>
+                    <div class="input-box">
+                        <input type="password" name="ext_password" id="extPassword" placeholder="Password" autocomplete="current-password">
+                        <i class='bx bxs-lock-alt'></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn" id="loginSubmitBtn">Login as University Student</button>
 
                 <!-- Admin Login -->
                 <a href="{{ url_for('admin.admin_login') }}" class="admin-btn">👑 Admin Login</a>
@@ -111,25 +357,39 @@
 
         <!-- Register Form -->
         <div class="form-box register">
-            <form action="{{ url_for('auth.signup') }}" method="POST">
-                <h1>Registration</h1>
+            <form action="{{ url_for('auth.signup') }}" method="POST" id="registerForm">
+                <div class="register-header-badge">
+                    <i class='bx bxs-user-plus'></i> PRACTICE PORTAL
+                </div>
+                <h1 style="font-size: 24px; margin-bottom: 2px;">Create a Practice Account</h1>
+                <p class="register-subtitle">Register to access AI-powered self-assessment examinations.</p>
 
                 <div class="input-box">
-                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="name" placeholder="Full Name" required autocomplete="name">
                     <i class='bx bxs-user'></i>
                 </div>
 
                 <div class="input-box">
-                    <input type="email" name="email" placeholder="Email" required>
+                    <input type="email" name="email" placeholder="Email Address" required autocomplete="email">
                     <i class='bx bxs-envelope'></i>
                 </div>
 
                 <div class="input-box">
-                    <input type="password" name="password" placeholder="Password" required>
+                    <input type="password" name="password" id="regPassword" placeholder="Password" required autocomplete="new-password">
                     <i class='bx bxs-lock-alt'></i>
                 </div>
 
-                <button type="submit" class="btn">Register</button>
+                <div class="input-box">
+                    <input type="password" name="confirm_password" id="regConfirmPassword" placeholder="Confirm Password" required autocomplete="new-password">
+                    <i class='bx bxs-lock'></i>
+                </div>
+
+                <div class="univ-student-notice">
+                    <i class='bx bxs-shield-error'></i>
+                    <span><span class="auth-term">University Student</span>? Your official credentials are managed by Admin. <a href="javascript:void(0)" onclick="const container = document.querySelector('.container'); container.classList.remove('active'); selectLoginMode('UNIVERSITY');">Log in here</a>.</span>
+                </div>
+
+                <button type="submit" class="btn" style="margin-top: 10px;">Create Practice Account</button>
             </form>
         </div>
 
@@ -181,15 +441,64 @@
             loginTab.addEventListener("click", showLogin);
             registerTab.addEventListener("click", showRegister);
 
+            // ✅ Mode Switcher for Student Login (University vs Practice)
+            window.selectLoginMode = function(mode) {
+                const tabUniv = document.getElementById("tabUniversity");
+                const tabPrac = document.getElementById("tabPractice");
+                const univFields = document.getElementById("univFields");
+                const extFields = document.getElementById("extFields");
+                const loginTypeInput = document.getElementById("loginTypeInput");
+                const submitBtn = document.getElementById("loginSubmitBtn");
+                const univEmail = document.getElementById("univEmail");
+                const univCode = document.getElementById("univCode");
+                const univPassword = document.getElementById("univPassword");
+                const extEmail = document.getElementById("extEmail");
+                const extPassword = document.getElementById("extPassword");
+
+                if (mode === "UNIVERSITY") {
+                    if (tabUniv) tabUniv.classList.add("active");
+                    if (tabPrac) tabPrac.classList.remove("active");
+                    if (univFields) univFields.style.display = "block";
+                    if (extFields) extFields.style.display = "none";
+                    if (loginTypeInput) loginTypeInput.value = "UNIVERSITY";
+                    if (submitBtn) submitBtn.textContent = "LOGIN";
+
+                    if (univEmail) univEmail.setAttribute("required", "");
+                    if (univCode) univCode.setAttribute("required", "");
+                    if (univPassword) univPassword.setAttribute("required", "");
+                    if (extEmail) extEmail.removeAttribute("required");
+                    if (extPassword) extPassword.removeAttribute("required");
+                } else {
+                    if (tabPrac) tabPrac.classList.add("active");
+                    if (tabUniv) tabUniv.classList.remove("active");
+                    if (univFields) univFields.style.display = "none";
+                    if (extFields) extFields.style.display = "block";
+                    if (loginTypeInput) loginTypeInput.value = "EXTERNAL";
+                    if (submitBtn) submitBtn.textContent = "LOGIN";
+
+                    if (extEmail) extEmail.setAttribute("required", "");
+                    if (extPassword) extPassword.setAttribute("required", "");
+                    if (univEmail) univEmail.removeAttribute("required");
+                    if (univCode) univCode.removeAttribute("required");
+                    if (univPassword) univPassword.removeAttribute("required");
+                }
+            };
+
+            // Initialize default login mode
+            selectLoginMode("UNIVERSITY");
+
             // ✅ Check URL hash
             if (window.location.hash === "#register") {
                 showRegister();
+            } else if (window.location.hash === "#practice") {
+                showLogin();
+                selectLoginMode("EXTERNAL");
             } else {
                 showLogin();
             }
 
             // ✅ Show popup from backend messages
-            if (window.serverMessages.length > 0) {
+            if (window.serverMessages && window.serverMessages.length > 0) {
                 const successBox = document.getElementById("successMessage");
                 const errorBox = document.getElementById("errorMessage");
                 const successSound = document.getElementById("successSound");
@@ -199,13 +508,34 @@
                     if (msg.category === "success") {
                         document.getElementById("successText").innerText = msg.text;
                         successBox.classList.add("show");
-                        successSound.play();
+                        if (successSound) successSound.play();
                         setTimeout(() => successBox.classList.remove("show"), 2500);
                     } else {
                         document.getElementById("errorText").innerText = msg.text;
                         errorBox.classList.add("show");
-                        errorSound.play();
+                        if (errorSound) errorSound.play();
                         setTimeout(() => errorBox.classList.remove("show"), 2500);
+                    }
+                });
+            }
+
+            // Client-side password match verification
+            const regForm = document.getElementById("registerForm");
+            if (regForm) {
+                regForm.addEventListener("submit", function(e) {
+                    const pw = document.getElementById("regPassword").value;
+                    const cpw = document.getElementById("regConfirmPassword").value;
+                    if (pw !== cpw) {
+                        e.preventDefault();
+                        const errorBox = document.getElementById("errorMessage");
+                        const errorText = document.getElementById("errorText");
+                        const errorSound = document.getElementById("errorSound");
+                        if (errorText) errorText.innerText = "Passwords do not match!";
+                        if (errorBox) {
+                            errorBox.classList.add("show");
+                            if (errorSound) errorSound.play();
+                            setTimeout(() => errorBox.classList.remove("show"), 2500);
+                        }
                     }
                 });
             }

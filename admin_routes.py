@@ -4,6 +4,7 @@ from utils import (
     load_questions,
     save_json,
     load_users,
+    save_users,
     load_results,
     save_results,
     _migrate_one_question,
@@ -15,6 +16,15 @@ from utils import (
     get_course_exam_stats,
     get_unique_courses_and_subjects,
     get_matching_questions,
+    get_program_name,
+    calculate_academic_year,
+    get_available_programs,
+    get_available_admission_years,
+    get_academic_years,
+    get_all_students_for_eligibility,
+    count_eligible_students,
+    is_email_taken,
+    is_student_code_taken,
 )
 import re
 import json
@@ -80,10 +90,14 @@ def _student_summary(username, results):
 def _flatten_history(results):
     """Every exam attempt, by every student, as one flat list (newest first)."""
     rows = []
-    for username, udata in results.items():
+    users = load_users()
+    for user_key, udata in results.items():
+        disp_name = user_key
+        if user_key in users and isinstance(users[user_key], dict):
+            disp_name = users[user_key].get("name") or users[user_key].get("username") or user_key
         for rec in udata.get("history", []) or []:
             rows.append({
-                "username": username,
+                "username": disp_name,
                 "date": rec.get("date", ""),
                 "score": rec.get("score", 0),
                 "total": rec.get("total", 0),
@@ -98,20 +112,24 @@ def _flatten_history(results):
 def _leaderboard_rows(results):
     """One row per student who has attempted at least one exam, ranked by best %."""
     rows = []
-    for username, udata in results.items():
+    users = load_users()
+    for user_key, udata in results.items():
         history = udata.get("history", []) or []
         if not history:
             continue
+        disp_name = user_key
+        if user_key in users and isinstance(users[user_key], dict):
+            disp_name = users[user_key].get("name") or users[user_key].get("username") or user_key
         best = max(history, key=_pct)
         rows.append({
-            "username": username,
+            "username": disp_name,
             "score": best.get("score", 0),
             "total": best.get("total", 0),
             "pct": round(_pct(best), 1),
             "time_taken": best.get("time_taken") or "N/A",
             "attempts": len(history),
         })
-    rows.sort(key=lambda r: r["pct"], reverse=True)
+    rows.sort(key=lambda r: (r["pct"], r["score"]), reverse=True)
     return rows
 
 
@@ -169,14 +187,30 @@ def admin_user_history(username):
     if not session.get("admin"):
         return redirect(url_for("admin.admin_login"))
     results = load_results()
+    users = load_users()
+
     history = results.get(username, {}).get("history")
+    display_name = username
+    if not history:
+        for uid, udata in users.items():
+            if not isinstance(udata, dict):
+                continue
+            if uid == username or str(udata.get("id")) == username or str(udata.get("username")).lower() == username.lower() or str(udata.get("email")).lower() == username.lower():
+                display_name = udata.get("name") or udata.get("username") or username
+                history = (results.get(uid, {}).get("history") or
+                           results.get(str(udata.get("id")), {}).get("history") or
+                           results.get(udata.get("username"), {}).get("history") or
+                           results.get(udata.get("email"), {}).get("history"))
+                if history:
+                    break
+
     if not history:
         flash("No history found for this user!", "error")
         return redirect(url_for("admin.students_page"))
     return render_template(
         "admin_dashboard.html",
         page="user_history",
-        username=username,
+        username=display_name,
         history=history,
     )
 
@@ -193,15 +227,549 @@ def students_page():
     results = load_results()
 
     students = []
-    for username, info in users.items():
-        summary = _student_summary(username, results)
+    programs_set = set()
+    admission_years_set = set()
+    academic_years_set = set()
+
+    for ukey, info in users.items():
+        if not isinstance(info, dict):
+            continue
+        # Exclude admin accounts
+        uname = str(info.get("username") or ukey)
+        if ukey.lower() in ("admin", "adminc") or uname.lower() in ("admin", "adminc") or info.get("is_admin") or info.get("user_type") == "ADMIN":
+            continue
+
+        user_id = str(info.get("id") or ukey)
+        display_name = str(info.get("name") or info.get("username") or ukey)
+        user_email = str(info.get("email") or "")
+        summary = _student_summary(user_id, results)
+        if summary.get("attempts") == 0:
+            summary = _student_summary(display_name, results)
+            if summary.get("attempts") == 0 and ukey != user_id:
+                summary = _student_summary(ukey, results)
+
+        user_type = info.get("user_type") or ("UNIVERSITY" if (info.get("student_code") or info.get("program_code")) else "EXTERNAL")
+        sc = str(info.get("student_code") or "").strip()
+        p_code = str(info.get("program_code") or "").strip()
+        p_name = str(info.get("program_name") or (get_program_name(p_code) if p_code else "-")).strip()
+        dept_name = str(info.get("department_name") or "-").strip()
+        roll_num = str(info.get("roll_number") or "-").strip()
+        adm_yr = str(info.get("admission_year") or "").strip()
+        acad_yr = calculate_academic_year(adm_yr) if adm_yr else "-"
+
+        if p_name and p_name != "-":
+            programs_set.add(p_name)
+        if adm_yr and adm_yr != "-":
+            admission_years_set.add(adm_yr)
+        if acad_yr and acad_yr != "-":
+            academic_years_set.add(acad_yr)
+
         students.append({
-            "username": username,
-            "email": info.get("email", ""),
+            "user_id": user_id,
+            "key": ukey,
+            "username": display_name,
+            "name": display_name,
+            "email": user_email,
+            "user_type": user_type,
+            "student_code": sc or "-",
+            "program_code": p_code or "-",
+            "program_name": p_name,
+            "department_name": dept_name,
+            "roll_number": roll_num,
+            "admission_year": adm_yr or "-",
+            "academic_year": acad_yr,
             **summary,
         })
 
-    return render_template("admin_dashboard.html", page="students", students=students)
+    from utils import get_available_programs
+
+    return render_template(
+        "admin_dashboard.html",
+        page="students",
+        students=students,
+        available_programs=get_available_programs(),
+        filter_programs=sorted(list(programs_set)),
+        filter_admission_years=sorted(list(admission_years_set), reverse=True),
+        filter_academic_years=sorted(list(academic_years_set))
+    )
+
+
+@admin_bp.route("/add_student", methods=["POST"])
+def add_student():
+    """Admin endpoint to create an official University Student with program mapping."""
+    if not session.get("admin"):
+        return redirect(url_for("admin.admin_login"))
+
+    from utils import (
+        is_valid_username, parse_student_code, is_student_code_taken, is_email_taken,
+        load_users, save_users, get_program_name, get_program_by_code, calculate_academic_year
+    )
+    import uuid
+    from werkzeug.security import generate_password_hash
+
+    name = (request.form.get("name") or request.form.get("username") or "").strip()
+    email = (request.form.get("email") or "").strip().lower()
+    password = (request.form.get("password") or "").strip()
+
+    if not name:
+        flash("Student Name is required!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if not is_valid_username(name):
+        flash("Student Name must be at least 2 characters long!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if not email:
+        flash("Student Email is required!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if is_email_taken(email):
+        flash("Email already exists. Please use a different email.", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if not password:
+        flash("Student Password is required!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if " " in password:
+        flash("Password cannot contain spaces!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    # Program selection & automatic Student Code generation
+    program_code = (request.form.get("program_code") or request.form.get("program") or "").strip().upper()
+    dept_name = (request.form.get("department_name") or "").strip()
+    adm_yr_raw = (request.form.get("admission_year") or "2024").strip()
+    roll_raw = (request.form.get("roll_number") or "").strip()
+    direct_student_code = (request.form.get("student_code") or "").strip().upper()
+
+    if program_code:
+        # Program mapping flow: Code comes automatically from Admin's program data
+        program_name = get_program_name(program_code)
+        try:
+            admission_year = int(adm_yr_raw)
+        except Exception:
+            admission_year = 2024
+        yy = str(admission_year)[-2:]
+
+        if not roll_raw:
+            flash("Roll Number is required!", "error")
+            return redirect(url_for("admin.students_page"))
+        roll_number = roll_raw.zfill(3) if roll_raw.isdigit() else roll_raw.upper()
+        student_code = f"BWU/{program_code}/{yy}/{roll_number}"
+        university_code = "BWU"
+        academic_year = calculate_academic_year(admission_year)
+    elif direct_student_code:
+        # Fallback for direct student_code submission (backward compatibility)
+        parsed = parse_student_code(direct_student_code)
+        if not parsed:
+            flash("Invalid Student Code format! Please use format UNIVERSITY/PROGRAM/YY/ROLL, e.g. BWU/AIR/24/029.", "error")
+            return redirect(url_for("admin.students_page"))
+        student_code = parsed["student_code"]
+        university_code = parsed["university_code"]
+        program_code = parsed["program_code"]
+        program_name = parsed["program_name"]
+        admission_year = parsed["admission_year"]
+        academic_year = parsed["academic_year"]
+        roll_number = parsed["roll_number"]
+    else:
+        flash("Please select a Program from the dropdown!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if is_student_code_taken(student_code):
+        flash("Student Code already exists.", "error")
+        return redirect(url_for("admin.students_page"))
+
+    users = load_users()
+    internal_id = f"user_{uuid.uuid4().hex[:10]}"
+
+    pw_hash = generate_password_hash(password)
+    users[internal_id] = {
+        "id": internal_id,
+        "name": name,
+        "username": name,  # Represents the student's name, NOT UNIQUE
+        "email": email,
+        "pw_hash": pw_hash,
+        "password": pw_hash,
+        "user_type": "UNIVERSITY",
+        "student_code": student_code,
+        "university_code": university_code,
+        "program_code": program_code,
+        "program_name": program_name,
+        "department_name": dept_name,
+        "admission_year": admission_year,
+        "academic_year": academic_year,
+        "roll_number": roll_number
+    }
+    save_users(users)
+
+    flash(f"University Student '{name}' ({student_code}) added successfully!", "success")
+    return redirect(url_for("admin.students_page"))
+
+
+@admin_bp.route("/edit_student", methods=["POST"])
+def edit_student():
+    """Admin endpoint to edit a University Student's details and automatically regenerate Student Code."""
+    if not session.get("admin"):
+        return redirect(url_for("admin.admin_login"))
+
+    from utils import (
+        is_valid_username, is_student_code_taken,
+        load_users, save_users, get_program_name, calculate_academic_year
+    )
+    from werkzeug.security import generate_password_hash
+
+    user_id = (request.form.get("user_id") or "").strip()
+    name = (request.form.get("name") or request.form.get("username") or "").strip()
+    email = (request.form.get("email") or "").strip().lower()
+    program_code = (request.form.get("program_code") or "").strip().upper()
+    dept_name = (request.form.get("department_name") or "").strip()
+    adm_yr_raw = (request.form.get("admission_year") or "").strip()
+    roll_raw = (request.form.get("roll_number") or "").strip()
+    new_password = (request.form.get("new_password") or "").strip()
+
+    if not user_id:
+        flash("Student ID is missing!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    users = load_users()
+    target_key = None
+    user_record = None
+    for k, v in users.items():
+        if isinstance(v, dict) and (str(v.get("id")) == user_id or k == user_id):
+            target_key = k
+            user_record = v
+            break
+
+    if not user_record:
+        flash("Student account not found!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if not name or not is_valid_username(name):
+        flash("Student Name must be at least 2 characters long!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if not email:
+        flash("Student Email is required!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    # Check email duplicate across other accounts
+    old_email = str(user_record.get("email") or "").strip().lower()
+    if email != old_email:
+        for k, v in users.items():
+            if k != target_key and isinstance(v, dict) and str(v.get("email") or "").strip().lower() == email:
+                flash("Email already exists. Please use a different email.", "error")
+                return redirect(url_for("admin.students_page"))
+
+    if not program_code:
+        program_code = str(user_record.get("program_code") or "AIR").strip().upper()
+
+    try:
+        admission_year = int(adm_yr_raw) if adm_yr_raw else int(user_record.get("admission_year") or 2024)
+    except Exception:
+        admission_year = 2024
+
+    if not roll_raw:
+        roll_raw = str(user_record.get("roll_number") or "001").strip()
+    roll_clean = roll_raw.zfill(3) if roll_raw.isdigit() else roll_raw.upper()
+
+    program_name = get_program_name(program_code)
+    yy = str(admission_year)[-2:]
+    new_student_code = f"BWU/{program_code}/{yy}/{roll_clean}"
+
+    old_student_code = str(user_record.get("student_code") or "").strip().upper()
+    if new_student_code != old_student_code:
+        for k, v in users.items():
+            if k != target_key and isinstance(v, dict) and str(v.get("student_code") or "").strip().upper() == new_student_code:
+                flash("Student Code already exists.", "error")
+                return redirect(url_for("admin.students_page"))
+
+    user_record["name"] = name
+    user_record["username"] = name
+    user_record["email"] = email
+    user_record["program_code"] = program_code
+    user_record["program_name"] = program_name
+    user_record["department_name"] = dept_name
+    user_record["admission_year"] = admission_year
+    user_record["academic_year"] = calculate_academic_year(admission_year)
+    user_record["roll_number"] = roll_clean
+    user_record["student_code"] = new_student_code
+
+    if new_password:
+        if " " in new_password:
+            flash("Password cannot contain spaces!", "error")
+            return redirect(url_for("admin.students_page"))
+        pw_h = generate_password_hash(new_password)
+        user_record["pw_hash"] = pw_h
+        user_record["password"] = pw_h
+
+    save_users(users)
+    flash(f"University Student '{name}' ({new_student_code}) updated successfully!", "success")
+    return redirect(url_for("admin.students_page"))
+
+
+# ==============================================================
+# ADMIN PROGRAM MANAGEMENT ROUTES
+# ==============================================================
+
+@admin_bp.route("/programs")
+def programs_page():
+    """Admin endpoint to view and manage academic programs."""
+    if not session.get("admin"):
+        return redirect(url_for("admin.admin_login"))
+
+    from utils import load_programs, count_students_in_program
+    raw_programs = load_programs()
+    programs_with_counts = []
+    for p in raw_programs:
+        c = str(p.get("code") or "").strip().upper()
+        n = str(p.get("name") or "").strip()
+        s_count = count_students_in_program(c)
+        programs_with_counts.append({
+            "name": n,
+            "code": c,
+            "student_count": s_count
+        })
+
+    programs_with_counts.sort(key=lambda x: x["name"])
+
+    return render_template(
+        "admin_dashboard.html",
+        page="programs",
+        programs=programs_with_counts
+    )
+
+
+@admin_bp.route("/add_program", methods=["POST"])
+def add_program():
+    """Admin endpoint to create a new Academic Program with unique Program Code."""
+    if not session.get("admin"):
+        return redirect(url_for("admin.admin_login"))
+
+    from utils import load_programs, save_programs
+
+    name = (request.form.get("name") or request.form.get("program_name") or "").strip()
+    code = (request.form.get("code") or request.form.get("program_code") or "").strip().upper()
+
+    if not name:
+        flash("Program Name is required.", "error")
+        return redirect(url_for("admin.programs_page"))
+
+    if not code:
+        flash("Program Code is required.", "error")
+        return redirect(url_for("admin.programs_page"))
+
+    programs = load_programs()
+
+    # Requirement 7: Program Code must be unique
+    for p in programs:
+        if str(p.get("code") or "").strip().upper() == code:
+            flash("Program Code already exists.", "error")
+            return redirect(url_for("admin.programs_page"))
+
+    # Requirement 8: Program Name safe check
+    for p in programs:
+        if str(p.get("name") or "").strip().lower() == name.lower():
+            flash("Program Name already exists.", "error")
+            return redirect(url_for("admin.programs_page"))
+
+    programs.append({"name": name, "code": code})
+    save_programs(programs)
+    flash(f"Program '{name}' ({code}) added successfully.", "success")
+    return redirect(url_for("admin.programs_page"))
+
+
+@admin_bp.route("/edit_program", methods=["POST"])
+def edit_program():
+    """Admin endpoint to edit a Program Name or Program Code with student protection."""
+    if not session.get("admin"):
+        return redirect(url_for("admin.admin_login"))
+
+    from utils import load_programs, save_programs, load_users, save_users, count_students_in_program
+
+    old_code = (request.form.get("old_code") or "").strip().upper()
+    new_name = (request.form.get("name") or "").strip()
+    new_code = (request.form.get("code") or "").strip().upper()
+    confirm_update_students = request.form.get("confirm_update_students") == "yes"
+
+    if not old_code:
+        flash("Original program code is missing.", "error")
+        return redirect(url_for("admin.programs_page"))
+
+    if not new_name:
+        flash("Program Name is required.", "error")
+        return redirect(url_for("admin.programs_page"))
+
+    if not new_code:
+        flash("Program Code is required.", "error")
+        return redirect(url_for("admin.programs_page"))
+
+    programs = load_programs()
+    prog_idx = -1
+    for i, p in enumerate(programs):
+        if str(p.get("code") or "").strip().upper() == old_code:
+            prog_idx = i
+            break
+
+    if prog_idx == -1:
+        flash(f"Program with code '{old_code}' not found.", "error")
+        return redirect(url_for("admin.programs_page"))
+
+    # Check duplicate code if changed
+    if new_code != old_code:
+        for i, p in enumerate(programs):
+            if i != prog_idx and str(p.get("code") or "").strip().upper() == new_code:
+                flash("Program Code already exists.", "error")
+                return redirect(url_for("admin.programs_page"))
+
+    # Check duplicate name if changed
+    for i, p in enumerate(programs):
+        if i != prog_idx and str(p.get("name") or "").strip().lower() == new_name.lower():
+            flash("Program Name already exists.", "error")
+            return redirect(url_for("admin.programs_page"))
+
+    # Requirement 12: Protect existing student records
+    student_count = count_students_in_program(old_code)
+    if new_code != old_code and student_count > 0:
+        if not confirm_update_students:
+            flash(
+                f"Warning: {student_count} student(s) currently use '{old_code}'. "
+                "Changing this code will modify their Student Codes and academic records. "
+                "Please check the confirmation box to proceed with the controlled update.",
+                "warning"
+            )
+            return redirect(url_for("admin.programs_page"))
+
+        # Controlled update for students
+        users = load_users()
+        for u, rec in users.items():
+            if isinstance(rec, dict) and rec.get("user_type") == "UNIVERSITY" and str(rec.get("program_code") or "").strip().upper() == old_code:
+                rec["program_code"] = new_code
+                rec["program_name"] = new_name
+                adm_yr = str(rec.get("admission_year") or "24")[-2:]
+                roll = str(rec.get("roll_number") or "001")
+                univ = str(rec.get("university_code") or "BWU")
+                rec["student_code"] = f"{univ}/{new_code}/{adm_yr}/{roll}"
+        save_users(users)
+
+    programs[prog_idx] = {"name": new_name, "code": new_code}
+    save_programs(programs)
+
+    if new_code != old_code and student_count > 0:
+        flash(f"Program updated to '{new_name}' ({new_code}) and {student_count} student record(s) updated.", "success")
+    else:
+        flash(f"Program '{new_name}' ({new_code}) updated successfully.", "success")
+
+    return redirect(url_for("admin.programs_page"))
+
+
+@admin_bp.route("/delete_program/<string:code>", methods=["POST", "GET"])
+def delete_program(code):
+    """Admin endpoint to safely delete an Academic Program if no students are assigned."""
+    if not session.get("admin"):
+        return redirect(url_for("admin.admin_login"))
+
+    from utils import load_programs, save_programs, count_students_in_program
+
+    c = (code or "").strip().upper()
+    programs = load_programs()
+    prog_to_delete = None
+    for p in programs:
+        if str(p.get("code") or "").strip().upper() == c:
+            prog_to_delete = p
+            break
+
+    if not prog_to_delete:
+        flash(f"Program with code '{c}' not found.", "error")
+        return redirect(url_for("admin.programs_page"))
+
+    # Requirement 13: "If a Program is currently assigned to students: Do NOT blindly delete it. Show: 'This program is currently assigned to students and cannot be deleted.'"
+    students_count = count_students_in_program(c)
+    if students_count > 0:
+        flash("This program is currently assigned to students and cannot be deleted.", "error")
+        return redirect(url_for("admin.programs_page"))
+
+    programs = [p for p in programs if str(p.get("code") or "").strip().upper() != c]
+    save_programs(programs)
+    flash(f"Program '{prog_to_delete.get('name')}' ({c}) deleted successfully.", "success")
+    return redirect(url_for("admin.programs_page"))
+
+
+@admin_bp.route("/reset_student_password", methods=["POST"])
+def reset_student_password():
+    """Admin endpoint to safely set or reset a student password."""
+    if not session.get("admin"):
+        return redirect(url_for("admin.admin_login"))
+
+    from werkzeug.security import generate_password_hash
+    identifier = (request.form.get("username") or request.form.get("user_id") or "").strip()
+    new_password = (request.form.get("new_password") or "").strip()
+
+    if not identifier:
+        flash("Student identifier is required!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if not new_password:
+        flash("New password cannot be empty!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if " " in new_password:
+        flash("Password cannot contain spaces!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    users = load_users()
+    target_key = None
+    if identifier in users:
+        target_key = identifier
+    else:
+        for k, v in users.items():
+            if isinstance(v, dict):
+                if v.get("id") == identifier or (v.get("email") and v.get("email").lower() == identifier.lower()) or v.get("student_code") == identifier or v.get("username") == identifier:
+                    target_key = k
+                    break
+
+    if not target_key:
+        flash("Student not found!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    users[target_key]["pw_hash"] = generate_password_hash(new_password)
+    save_users(users)
+    disp_name = users[target_key].get("name") or users[target_key].get("username") or identifier
+    flash(f"Password for student '{disp_name}' updated successfully!", "success")
+    return redirect(url_for("admin.students_page"))
+
+
+@admin_bp.route("/delete_student/<string:username>", methods=["POST", "GET"])
+def delete_student(username):
+    """Admin endpoint to delete a student account."""
+    if not session.get("admin"):
+        return redirect(url_for("admin.admin_login"))
+
+    users = load_users()
+    deleted = False
+    deleted_name = username
+
+    if username in users:
+        deleted_name = users[username].get("name") or users[username].get("username") or username
+        del users[username]
+        deleted = True
+    else:
+        target_key = None
+        for k, v in users.items():
+            if isinstance(v, dict):
+                if v.get("id") == username or (v.get("email") and v.get("email").lower() == username.lower()) or v.get("student_code") == username or v.get("username") == username:
+                    target_key = k
+                    deleted_name = v.get("name") or v.get("username") or username
+                    break
+        if target_key:
+            del users[target_key]
+            deleted = True
+
+    if deleted:
+        save_users(users)
+        flash(f"Student '{deleted_name}' deleted successfully!", "success")
+    else:
+        flash("Student not found!", "error")
+    return redirect(url_for("admin.students_page"))
 
 
 @admin_bp.route("/leaderboard")
@@ -251,11 +819,30 @@ def add_question():
     course_name = (request.form.get("course_name") or "").strip()
     subject = (request.form.get("subject") or "").strip()
 
-    # 2. Optional classification fields
+    # 2. Program, Admission Year & Academic Year classification
+    program_code = (request.form.get("program_code") or "ALL").strip().upper()
+    if not program_code:
+        program_code = "ALL"
+    program_name = "All Programs" if program_code == "ALL" else get_program_name(program_code)
+
+    raw_admission_year = (request.form.get("admission_year") or "ALL").strip()
+    if raw_admission_year.upper() in ("ALL", ""):
+        admission_year = "ALL"
+    else:
+        try:
+            admission_year = int(raw_admission_year)
+        except (ValueError, TypeError):
+            admission_year = raw_admission_year
+
+    academic_year = (request.form.get("academic_year") or "ALL").strip()
+    if not academic_year:
+        academic_year = "ALL"
+
+    # 3. Optional classification fields
     unit = (request.form.get("unit") or "").strip()
     topic = (request.form.get("topic") or "").strip()
 
-    # 3. Question type & level
+    # 4. Question type & level
     qtype = (request.form.get("type") or "MCQ").upper()
     level = (request.form.get("level") or "Easy").strip()
     qtext = (request.form.get("question") or "").strip()
@@ -300,6 +887,10 @@ def add_question():
             "course_code": course_code,
             "course_name": course_name,
             "subject": subject,
+            "program_code": program_code,
+            "program_name": program_name,
+            "admission_year": admission_year,
+            "academic_year": academic_year,
             "unit": unit,
             "topic": topic,
             "type": "DESCRIPTIVE",
@@ -329,6 +920,10 @@ def add_question():
             "course_code": course_code,
             "course_name": course_name,
             "subject": subject,
+            "program_code": program_code,
+            "program_name": program_name,
+            "admission_year": admission_year,
+            "academic_year": academic_year,
             "unit": unit,
             "topic": topic,
             "type": "MCQ",
@@ -425,7 +1020,12 @@ def all_questions():
         questions=questions,
         filter_courses=unique_data["courses"],
         filter_course_names=unique_data.get("course_names", []),
-        filter_subjects=unique_data["subjects"]
+        filter_subjects=unique_data["subjects"],
+        filter_programs=get_available_programs(),
+        filter_admission_years=get_available_admission_years(),
+        filter_academic_years=get_academic_years(),
+        filter_units=unique_data.get("units", []),
+        filter_topics=unique_data.get("topics", [])
     )
 
 
@@ -441,7 +1041,10 @@ def add_question_page():
         page="add_question",
         existing_courses=unique_data["courses"],
         existing_course_names=unique_data.get("course_names", []),
-        existing_subjects=unique_data["subjects"]
+        existing_subjects=unique_data["subjects"],
+        available_programs=get_available_programs(),
+        available_admission_years=get_available_admission_years(),
+        available_academic_years=get_academic_years()
     )
 
 
@@ -461,6 +1064,9 @@ def generate_questions_page():
         existing_courses=unique_data.get("courses", []),
         existing_course_names=unique_data.get("course_names", []),
         existing_subjects=unique_data.get("subjects", []),
+        available_programs=get_available_programs(),
+        available_admission_years=get_available_admission_years(),
+        available_academic_years=get_academic_years(),
         preview_questions=preview_questions
     )
 
@@ -550,6 +1156,25 @@ def api_generate():
     unit = (data.get("unit") or "").strip()
     topic = (data.get("topic") or "").strip()
 
+    # Program, Admission Year & Academic Year classification
+    program_code = (data.get("program_code") or "ALL").strip().upper()
+    if not program_code:
+        program_code = "ALL"
+    program_name = "All Programs" if program_code == "ALL" else get_program_name(program_code)
+
+    raw_admission_year = (data.get("admission_year") or "ALL").strip()
+    if raw_admission_year.upper() in ("ALL", ""):
+        admission_year = "ALL"
+    else:
+        try:
+            admission_year = int(raw_admission_year)
+        except (ValueError, TypeError):
+            admission_year = raw_admission_year
+
+    academic_year = (data.get("academic_year") or "ALL").strip()
+    if not academic_year:
+        academic_year = "ALL"
+
     qtype_raw = (data.get("qtype") or "MCQ").strip().upper()
     if qtype_raw in ("MCQ", "DESCRIPTIVE", "MIXED"):
         qtype = qtype_raw
@@ -633,6 +1258,9 @@ Generate high-quality academic questions strictly aligned with this curriculum s
 - Course Code: {course_code}
 - Course Name: {course_name}
 - Subject: {subject}
+- Program / Degree: {program_name} ({program_code})
+- Target Batch / Admission Year: {admission_year}
+- Target Academic Year: {academic_year}
 - Unit / Module: {unit}
 - Topic: {topic}
 - Target Difficulty: {difficulty}
@@ -643,7 +1271,7 @@ CRITICAL RULES:
 1. Return ONLY a valid JSON array of objects: [ ... ]
 2. Do NOT wrap in markdown code blocks or backticks (no ```json or ```).
 3. Do NOT include introductory greetings, notes, comments, or summaries.
-4. Ensure every question is academically accurate and tests concepts specific to {topic} under {unit}.
+4. Ensure every question is academically accurate and tests concepts specific to {topic} under {unit} tailored for {academic_year} university students in {program_name}.
 """
 
     try:
@@ -683,6 +1311,10 @@ CRITICAL RULES:
                 "course_code": course_code,
                 "course_name": course_name,
                 "subject": subject,
+                "program_code": program_code,
+                "program_name": program_name,
+                "admission_year": admission_year,
+                "academic_year": academic_year,
                 "unit": unit,
                 "topic": topic,
                 "type": item_type,
@@ -745,6 +1377,10 @@ CRITICAL RULES:
                 "course_code": course_code,
                 "course_name": course_name,
                 "subject": subject,
+                "program_code": program_code,
+                "program_name": program_name,
+                "admission_year": admission_year,
+                "academic_year": academic_year,
                 "unit": unit,
                 "topic": topic,
             })
@@ -791,6 +1427,25 @@ def api_save_generated():
         topic = (q.get("topic") or "").strip()
         q_text = (q.get("question") or q.get("q") or "").strip()
 
+        # Program, Admission Year & Academic Year classification
+        program_code = (q.get("program_code") or "ALL").strip().upper()
+        if not program_code:
+            program_code = "ALL"
+        program_name = "All Programs" if program_code == "ALL" else get_program_name(program_code)
+
+        raw_admission_year = q.get("admission_year")
+        if raw_admission_year in (None, "") or str(raw_admission_year).strip().upper() in ("ALL", "ALL BATCHES"):
+            admission_year = "ALL"
+        else:
+            try:
+                admission_year = int(raw_admission_year)
+            except (ValueError, TypeError):
+                admission_year = str(raw_admission_year).strip()
+
+        academic_year = str(q.get("academic_year") or "ALL").strip()
+        if not academic_year:
+            academic_year = "ALL"
+
         if not course_code or not subject:
             return jsonify({
                 "success": False,
@@ -813,6 +1468,10 @@ def api_save_generated():
             "course_code": course_code,
             "course_name": course_name or course_code,
             "subject": subject,
+            "program_code": program_code,
+            "program_name": program_name,
+            "admission_year": admission_year,
+            "academic_year": academic_year,
             "unit": unit,
             "topic": topic,
             "type": qtype,
@@ -896,6 +1555,11 @@ def course_exams_manage():
     auto_open_exam = session.pop("auto_open_exam", None)
     draft_exam = session.get("draft_course_exam")
 
+    available_programs = get_available_programs()
+    available_admission_years = get_available_admission_years()
+    available_academic_years = get_academic_years()
+    all_students = get_all_students_for_eligibility()
+
     return render_template(
         "admin_dashboard.html",
         page="course_exams",
@@ -905,7 +1569,54 @@ def course_exams_manage():
         existing_subjects=unique_data["subjects"],
         auto_open_exam=auto_open_exam,
         draft_exam=draft_exam,
+        available_programs=available_programs,
+        available_admission_years=available_admission_years,
+        available_academic_years=available_academic_years,
+        all_students=all_students,
     )
+
+
+@admin_bp.route("/api/course-exams/eligibility", methods=["GET", "POST"])
+def api_course_exam_eligibility():
+    """
+    Live API endpoint to compute eligible student count and student list
+    given program_code, admission_year, and academic_year.
+    """
+    if not session.get("admin"):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    if request.method == "POST":
+        data = request.get_json(silent=True) or request.form
+    else:
+        data = request.args
+
+    p_code = (data.get("program_code") or "").strip().upper()
+    adm_year = (data.get("admission_year") or "").strip()
+    acad_year = (data.get("academic_year") or "").strip()
+
+    students = get_all_students_for_eligibility()
+    matching = []
+    for s in students:
+        s_p = str(s.get("program_code") or "").strip().upper()
+        s_adm = str(s.get("admission_year") or "").strip()
+        s_acad = str(s.get("academic_year") or "").strip().lower()
+
+        p_match = not p_code or s_p == p_code
+        adm_match = not adm_year or s_adm == adm_year
+        acad_match = not acad_year or s_acad == acad_year.lower()
+
+        if p_match and adm_match and acad_match:
+            matching.append(s)
+
+    return jsonify({
+        "success": True,
+        "program_code": p_code,
+        "program_name": get_program_name(p_code),
+        "admission_year": adm_year,
+        "academic_year": acad_year,
+        "eligible_count": len(matching),
+        "students": matching
+    })
 
 
 @admin_bp.route("/course-exams/create", methods=["POST"])
@@ -945,6 +1656,21 @@ def create_course_exam():
     except Exception:
         qids = []
 
+    # Target / Student Eligibility configuration
+    target_mode = (request.form.get("target_mode") or "PROGRAM_BATCH_YEAR").strip().upper()
+    program_code = (request.form.get("program_code") or "").strip().upper()
+    admission_year = (request.form.get("admission_year") or "").strip()
+    academic_year = (request.form.get("academic_year") or "").strip()
+    all_in_batch = (request.form.get("all_in_batch") == "on" or request.form.get("all_in_batch") == "1")
+
+    raw_scodes = request.form.get("student_codes") or "[]"
+    try:
+        student_codes = json.loads(raw_scodes) if isinstance(raw_scodes, str) else []
+    except Exception:
+        student_codes = []
+    if not student_codes:
+        student_codes = request.form.getlist("specific_students")
+
     # Validations
     if not title:
         flash("Exam Title is required!", "error")
@@ -957,6 +1683,20 @@ def create_course_exam():
         return redirect(url_for("admin.course_exams_manage"))
     if not exam_date or not start_time or not end_time:
         flash("Exam Date, Start Time, and End Time are required!", "error")
+        return redirect(url_for("admin.course_exams_manage"))
+
+    # Eligibility Validations
+    if not program_code:
+        flash("Please select a target program.", "error")
+        return redirect(url_for("admin.course_exams_manage"))
+    if not admission_year:
+        flash("Please select an admission year.", "error")
+        return redirect(url_for("admin.course_exams_manage"))
+    if not academic_year:
+        flash("Please select an academic year.", "error")
+        return redirect(url_for("admin.course_exams_manage"))
+    if target_mode == "SPECIFIC_STUDENTS" and not student_codes:
+        flash("Please select at least one student for Specific Students mode.", "error")
         return redirect(url_for("admin.course_exams_manage"))
 
     # Validate date/time format
@@ -988,6 +1728,13 @@ def create_course_exam():
         "difficulty": difficulty,
         "status": status,
         "question_ids": qids,
+        "target_mode": target_mode,
+        "program_code": program_code,
+        "program_name": get_program_name(program_code),
+        "admission_year": int(admission_year) if admission_year.isdigit() else admission_year,
+        "academic_year": academic_year,
+        "all_in_batch": all_in_batch,
+        "student_codes": student_codes if target_mode == "SPECIFIC_STUDENTS" else [],
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
@@ -1050,8 +1797,37 @@ def edit_course_exam(exam_id):
     difficulty = (request.form.get("difficulty") or "All").strip()
     status = (request.form.get("status") or "Draft").strip()
 
+    # Target / Student Eligibility configuration
+    target_mode = (request.form.get("target_mode") or "PROGRAM_BATCH_YEAR").strip().upper()
+    program_code = (request.form.get("program_code") or "").strip().upper()
+    admission_year = (request.form.get("admission_year") or "").strip()
+    academic_year = (request.form.get("academic_year") or "").strip()
+    all_in_batch = (request.form.get("all_in_batch") == "on" or request.form.get("all_in_batch") == "1")
+
+    raw_scodes = request.form.get("student_codes") or "[]"
+    try:
+        student_codes = json.loads(raw_scodes) if isinstance(raw_scodes, str) else []
+    except Exception:
+        student_codes = []
+    if not student_codes:
+        student_codes = request.form.getlist("specific_students")
+
     if not title or not course_code or not subject or not exam_date or not start_time or not end_time:
         flash("Please fill all required examination fields!", "error")
+        return redirect(url_for("admin.course_exams_manage"))
+
+    # Eligibility Validations
+    if not program_code:
+        flash("Please select a target program.", "error")
+        return redirect(url_for("admin.course_exams_manage"))
+    if not admission_year:
+        flash("Please select an admission year.", "error")
+        return redirect(url_for("admin.course_exams_manage"))
+    if not academic_year:
+        flash("Please select an academic year.", "error")
+        return redirect(url_for("admin.course_exams_manage"))
+    if target_mode == "SPECIFIC_STUDENTS" and not student_codes:
+        flash("Please select at least one student for Specific Students mode.", "error")
         return redirect(url_for("admin.course_exams_manage"))
 
     try:
@@ -1077,6 +1853,13 @@ def edit_course_exam(exam_id):
     exam["num_questions"] = num_questions
     exam["difficulty"] = difficulty
     exam["status"] = status
+    exam["target_mode"] = target_mode
+    exam["program_code"] = program_code
+    exam["program_name"] = get_program_name(program_code)
+    exam["admission_year"] = int(admission_year) if admission_year.isdigit() else admission_year
+    exam["academic_year"] = academic_year
+    exam["all_in_batch"] = all_in_batch
+    exam["student_codes"] = student_codes if target_mode == "SPECIFIC_STUDENTS" else []
     exam["updated_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     raw_qids = request.form.get("question_ids")
@@ -1107,7 +1890,10 @@ def publish_course_exam(exam_id):
                 course_code=e.get("course_code"),
                 subject=e.get("subject"),
                 qtype=e.get("exam_type", "ALL"),
-                difficulty=e.get("difficulty", "ALL")
+                difficulty=e.get("difficulty", "ALL"),
+                program_code=e.get("program_code"),
+                admission_year=e.get("admission_year"),
+                academic_year=e.get("academic_year")
             )
             req_q = int(e.get("num_questions") or 10)
             if len(matching_qs) < req_q:
@@ -1188,13 +1974,24 @@ def view_exam_questions_api(exam_id):
     difficulty = exam.get("difficulty", "ALL")
     num_required = int(exam.get("num_questions") or 10)
 
-    matched = get_matching_questions(course_code, subject, qtype, difficulty)
+    matched = get_matching_questions(
+        course_code,
+        subject,
+        qtype,
+        difficulty,
+        program_code=exam.get("program_code"),
+        admission_year=exam.get("admission_year"),
+        academic_year=exam.get("academic_year")
+    )
 
     return jsonify({
         "exam_id": exam["id"],
         "title": exam["title"],
         "course_code": course_code,
         "subject": subject,
+        "program_code": exam.get("program_code"),
+        "admission_year": exam.get("admission_year"),
+        "academic_year": exam.get("academic_year"),
         "exam_type": qtype,
         "difficulty": difficulty,
         "required_questions": num_required,
@@ -1243,8 +2040,8 @@ def select_course_exam_questions(exam_id):
         exam = dict(existing)
         # Overlay in-progress draft edits if admin edited before clicking select
         if draft and str(draft.get("exam_id")) == str(exam_id):
-            for k in ["title", "course_code", "course_name", "subject", "num_questions", "difficulty", "exam_type", "description"]:
-                if draft.get(k):
+            for k in ["title", "course_code", "course_name", "subject", "num_questions", "difficulty", "exam_type", "description", "target_mode", "program_code", "admission_year", "academic_year", "all_in_batch", "student_codes"]:
+                if draft.get(k) is not None:
                     exam[k] = draft[k]
 
     try:
@@ -1273,6 +2070,9 @@ def select_course_exam_questions(exam_id):
         selected_ids=selected_ids,
         existing_courses=unique_data["courses"],
         existing_subjects=unique_data["subjects"],
+        available_programs=get_available_programs(),
+        available_admission_years=get_available_admission_years(),
+        available_academic_years=get_academic_years(),
     )
 
 
@@ -1334,6 +2134,25 @@ def add_manual_course_exam_question():
     level = (data.get("level") or "Easy").strip()
     qtext = (data.get("question") or "").strip()
 
+    # Program, Admission Year & Academic Year classification
+    program_code = (data.get("program_code") or "ALL").strip().upper()
+    if not program_code:
+        program_code = "ALL"
+    program_name = "All Programs" if program_code == "ALL" else get_program_name(program_code)
+
+    raw_admission_year = (data.get("admission_year") or "ALL")
+    if str(raw_admission_year).strip().upper() in ("ALL", ""):
+        admission_year = "ALL"
+    else:
+        try:
+            admission_year = int(raw_admission_year)
+        except (ValueError, TypeError):
+            admission_year = str(raw_admission_year).strip()
+
+    academic_year = str(data.get("academic_year") or "ALL").strip()
+    if not academic_year:
+        academic_year = "ALL"
+
     if not course_code or not subject:
         return jsonify({"error": "Course Code and Subject are required."}), 400
     if not qtext:
@@ -1353,6 +2172,10 @@ def add_manual_course_exam_question():
             "course_code": course_code,
             "course_name": course_name or course_code,
             "subject": subject,
+            "program_code": program_code,
+            "program_name": program_name,
+            "admission_year": admission_year,
+            "academic_year": academic_year,
             "unit": unit,
             "topic": topic,
             "type": "DESCRIPTIVE",
@@ -1377,6 +2200,10 @@ def add_manual_course_exam_question():
             "course_code": course_code,
             "course_name": course_name or course_code,
             "subject": subject,
+            "program_code": program_code,
+            "program_name": program_name,
+            "admission_year": admission_year,
+            "academic_year": academic_year,
             "unit": unit,
             "topic": topic,
             "type": "MCQ",

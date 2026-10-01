@@ -1,0 +1,62 @@
+[
+  {
+    "name": "AI & Robotics",
+    "code": "AIR"
+  },
+  {
+    "name": "Bachelor of Arts",
+    "code": "BAR"
+  },
+  {
+    "name": "Computer Science & Engineering",
+    "code": "CSE"
+  },
+  {
+    "name": "Electronics & Communication Engineering",
+    "code": "ECE"
+  },
+  {
+    "name": "Information Technology",
+    "code": "IT"
+  },
+  {
+    "name": "Electrical Engineering",
+    "code": "EE"
+  },
+  {
+    "name": "Mechanical Engineering",
+    "code": "ME"
+  },
+  {
+    "name": "Civil Engineering",
+    "code": "CE"
+  },
+  {
+    "name": "Bachelor of Computer Applications",
+    "code": "BCA"
+  },
+  {
+    "name": "Master of Computer Applications",
+    "code": "MCA"
+  },
+  {
+    "name": "Bachelor of Business Administration",
+    "code": "BBA"
+  },
+  {
+    "name": "Master of Business Administration",
+    "code": "MBA"
+  },
+  {
+    "name": "AI & Machine Learning",
+    "code": "AIML"
+  },
+  {
+    "name": "Data Science",
+    "code": "DS"
+  },
+  {
+    "name": "Computer Science",
+    "code": "CS"
+  }
+]

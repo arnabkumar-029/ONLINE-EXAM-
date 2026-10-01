@@ -1,0 +1,380 @@
+<!-- ===================== ACADEMIC PROGRAM MANAGEMENT ===================== -->
+
+<style>
+  .programs-admin-wrapper {
+    margin-bottom: 30px;
+  }
+
+  .programs-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .programs-header-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .programs-header-title h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #1e293b;
+    font-weight: 700;
+  }
+
+  .program-count-chip {
+    background: #e0e7ff;
+    color: #4338ca;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .programs-info-banner {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #4f46e5;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 22px;
+    font-size: 13.5px;
+    color: #475569;
+    line-height: 1.5;
+  }
+
+  .programs-info-banner strong {
+    color: #1e293b;
+  }
+
+  .badge-pcode {
+    display: inline-block;
+    padding: 4px 10px;
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+  }
+
+  .badge-scount {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .table-responsive-box {
+    width: 100%;
+    overflow-x: auto;
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  }
+
+  .table-responsive-box table {
+    margin-bottom: 0;
+  }
+
+  /* Modals */
+  .program-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+
+  .program-modal-dialog {
+    background: #ffffff;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: modalSlide 0.25s ease;
+  }
+
+  .program-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+    background: #f8fafc;
+  }
+
+  @keyframes modalSlide {
+    from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+</style>
+
+<div class="programs-admin-wrapper">
+
+  <div class="programs-header-row">
+    <div class="programs-header-title">
+      <h2>Academic Program Management</h2>
+      <span class="program-count-chip">{{ programs|length }} Programs</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <a href="{{ url_for('admin.students_page') }}" class="btn" style="background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; padding: 9px 16px; border-radius: 8px; font-weight: 600; font-size: 13.5px; display: inline-flex; align-items: center; gap: 6px; text-decoration: none;">
+        <i class="fa-solid fa-users"></i> All Students
+      </a>
+      <button type="button" class="btn" onclick="openAddProgramModal()" style="background: linear-gradient(135deg, #4f46e5, #6366f1); color: #fff; padding: 9px 18px; border-radius: 8px; font-weight: 600; font-size: 13.5px; border: none; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35); display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+        <i class="fa-solid fa-plus"></i> Add New Program
+      </button>
+    </div>
+  </div>
+
+  <div class="programs-info-banner">
+    <i class="fa-solid fa-circle-info" style="color: #4f46e5; margin-right: 6px;"></i>
+    <strong>Controlled Academic Mapping:</strong> Admin defines the official relationship between <strong>Program Name</strong> and <strong>Program Code</strong>. When creating university students, the Admin simply selects the program from a dropdown, and the unique Program Code is applied automatically.
+  </div>
+
+  <!-- PROGRAMS TABLE -->
+  <div class="table-responsive-box">
+    <table class="table align-middle">
+      <thead style="background: #f8fafc;">
+        <tr>
+          <th style="width: 50px;">#</th>
+          <th>Program Name</th>
+          <th>Program Code</th>
+          <th>Enrolled Students</th>
+          <th style="text-align: right; width: 140px;">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in programs %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>
+            <strong style="color: #1e293b; font-size: 14px;">{{ p.name }}</strong>
+          </td>
+          <td>
+            <span class="badge-pcode">{{ p.code }}</span>
+          </td>
+          <td>
+            {% if p.student_count > 0 %}
+              <span class="badge-scount">
+                <i class="fa-solid fa-graduation-cap"></i> {{ p.student_count }} Student{{ 's' if p.student_count != 1 else '' }}
+              </span>
+            {% else %}
+              <span style="color: #94a3b8; font-size: 12.5px;">No students enrolled</span>
+            {% endif %}
+          </td>
+          <td style="text-align: right; white-space: nowrap;">
+            <button
+              type="button"
+              class="btn"
+              style="padding: 5px 10px; font-size: 12px; background: #f8fafc; border: 1px solid #cbd5e1; color: #334155;"
+              title="Edit Program"
+              onclick="openEditProgramModal('{{ p.code }}', '{{ p.name|e }}', {{ p.student_count }})">
+              <i class="fa-solid fa-pen-to-square"></i> Edit
+            </button>
+            <a
+              href="{{ url_for('admin.delete_program', code=p.code) }}"
+              onclick="return confirmDeleteProgram('{{ p.name|e }}', {{ p.student_count }});"
+              class="btn btn-danger"
+              style="padding: 5px 10px; font-size: 12px; margin-left: 4px;"
+              title="Delete Program">
+              <i class="fa-solid fa-trash"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ADD PROGRAM MODAL -->
+<div id="addProgramModal" class="program-modal-backdrop" style="display: none;">
+  <div class="program-modal-dialog">
+    <div class="program-modal-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: 8px; background: #e0e7ff; color: #4338ca; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <div>
+          <h3 style="margin: 0; font-size: 17px; color: #1e293b; font-weight: 700;">Add Academic Program</h3>
+          <p style="margin: 0; font-size: 12px; color: #64748b;">Define program title and assign its unique code.</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeAddProgramModal()" style="background: transparent; border: none; font-size: 24px; line-height: 1; color: #94a3b8; cursor: pointer;">&times;</button>
+    </div>
+
+    <form action="{{ url_for('admin.add_program') }}" method="POST">
+      <div style="padding: 20px;">
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Program Name *</label>
+          <input
+            type="text"
+            name="name"
+            placeholder="e.g. AI & Robotics or Bachelor of Arts"
+            required
+            style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; margin-top: 5px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Program Code *</label>
+          <input
+            type="text"
+            name="code"
+            placeholder="e.g. AIR or BAR"
+            style="text-transform: uppercase; width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; margin-top: 5px; box-sizing: border-box; font-family: monospace; font-weight: 700;"
+            required
+            autocomplete="off">
+          <small style="color: #64748b; font-size: 11.5px; margin-top: 4px; display: block;">
+            Admin decides the code. Must be unique. Used in Student Codes (BWU/{CODE}/YY/ROLL).
+          </small>
+        </div>
+      </div>
+
+      <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" onclick="closeAddProgramModal()" style="padding: 8px 16px; background: #e2e8f0; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #475569;">Cancel</button>
+        <button type="submit" style="padding: 8px 18px; background: #4f46e5; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #fff;">Save Program</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT PROGRAM MODAL -->
+<div id="editProgramModal" class="program-modal-backdrop" style="display: none;">
+  <div class="program-modal-dialog">
+    <div class="program-modal-header">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <div style="width: 36px; height: 36px; border-radius: 8px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </div>
+        <div>
+          <h3 style="margin: 0; font-size: 17px; color: #1e293b; font-weight: 700;">Edit Academic Program</h3>
+          <p style="margin: 0; font-size: 12px; color: #64748b;">Modify program name and code mapping.</p>
+        </div>
+      </div>
+      <button type="button" onclick="closeEditProgramModal()" style="background: transparent; border: none; font-size: 24px; line-height: 1; color: #94a3b8; cursor: pointer;">&times;</button>
+    </div>
+
+    <form action="{{ url_for('admin.edit_program') }}" method="POST">
+      <input type="hidden" name="old_code" id="editProgramOldCode">
+
+      <div style="padding: 20px;">
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Program Name *</label>
+          <input
+            type="text"
+            name="name"
+            id="editProgramName"
+            required
+            style="width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; margin-top: 5px; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 14px;">
+          <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Program Code *</label>
+          <input
+            type="text"
+            name="code"
+            id="editProgramCode"
+            style="text-transform: uppercase; width: 100%; padding: 10px 14px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 14px; margin-top: 5px; box-sizing: border-box; font-family: monospace; font-weight: 700;"
+            required
+            autocomplete="off">
+        </div>
+
+        <!-- Warning box when students are assigned -->
+        <div id="editProgramWarningBox" style="display: none; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 12px; margin-bottom: 14px; font-size: 12.5px; color: #92400e; line-height: 1.4;">
+          <i class="fa-solid fa-triangle-exclamation me-1" style="color: #d97706;"></i>
+          <span id="editProgramWarningText"></span>
+          <div style="margin-top: 8px;">
+            <label style="display: flex; align-items: center; gap: 6px; font-weight: 600; cursor: pointer; color: #78350f;">
+              <input type="checkbox" name="confirm_update_students" value="yes" id="confirmUpdateStudentsCheck">
+              Confirm controlled update of assigned student records
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 14px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" onclick="closeEditProgramModal()" style="padding: 8px 16px; background: #e2e8f0; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #475569;">Cancel</button>
+        <button type="submit" style="padding: 8px 18px; background: #4f46e5; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: #fff;">Update Program</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openAddProgramModal() {
+    const modal = document.getElementById('addProgramModal');
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function closeAddProgramModal() {
+    const modal = document.getElementById('addProgramModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function openEditProgramModal(code, name, studentCount) {
+    const oldCodeInput = document.getElementById('editProgramOldCode');
+    const nameInput = document.getElementById('editProgramName');
+    const codeInput = document.getElementById('editProgramCode');
+    const warningBox = document.getElementById('editProgramWarningBox');
+    const warningText = document.getElementById('editProgramWarningText');
+    const confirmCheck = document.getElementById('confirmUpdateStudentsCheck');
+    const modal = document.getElementById('editProgramModal');
+
+    if (oldCodeInput) oldCodeInput.value = code;
+    if (nameInput) nameInput.value = name;
+    if (codeInput) codeInput.value = code;
+
+    if (studentCount > 0) {
+      if (warningText) {
+        warningText.textContent = `Warning: ${studentCount} student(s) currently use code '${code}'. Changing this code will regenerate their Student Codes.`;
+      }
+      if (warningBox) warningBox.style.display = 'block';
+      if (confirmCheck) confirmCheck.checked = false;
+    } else {
+      if (warningBox) warningBox.style.display = 'none';
+    }
+
+    if (modal) modal.style.display = 'flex';
+  }
+
+  function closeEditProgramModal() {
+    const modal = document.getElementById('editProgramModal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  function confirmDeleteProgram(name, studentCount) {
+    if (studentCount > 0) {
+      alert("This program is currently assigned to students and cannot be deleted.");
+      return false;
+    }
+    return confirm(`Are you sure you want to delete the program '${name}'?`);
+  }
+
+  // Close modals when clicking backdrop
+  window.addEventListener('click', function(e) {
+    const addModal = document.getElementById('addProgramModal');
+    if (addModal && e.target === addModal) addModal.style.display = 'none';
+    const editModal = document.getElementById('editProgramModal');
+    if (editModal && e.target === editModal) editModal.style.display = 'none';
+  });
+</script>

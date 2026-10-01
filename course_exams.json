@@ -1,5 +1,41 @@
 [
   {
+    "id": "EXAM-CS301-MIDTERM",
+    "title": "Mid Semester Examination: Artificial Intelligence",
+    "course_code": "CS301",
+    "course_name": "Artificial Intelligence",
+    "subject": "Artificial Intelligence",
+    "description": "Official Mid Semester examination for B.Tech AI & Robotics 3rd Year students.",
+    "exam_type": "MCQ",
+    "exam_date": "2026-10-15",
+    "start_time": "10:00",
+    "end_time": "12:00",
+    "duration": 60,
+    "num_questions": 10,
+    "difficulty": "All",
+    "status": "Published",
+    "target_mode": "PROGRAM_BATCH_YEAR",
+    "program_code": "AIR",
+    "program_name": "AI & Robotics",
+    "admission_year": 2024,
+    "academic_year": "3rd Year",
+    "all_in_batch": true,
+    "student_codes": [],
+    "created_at": "2026-09-30 10:00:00",
+    "question_ids": [
+      "Q-CS301-65F8C3",
+      "Q-CS301-BA66BC",
+      "Q-BDF87995",
+      "Q-19DA0A96",
+      "Q-CS301-C22FD8",
+      "Q-CS301-C699E8",
+      "Q-CS301-F418F3",
+      "Q-CS301-3EF26D",
+      "Q-CS301-0FBE1A",
+      "Q-CS301-EE5C7A"
+    ]
+  },
+  {
     "id": "EXAM-CS401-DSA",
     "title": "Finals: Data Structures & Algorithmic Analysis",
     "course_code": "CS401",
@@ -109,5 +145,29 @@
       "Q-0CD50DAD"
     ],
     "created_at": "2026-09-29 22:27:17"
+  },
+  {
+    "id": "EXAM-BTR50116-ROBOTICS",
+    "title": "Robotic Algorithms: Advanced Path Planning",
+    "course_code": "BTR50116",
+    "course_name": "Robotics & Autonomous Systems",
+    "subject": "Robotic Algorithms",
+    "description": "Comprehensive evaluation of A* heuristic search, kinematics, and motion planning.",
+    "exam_type": "MCQ",
+    "exam_date": "2026-10-25",
+    "start_time": "11:00",
+    "end_time": "13:00",
+    "duration": 60,
+    "num_questions": 10,
+    "difficulty": "All",
+    "status": "Published",
+    "target_mode": "PROGRAM_BATCH_YEAR",
+    "program_code": "AIR",
+    "program_name": "AI & Robotics",
+    "admission_year": 2024,
+    "academic_year": "3rd Year",
+    "all_in_batch": true,
+    "student_codes": [],
+    "created_at": "2026-10-01 12:00:00"
   }
 ]

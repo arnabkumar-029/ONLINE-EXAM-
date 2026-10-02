@@ -1,0 +1,196 @@
+[33mcommit 15f712d89616607f90fabbcc84c39d6f02eda64c[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author:     arnabkumar-029 <arnabkumarjana0293@gmail.com>
+AuthorDate: Fri Oct 2 23:47:08 2026 +0530
+Commit:     arnabkumar-029 <arnabkumarjana0293@gmail.com>
+CommitDate: Fri Oct 2 23:47:08 2026 +0530
+
+    Update question bank course boxes
+
+[1mdiff --git a/__pycache__/admin_routes.cpython-313.pyc b/__pycache__/admin_routes.cpython-313.pyc[m
+[1mindex 8ead054..cb0934e 100644[m
+Binary files a/__pycache__/admin_routes.cpython-313.pyc and b/__pycache__/admin_routes.cpython-313.pyc differ
+[1mdiff --git a/__pycache__/app.cpython-313.pyc b/__pycache__/app.cpython-313.pyc[m
+[1mindex a9ee2f6..13652c6 100644[m
+Binary files a/__pycache__/app.cpython-313.pyc and b/__pycache__/app.cpython-313.pyc differ
+[1mdiff --git a/__pycache__/utils.cpython-313.pyc b/__pycache__/utils.cpython-313.pyc[m
+[1mindex beb57a7..ff8b2c4 100644[m
+Binary files a/__pycache__/utils.cpython-313.pyc and b/__pycache__/utils.cpython-313.pyc differ
+[1mdiff --git a/admin_routes.py b/admin_routes.py[m
+[1mindex 09e33e4..a122ff1 100644[m
+[1m--- a/admin_routes.py[m
+[1m+++ b/admin_routes.py[m
+[36m@@ -25,6 +25,7 @@[m [mfrom utils import ([m
+     count_eligible_students,[m
+     is_email_taken,[m
+     is_student_code_taken,[m
+[32m+[m[32m    group_questions_by_course_subject,[m[41m[m
+ )[m
+ import re[m
+ import json[m
+[36m@@ -2067,6 +2068,7 @@[m [mdef select_course_exam_questions(exam_id):[m
+         page="select_exam_questions",[m
+         exam=exam,[m
+         questions=all_qs,[m
+[32m+[m[32m        grouped_questions=group_questions_by_course_subject(all_qs),[m[41m[m
+         selected_ids=selected_ids,[m
+         existing_courses=unique_data["courses"],[m
+         existing_subjects=unique_data["subjects"],[m
+[1mdiff --git a/app.py b/app.py[m
+[1mindex 044e967..87137be 100644[m
+[1m--- a/app.py[m
+[1m+++ b/app.py[m
+[36m@@ -6,6 +6,7 @@[m [mfrom flask import Flask[m
+ def create_app():[m
+     app = Flask(__name__)[m
+     app.secret_key = "supersecret123"[m
+[32m+[m[32m    app.config["TEMPLATES_AUTO_RELOAD"] = True[m
+ [m
+     from auth_routes import auth_bp[m
+     from exam_routes import exam_bp[m
+[1mdiff --git a/programs.json b/programs.json[m
+[1mindex 74465c5..16aa6b9 100644[m
+[1m--- a/programs.json[m
+[1m+++ b/programs.json[m
+[36m@@ -49,7 +49,7 @@[m
+   },[m
+   {[m
+     "name": "AI & Machine Learning",[m
+[31m-    "code": "AIML"[m
+[32m+[m[32m    "code": "BTA"[m
+   },[m
+   {[m
+     "name": "Data Science",[m
+[1mdiff --git a/questions.json b/questions.json[m
+[1mindex 74f3fe4..5d24916 100644[m
+[1m--- a/questions.json[m
+[1m+++ b/questions.json[m
+[36m@@ -332,8 +332,8 @@[m
+   {[m
+     "id": "Q-88304388",[m
+     "course_code": "CS101",[m
+[31m-    "course_name": "Computer Science & Programming",[m
+[31m-    "subject": "Python Programming",[m
+[32m+[m[32m    "course_name": "Python",[m
+[32m+[m[32m    "subject": "Python",[m
+     "program_code": "",[m
+     "program_name": "",[m
+     "admission_year": null,[m
+[36m@@ -351,8 +351,8 @@[m
+   {[m
+     "id": "Q-6852AA8C",[m
+     "course_code": "CS101",[m
+[31m-    "course_name": "Computer Science & Programming",[m
+[31m-    "subject": "Python Programming",[m
+[32m+[m[32m    "course_name": "Python",[m
+[32m+[m[32m    "subject": "Python",[m
+     "program_code": "",[m
+     "program_name": "",[m
+     "admission_year": null,[m
+[36m@@ -370,8 +370,8 @@[m
+   {[m
+     "id": "Q-350E7843",[m
+     "course_code": "CS101",[m
+[31m-    "course_name": "Computer Science & Programming",[m
+[31m-    "subject": "Python Programming",[m
+[32m+[m[32m    "course_name": "Python",[m
+[32m+[m[32m    "subject": "Python",[m
+     "program_code": "",[m
+     "program_name": "",[m
+     "admission_year": null,[m
+[36m@@ -389,8 +389,8 @@[m
+   {[m
+     "id": "Q-CD080ACB",[m
+     "course_code": "CS101",[m
+[31m-    "course_name": "Computer Science & Programming",[m
+[31m-    "subject": "Python Programming",[m
+[32m+[m[32m    "course_name": "Python",[m
+[32m+[m[32m    "subject": "Python",[m
+     "program_code": "",[m
+     "program_name": "",[m
+     "admission_year": null,[m
+[36m@@ -408,8 +408,8 @@[m
+   {[m
+     "id": "Q-236050D7",[m
+     "course_code": "CS101",[m
+[31m-    "course_name": "Computer Science & Programming",[m
+[31m-    "subject": "Python Programming",[m
+[32m+[m[32m    "course_name": "Python",[m
+[32m+[m[32m    "subject": "Python",[m
+     "program_code": "",[m
+     "program_name": "",[m
+     "admission_year": null,[m
+[36m@@ -1524,33 +1524,195 @@[m
+     "source": "AI"[m
+   },[m
+   {[m
+[31m-    "id": "Q-CS301-AC99AE",[m
+[31m-    "course_code": "CS301",[m
+[31m-    "course_name": "B.Tech Computer Science & Engineering",[m
+[31m-    "subject": "Artificial Intelligence",[m
+[31m-    "program_code": "AIML",[m
+[31m-    "program_name": "AI & Machine Learning",[m
+[31m-    "admission_year": 2026,[m
+[32m+[m[32m    "id": "Q-JAVA-001",[m
+[32m+[m[32m    "course_code": "CS201",[m
+[32m+[m[32m    "course_name": "Java",[m
+[32m+[m[32m    "subject": "Java",[m
+[32m+[m[32m    "program_code": "CSE",[m
+[32m+[m[32m    "program_name": "Computer Science & Engineering",[m
+[32m+[m[32m    "admission_year": "ALL",[m
+[32m+[m[32m    "academic_year": "2nd Year",[m
+[32m+[m[32m    "unit": "Unit 1",[m
+[32m+[m[32m    "topic": "Java Fundamentals",[m
+[32m+[m[32m    "type": "MCQ",[m
+[32m+[m[32m    "level": "Easy",[m
+[32m+[m[32m    "source": "MANUAL",[m
+[32m+[m[32m    "question": "Which keyword is used to define a class in Java?",[m
+[32m+[m[32m    "options": [[m
+[32m+[m[32m      "class",[m
+[32m+[m[32m      "struct",[m
+[32m+[m[32m      "define",[m
+[32m+[m[32m      "object"[m
+[32m+[m[32m    ],[m
+[32m+[m[32m    "correct": "class"[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "Q-JAVA-002",[m
+[32m+[m[32m    "course_code": "CS201",[m
+[32m+[m[32m    "course_name": "Java",[m
+[32m+[m[32m    "subject": "Java",[m
+[32m+[m[32m    "program_code": "CSE",[m
+[32m+[m[32m    "program_name": "Computer Science & Engineering",[m
+[32m+[m[32m    "admission_year": "ALL",[m
+[32m+[m[32m    "academic_year": "2nd Year",[m
+[32m+[m[32m    "unit": "Unit 1",[m
+[32m+[m[32m    "topic": "JVM Architecture",[m
+[32m+[m[32m    "type": "MCQ",[m
+[32m+[m[32m    "level": "Medium",[m
+[32m+[m[32m    "source": "MANUAL",[m
+[32m+[m[32m    "question": "What is the primary function of the Java Virtual Machine (JVM)?",[m
+[32m+[m[32m    "options": [[m
+[32m+[m[32m      "To execute compiled Java bytecode into platform-specific machine code",[m
+[32m+[m[32m      "To compile Java source code directly into native machine code",[m
+[32m+[m[32m      "To manage database transactions exclusively",[m
+[32m+[m[32m      "To design graphical user interfaces"[m
+[32m+[m[32m    ],[m
+[32m+[m[32m    "correct": "To execute compiled Java bytecode into platform-specific machine code"[m
+[32m+[m[32m  },[m
+[32m+[m[32m  {[m
+[32m+[m[32m    "id": "Q-JAVA-003",[m
+[32m+[m[32m    "course_code": "CS201",[m
+[32m+[m[32m    "course_name": "Java",[m
+[32m+[m[32m    "subject": "Java",[m
+[32m+[m[32m    "program_code": "CSE",[m
+[32m+[m[32m    "program_name": "Computer Science & Engineering",[m
+[32m+[m[32m    "admission_year": "ALL",[m
+[32m+[m[32m    "academic_year": "2nd Year",[m
+[32m+[m[32m    "unit": "Unit 2",[m
+[32m+[m[32m    "topic": "OOP Concepts",[m
+[32m+[m[32m    "type": "DESCRIPTIVE",[m
+[32m+[m[32m    "level": "Medium",[m
+[32m+[m[32m    "source": "MANUAL",[m
+[32m+[m[32m    "question": "Explain the difference between method overloading and method overriding in Java with suitable examples.",[m
+[32m+[m[32m    "answer_key": "keywords: overloading compile-time polymorphism same name different parameters overriding runtime polymorphism inheritance @Override",[m
+[32m+[m[32m    "max_marks": 5[m
+[32m+[m[32m  },[m
+[3

@@ -3,6 +3,8 @@
 <style>
   .students-admin-wrapper {
     margin-bottom: 30px;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .students-header-row {
@@ -220,16 +222,188 @@
     font-weight: 600;
   }
 
+  /* Table Horizontal Scroll Instruction Tip */
+  .table-scroll-info-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #e0f2fe;
+    border: 1px solid #7dd3fc;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    color: #0c4a6e;
+    font-size: 13.5px;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(14, 165, 233, 0.08);
+  }
+
+  .table-scroll-info-banner-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: #ffffff;
+    border: 1px solid #7dd3fc;
+    border-radius: 6px;
+    color: #0284c7;
+    font-size: 14px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .table-scroll-info-banner-text {
+    color: #0c4a6e;
+    line-height: 1.4;
+  }
+
   .table-responsive-box {
     width: 100%;
-    overflow-x: auto;
+    max-width: 100%;
+    overflow-x: scroll !important; /* Forces persistent horizontal scroll line */
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
     background: #ffffff;
     border-radius: 12px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    border: 1px solid #cbd5e1;
+    scrollbar-width: auto;
+    scrollbar-color: #4f46e5 #e2e8f0;
   }
 
-  .table-responsive-box table {
+  /* Highly Visible Horizontal Scrollbar Line */
+  .table-responsive-box::-webkit-scrollbar {
+    height: 13px !important;
+    display: block !important;
+  }
+
+  .table-responsive-box::-webkit-scrollbar-track {
+    background: #e2e8f0;
+    border-top: 1px solid #cbd5e1;
+    border-radius: 0 0 10px 10px;
+  }
+
+  .table-responsive-box::-webkit-scrollbar-thumb {
+    background: #4f46e5;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+  }
+
+  .table-responsive-box::-webkit-scrollbar-thumb:hover {
+    background: #3730a3;
+  }
+
+  #studentsTable {
+    width: 100%;
+    min-width: 1650px; /* Guarantees active horizontal scroll travel on all displays */
+    border-collapse: collapse;
     margin-bottom: 0;
+  }
+
+  #studentsTable th {
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 12px 14px;
+    background: #4f46e5;
+    color: #ffffff;
+    border-color: #4338ca;
+    border-bottom: 2px solid #3730a3;
+  }
+
+  #studentsTable tr {
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  #studentsTable td {
+    padding: 11px 14px;
+    vertical-align: middle;
+    font-size: 13px;
+    border-bottom: 1px solid #e2e8f0;
+    border-left: 1px solid #f8fafc;
+    border-right: 1px solid #f8fafc;
+  }
+
+  #studentsTable th:nth-child(1),
+  #studentsTable td:nth-child(1) {
+    width: 50px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  #studentsTable th:nth-child(2),
+  #studentsTable td:nth-child(2) {
+    width: 125px;
+    white-space: nowrap;
+  }
+
+  #studentsTable th:nth-child(3),
+  #studentsTable td:nth-child(3) {
+    min-width: 175px;
+  }
+
+  #studentsTable th:nth-child(4),
+  #studentsTable td:nth-child(4) {
+    min-width: 200px;
+  }
+
+  #studentsTable th:nth-child(5),
+  #studentsTable td:nth-child(5) {
+    min-width: 175px;
+    white-space: nowrap;
+  }
+
+  #studentsTable th:nth-child(6),
+  #studentsTable td:nth-child(6) {
+    min-width: 180px;
+  }
+
+  #studentsTable th:nth-child(7),
+  #studentsTable td:nth-child(7) {
+    width: 90px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  #studentsTable th:nth-child(8),
+  #studentsTable td:nth-child(8) {
+    min-width: 180px;
+  }
+
+  #studentsTable th:nth-child(9),
+  #studentsTable td:nth-child(9) {
+    width: 90px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  #studentsTable th:nth-child(10),
+  #studentsTable td:nth-child(10) {
+    width: 110px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  #studentsTable th:nth-child(11),
+  #studentsTable td:nth-child(11) {
+    width: 95px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  #studentsTable th:nth-child(12),
+  #studentsTable td:nth-child(12) {
+    width: 95px;
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  #studentsTable th:nth-child(13),
+  #studentsTable td:nth-child(13) {
+    width: 165px;
+    text-align: center;
+    white-space: nowrap;
   }
 
   .empty-filter-state {
@@ -353,6 +527,12 @@
       <span id="studentsFilterStatus">Showing {{ students|length }} of {{ students|length }} students</span>
       <span><i class="fa-solid fa-circle-info me-1"></i> Live academic search active</span>
     </div>
+  </div>
+
+  <!-- HORIZONTAL SCROLL INSTRUCTION TIP -->
+  <div class="table-scroll-info-banner" role="note" aria-label="Table horizontal scroll hint">
+    <span class="table-scroll-info-banner-icon">↔</span>
+    <span class="table-scroll-info-banner-text">Scroll horizontally to view all student details, including Department, Batch, Academic Year and Actions.</span>
   </div>
 
   <!-- STUDENTS TABLE -->

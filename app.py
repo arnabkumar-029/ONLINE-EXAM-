@@ -6,6 +6,7 @@ from flask import Flask
 def create_app():
     app = Flask(__name__)
     app.secret_key = "supersecret123"
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     from auth_routes import auth_bp
     from exam_routes import exam_bp

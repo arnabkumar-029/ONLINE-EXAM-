@@ -907,6 +907,37 @@ def get_unique_courses_and_subjects() -> Dict[str, List[str]]:
     }
 
 
+def group_questions_by_course_subject(questions: List[Dict]) -> Dict[str, List[Dict]]:
+    """
+    Groups questions into separate Course/Subject collections.
+    Uses question metadata (subject, course_name, course_code) to determine the group name.
+    Falls back to 'UNASSIGNED' if no classification is available.
+    Preserves question integrity, prevents duplication across boxes, and ensures legacy questions do not crash.
+    """
+    from collections import OrderedDict
+    groups = OrderedDict()
+    for q in questions:
+        subj = str(q.get("subject") or "").strip()
+        cname = str(q.get("course_name") or "").strip()
+        code = str(q.get("course_code") or "").strip().upper()
+
+        if subj and subj.lower() not in ["general", "none", "n/a", "unassigned"]:
+            group_name = subj
+        elif cname and cname.lower() not in ["general", "none", "n/a", "unassigned"]:
+            group_name = cname
+        elif subj:
+            group_name = subj
+        elif code:
+            group_name = code
+        else:
+            group_name = "UNASSIGNED"
+
+        if group_name not in groups:
+            groups[group_name] = []
+        groups[group_name].append(q)
+    return groups
+
+
 # ==============================================================
 # COURSE EXAM STUDENT ELIGIBILITY & TARGETING HELPERS
 # ==============================================================

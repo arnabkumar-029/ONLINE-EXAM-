@@ -494,8 +494,117 @@
     cursor: pointer;
   }
 
-  /* Questions Cards Grid */
+  /* Questions Cards Container */
   .questions-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* Individual Course / Subject Boxes */
+  .course-subject-box {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 22px 24px;
+    margin-bottom: 22px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .course-subject-box:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  .cs-box-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 16px;
+    margin-bottom: 18px;
+    border-bottom: 2px solid #f1f5f9;
+  }
+
+  .cs-box-header-left {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .cs-box-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .cs-box-icon {
+    font-size: 20px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cs-box-title {
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    color: #0f172a;
+    margin: 0;
+    text-transform: uppercase;
+  }
+
+  .cs-box-count-badge {
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 4px 12px;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .cs-box-select-all-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1.5px solid #cbd5e1;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #1e293b;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+
+  .cs-box-select-all-label:hover {
+    background: #eff6ff;
+    border-color: #0ea5e9;
+    color: #0284c7;
+  }
+
+  .cs-box-select-all-checkbox {
+    width: 17px;
+    height: 17px;
+    cursor: pointer;
+    accent-color: #0ea5e9;
+  }
+
+  .cs-box-questions {
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -1324,101 +1433,163 @@
         </div>
       </div>
 
-      <!-- QUESTIONS LIST CARDS -->
+      <!-- QUESTIONS LIST: INDIVIDUAL COURSE / SUBJECT BOXES -->
       <div class="questions-container" id="questionsListContainer">
-        {% for q in questions %}
-        {% set q_id = q.id|default('Q-' ~ loop.index) %}
-        {% set is_selected = q_id in selected_ids %}
-        <div class="question-item-card {% if is_selected %}is-selected{% endif %}"
-             id="card-{{ q_id }}"
-             data-qid="{{ q_id }}"
-             data-course-code="{{ q.course_code|default('')|upper }}"
-             data-subject="{{ q.subject|default('')|lower }}"
-             data-program="{{ q.program_code|default('ALL')|upper }}"
-             data-admission-year="{{ q.admission_year|default('ALL')|string|upper }}"
-             data-academic-year="{{ q.academic_year|default('ALL')|lower }}"
-             data-unit="{{ q.unit|default('')|lower }}"
-             data-type="{{ q.type|default('MCQ')|upper }}"
-             data-level="{{ q.level|default('Easy') }}"
-             data-source="{{ q.source|default('MANUAL')|upper }}"
-             data-search="{{ (q.question|default(q.q)|default('') ~ ' ' ~ q_id ~ ' ' ~ q.topic|default('') ~ ' ' ~ q.unit|default('') ~ ' ' ~ q.program_code|default('') ~ ' ' ~ q.admission_year|default('') ~ ' ' ~ q.academic_year|default(''))|lower }}"
-             onclick="handleCardClick(event, '{{ q_id }}')">
+        {% for group_name, group_qs in (grouped_questions.items() if grouped_questions is defined else [(exam.subject or 'GENERAL', questions)]) %}
+        {% set group_id = loop.index %}
+        <div class="course-subject-box"
+             id="cs-box-{{ group_id }}"
+             data-group-id="{{ group_id }}"
+             data-group-name="{{ group_name|upper }}">
 
-          <div class="q-card-top">
-            <div class="q-card-select-trigger">
-              <input type="checkbox"
-                     class="q-select-checkbox"
-                     id="chk-{{ q_id }}"
-                     data-qid="{{ q_id }}"
-                     {% if is_selected %}checked{% endif %}
-                     onclick="handleCheckboxClick(event, '{{ q_id }}')">
-              <div class="q-meta-badges">
-                <span class="q-badge q-badge-code">{{ q.course_code|default('GEN101') }}</span>
-                <span class="q-badge q-badge-subj">{{ q.subject|default('General') }}</span>
-                <span class="q-badge {% if q.type == 'DESCRIPTIVE' %}q-badge-type-desc{% else %}q-badge-type-mcq{% endif %}">
-                  {{ q.type|default('MCQ') }}
+          <div class="cs-box-header">
+            <div class="cs-box-header-left">
+              <div class="cs-box-title-wrap">
+                <span class="cs-box-icon">
+                  {% set gn = group_name|lower %}
+                  {% if 'python' in gn %}
+                    <i class="fa-brands fa-python text-warning"></i>
+                  {% elif 'java' in gn %}
+                    <i class="fa-brands fa-java text-danger"></i>
+                  {% elif 'ethics' in gn %}
+                    <i class="fa-solid fa-scale-balanced text-info"></i>
+                  {% elif 'electrical' in gn %}
+                    <i class="fa-solid fa-bolt text-warning"></i>
+                  {% elif 'artificial intelligence' in gn or 'machine learning' in gn %}
+                    <i class="fa-solid fa-robot text-primary"></i>
+                  {% elif 'data structures' in gn or 'algorithm' in gn %}
+                    <i class="fa-solid fa-network-wired" style="color: #8b5cf6;"></i>
+                  {% elif 'unassigned' in gn %}
+                    <i class="fa-solid fa-folder-open text-muted"></i>
+                  {% else %}
+                    <i class="fa-solid fa-book-bookmark text-primary"></i>
+                  {% endif %}
                 </span>
-                <span class="q-badge {% if q.level == 'Hard' %}q-badge-level-hard{% elif q.level == 'Medium' %}q-badge-level-med{% else %}q-badge-level-easy{% endif %}">
-                  {{ q.level|default('Easy') }}
-                </span>
-                <span class="q-badge q-badge-source">{{ q.source|default('MANUAL') }}</span>
-                {% if q.program_code and q.program_code != 'ALL' %}
-                  <span class="badge-target-prog" title="{{ q.program_name|default('') }}"><i class="fa-solid fa-graduation-cap me-1"></i>{{ q.program_code }}</span>
-                {% endif %}
-                {% if q.admission_year and q.admission_year != 'ALL' %}
-                  <span class="badge-target-batch"><i class="fa-solid fa-calendar me-1"></i>Batch {{ q.admission_year }}</span>
-                {% endif %}
-                {% if q.academic_year and q.academic_year != 'ALL' %}
-                  <span class="badge-target-year"><i class="fa-solid fa-user-graduate me-1"></i>{{ q.academic_year }}</span>
-                {% endif %}
-                {% if not q.program_code and not q.admission_year and not q.academic_year %}
-                  <span class="badge-unconfigured" title="Targeting not configured"><i class="fa-solid fa-circle-info me-1"></i>General / Unconfigured</span>
-                {% endif %}
+                <h3 class="cs-box-title">{{ group_name|upper }}</h3>
               </div>
+              <span class="cs-box-count-badge">
+                <strong class="cs-visible-count">{{ group_qs|length }}</strong> Questions
+              </span>
             </div>
-            <span class="q-id-code">ID: {{ q_id }}</span>
+
+            <div class="cs-box-header-right">
+              <label class="cs-box-select-all-label" for="boxSelectAll-{{ group_id }}">
+                <input type="checkbox"
+                       class="cs-box-select-all-checkbox"
+                       id="boxSelectAll-{{ group_id }}"
+                       onchange="handleBoxSelectAll('{{ group_id }}', this.checked)">
+                <span><i class="fa-solid fa-check-double me-1"></i> SELECT ALL</span>
+              </label>
+            </div>
           </div>
 
-          {% if q.unit or q.topic %}
-          <div class="q-unit-topic">
-            <i class="fa-solid fa-folder-tree me-1 text-primary"></i>
-            {% if q.unit %}<span>{{ q.unit }}</span>{% endif %}
-            {% if q.unit and q.topic %} • {% endif %}
-            {% if q.topic %}<span>{{ q.topic }}</span>{% endif %}
-          </div>
-          {% endif %}
+          <div class="cs-box-questions">
+            {% for q in group_qs %}
+            {% set q_id = q.id|default('Q-' ~ loop.index) %}
+            {% set is_selected = q_id in selected_ids %}
+            <div class="question-item-card {% if is_selected %}is-selected{% endif %}"
+                 id="card-{{ q_id }}"
+                 data-qid="{{ q_id }}"
+                 data-course-code="{{ q.course_code|default('')|upper }}"
+                 data-subject="{{ q.subject|default('')|lower }}"
+                 data-program="{{ q.program_code|default('ALL')|upper }}"
+                 data-admission-year="{{ q.admission_year|default('ALL')|string|upper }}"
+                 data-academic-year="{{ q.academic_year|default('ALL')|lower }}"
+                 data-unit="{{ q.unit|default('')|lower }}"
+                 data-type="{{ q.type|default('MCQ')|upper }}"
+                 data-level="{{ q.level|default('Easy') }}"
+                 data-source="{{ q.source|default('MANUAL')|upper }}"
+                 data-search="{{ (q.question|default(q.q)|default('') ~ ' ' ~ q_id ~ ' ' ~ q.topic|default('') ~ ' ' ~ q.unit|default('') ~ ' ' ~ q.program_code|default('') ~ ' ' ~ q.admission_year|default('') ~ ' ' ~ q.academic_year|default(''))|lower }}"
+                 onclick="handleCardClick(event, '{{ q_id }}')">
 
-          <div class="q-text-body">
-            {{ q.question|default(q.q) }}
-          </div>
-
-          {% if q.type == 'DESCRIPTIVE' %}
-            <div class="desc-answer-box">
-              <strong style="color: #7c3aed;"><i class="fa-solid fa-key me-1"></i> Model Answer:</strong>
-              <div>{{ q.answer_key|default('N/A') }}</div>
-            </div>
-            <div style="margin-top: 6px;">
-              <span class="desc-marks-badge"><i class="fa-solid fa-award me-1"></i> Max Marks: {{ q.max_marks|default(5) }}</span>
-            </div>
-          {% else %}
-            {% set opts = q.options or q.a %}
-            {% if opts %}
-            <div class="mcq-options-list">
-              {% for opt in opts %}
-              <div class="mcq-option-row {% if opt == q.correct %}is-correct{% endif %}">
-                <span style="font-weight: 700; width: 18px;">{{ ['A','B','C','D'][loop.index0] if loop.index0 < 4 else loop.index }}.</span>
-                <span>{{ opt }}</span>
-                {% if opt == q.correct %}
-                  <i class="fa-solid fa-circle-check ms-auto text-success"></i>
-                {% endif %}
+              <div class="q-card-top">
+                <div class="q-card-select-trigger">
+                  <input type="checkbox"
+                         class="q-select-checkbox"
+                         id="chk-{{ q_id }}"
+                         data-qid="{{ q_id }}"
+                         {% if is_selected %}checked{% endif %}
+                         onclick="handleCheckboxClick(event, '{{ q_id }}')">
+                  <div class="q-meta-badges">
+                    <span class="q-badge q-badge-code">{{ q.course_code|default('GEN101') }}</span>
+                    <span class="q-badge q-badge-subj">{{ q.subject|default('General') }}</span>
+                    <span class="q-badge {% if q.type == 'DESCRIPTIVE' %}q-badge-type-desc{% else %}q-badge-type-mcq{% endif %}">
+                      {{ q.type|default('MCQ') }}
+                    </span>
+                    <span class="q-badge {% if q.level == 'Hard' %}q-badge-level-hard{% elif q.level == 'Medium' %}q-badge-level-med{% else %}q-badge-level-easy{% endif %}">
+                      {{ q.level|default('Easy') }}
+                    </span>
+                    <span class="q-badge q-badge-source">{{ q.source|default('MANUAL') }}</span>
+                    {% if q.program_code and q.program_code != 'ALL' %}
+                      <span class="badge-target-prog" title="{{ q.program_name|default('') }}"><i class="fa-solid fa-graduation-cap me-1"></i>{{ q.program_code }}</span>
+                    {% endif %}
+                    {% if q.admission_year and q.admission_year != 'ALL' %}
+                      <span class="badge-target-batch"><i class="fa-solid fa-calendar me-1"></i>Batch {{ q.admission_year }}</span>
+                    {% endif %}
+                    {% if q.academic_year and q.academic_year != 'ALL' %}
+                      <span class="badge-target-year"><i class="fa-solid fa-user-graduate me-1"></i>{{ q.academic_year }}</span>
+                    {% endif %}
+                    {% if not q.program_code and not q.admission_year and not q.academic_year %}
+                      <span class="badge-unconfigured" title="Targeting not configured"><i class="fa-solid fa-circle-info me-1"></i>General / Unconfigured</span>
+                    {% endif %}
+                  </div>
+                </div>
+                <span class="q-id-code">ID: {{ q_id }}</span>
               </div>
-              {% endfor %}
-            </div>
-            {% endif %}
-          {% endif %}
 
+              {% if q.unit or q.topic %}
+              <div class="q-unit-topic">
+                <i class="fa-solid fa-folder-tree me-1 text-primary"></i>
+                {% if q.unit %}<span>{{ q.unit }}</span>{% endif %}
+                {% if q.unit and q.topic %} • {% endif %}
+                {% if q.topic %}<span>{{ q.topic }}</span>{% endif %}
+              </div>
+              {% endif %}
+
+              <div class="q-text-body">
+                {{ q.question|default(q.q) }}
+              </div>
+
+              {% if q.type == 'DESCRIPTIVE' %}
+                <div class="desc-answer-box">
+                  <strong style="color: #7c3aed;"><i class="fa-solid fa-key me-1"></i> Model Answer:</strong>
+                  <div>{{ q.answer_key|default('N/A') }}</div>
+                </div>
+                <div style="margin-top: 6px;">
+                  <span class="desc-marks-badge"><i class="fa-solid fa-award me-1"></i> Max Marks: {{ q.max_marks|default(5) }}</span>
+                </div>
+              {% else %}
+                {% set opts = q.options or q.a %}
+                {% if opts %}
+                <div class="mcq-options-list">
+                  {% for opt in opts %}
+                  <div class="mcq-option-row {% if opt == q.correct %}is-correct{% endif %}">
+                    <span style="font-weight: 700; width: 18px;">{{ ['A','B','C','D'][loop.index0] if loop.index0 < 4 else loop.index }}.</span>
+                    <span>{{ opt }}</span>
+                    {% if opt == q.correct %}
+                      <i class="fa-solid fa-circle-check ms-auto text-success"></i>
+                    {% endif %}
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endif %}
+              {% endif %}
+
+            </div>
+            {% endfor %}
+          </div>
         </div>
         {% endfor %}
+
+        <!-- Empty state when no questions match filters -->
+        <div class="empty-questions-state" id="questionsEmptyState" style="display: none; text-align: center; padding: 48px 24px; background: #ffffff; border: 2px dashed #cbd5e1; border-radius: 18px;">
+          <i class="fa-solid fa-filter-circle-xmark text-muted" style="font-size: 38px; margin-bottom: 12px; display: block;"></i>
+          <h4 style="font-weight: 700; color: #334155; margin-bottom: 6px;">No Matching Questions Found</h4>
+          <p style="color: #64748b; font-size: 13.5px; margin-bottom: 16px;">Try adjusting your filter criteria or search keyword to view questions.</p>
+          <button type="button" class="btn btn-sm btn-outline-primary" onclick="resetFilters()">
+            <i class="fa-solid fa-rotate-left me-1"></i> Reset Filters
+          </button>
+        </div>
       </div>
 
     </div>
@@ -1632,6 +1803,7 @@
     applyFilters();
     renderSelectedPanel();
     updateLiveMetrics();
+    syncSelectAllStates();
   });
 
   // Live Metrics & Bank Inventory Calculation
@@ -1829,7 +2001,7 @@
     container.innerHTML = html;
   }
 
-  // Filter Logic
+  // Filter Logic: Filters individual questions and shows/hides entire Course/Subject boxes
   function applyFilters() {
     const codeVal = document.getElementById('filterCourseCode').value.toUpperCase().trim();
     const subjVal = document.getElementById('filterSubject').value.toLowerCase().trim();
@@ -1841,58 +2013,83 @@
     const sourceVal = document.getElementById('filterSource').value.toUpperCase().trim();
     const searchVal = document.getElementById('filterSearchInput').value.toLowerCase().trim();
 
-    const cards = document.querySelectorAll('#questionsListContainer .question-item-card');
-    let visibleCount = 0;
+    let totalVisible = 0;
+    const boxes = document.querySelectorAll('#questionsListContainer .course-subject-box');
 
-    cards.forEach(card => {
-      const cCode = (card.getAttribute('data-course-code') || '').toUpperCase();
-      const cSubj = (card.getAttribute('data-subject') || '').toLowerCase();
-      const cProg = (card.getAttribute('data-program') || 'ALL').toUpperCase();
-      const cBatch = (card.getAttribute('data-admission-year') || 'ALL').toUpperCase();
-      const cAcad = (card.getAttribute('data-academic-year') || 'ALL').toLowerCase();
-      const cType = (card.getAttribute('data-type') || '').toUpperCase();
-      const cLevel = (card.getAttribute('data-level') || '').toLowerCase();
-      const cSource = (card.getAttribute('data-source') || '').toUpperCase();
-      const cSearch = (card.getAttribute('data-search') || '').toLowerCase();
+    boxes.forEach(box => {
+      const cards = box.querySelectorAll('.question-item-card');
+      let boxVisibleCount = 0;
 
-      let match = true;
-      if (codeVal && cCode !== codeVal) match = false;
-      if (subjVal && cSubj !== subjVal) match = false;
+      cards.forEach(card => {
+        const cCode = (card.getAttribute('data-course-code') || '').toUpperCase();
+        const cSubj = (card.getAttribute('data-subject') || '').toLowerCase();
+        const cProg = (card.getAttribute('data-program') || 'ALL').toUpperCase();
+        const cBatch = (card.getAttribute('data-admission-year') || 'ALL').toUpperCase();
+        const cAcad = (card.getAttribute('data-academic-year') || 'ALL').toLowerCase();
+        const cType = (card.getAttribute('data-type') || '').toUpperCase();
+        const cLevel = (card.getAttribute('data-level') || '').toLowerCase();
+        const cSource = (card.getAttribute('data-source') || '').toUpperCase();
+        const cSearch = (card.getAttribute('data-search') || '').toLowerCase();
 
-      // Program filter
-      if (progVal) {
-        if (progVal === 'UNCONFIGURED') {
-          if (!card.querySelector('.badge-unconfigured')) match = false;
-        } else if (progVal !== 'ALL') {
-          if (cProg !== 'ALL' && cProg !== progVal) match = false;
+        let match = true;
+        if (codeVal && cCode !== codeVal) match = false;
+        if (subjVal && cSubj !== subjVal) match = false;
+
+        // Program filter
+        if (progVal) {
+          if (progVal === 'UNCONFIGURED') {
+            if (!card.querySelector('.badge-unconfigured')) match = false;
+          } else if (progVal !== 'ALL') {
+            if (cProg !== 'ALL' && cProg !== progVal) match = false;
+          }
         }
-      }
 
-      // Batch filter
-      if (batchVal && batchVal !== 'ALL') {
-        if (cBatch !== 'ALL' && cBatch !== batchVal) match = false;
-      }
+        // Batch filter
+        if (batchVal && batchVal !== 'ALL') {
+          if (cBatch !== 'ALL' && cBatch !== batchVal) match = false;
+        }
 
-      // Academic Year filter
-      if (acadVal && acadVal !== 'all') {
-        if (cAcad !== 'all' && cAcad !== acadVal) match = false;
-      }
+        // Academic Year filter
+        if (acadVal && acadVal !== 'all') {
+          if (cAcad !== 'all' && cAcad !== acadVal) match = false;
+        }
 
-      if (typeVal && cType !== typeVal) match = false;
-      if (diffVal && cLevel !== diffVal) match = false;
-      if (sourceVal && cSource !== sourceVal) match = false;
-      if (searchVal && !cSearch.includes(searchVal)) match = false;
+        if (typeVal && cType !== typeVal) match = false;
+        if (diffVal && cLevel !== diffVal) match = false;
+        if (sourceVal && cSource !== sourceVal) match = false;
+        if (searchVal && !cSearch.includes(searchVal)) match = false;
 
-      if (match) {
-        card.style.display = '';
-        visibleCount++;
+        if (match) {
+          card.style.display = '';
+          boxVisibleCount++;
+          totalVisible++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      // Update question count badge inside this box
+      const countEl = box.querySelector('.cs-visible-count');
+      if (countEl) countEl.textContent = boxVisibleCount;
+
+      // Show box if at least one question is visible, else hide box
+      if (boxVisibleCount > 0) {
+        box.style.display = '';
       } else {
-        card.style.display = 'none';
+        box.style.display = 'none';
       }
     });
 
     const stats = document.getElementById('visibleCountNum');
-    if (stats) stats.textContent = visibleCount;
+    if (stats) stats.textContent = totalVisible;
+
+    // Show/hide empty state
+    const emptyState = document.getElementById('questionsEmptyState');
+    if (emptyState) {
+      emptyState.style.display = (totalVisible === 0) ? 'block' : 'none';
+    }
+
+    syncSelectAllStates();
   }
 
   function resetFilters() {
@@ -1914,31 +2111,133 @@
     applyFilters();
   }
 
-  // Select All Visible
-  function handleSelectAllVisible(isChecked) {
-    const visibleCards = document.querySelectorAll('#questionsListContainer .question-item-card:not([style*="display: none"])');
+  // Update visual state of question card and its checkbox
+  function updateQuestionCardState(qid, isSelected) {
+    const card = document.getElementById('card-' + qid);
+    const chk = document.getElementById('chk-' + qid);
+    if (card) {
+      if (isSelected) {
+        card.classList.add('is-selected');
+      } else {
+        card.classList.remove('is-selected');
+      }
+    }
+    if (chk) {
+      chk.checked = isSelected;
+    }
+  }
+
+  // Handle clicking on question checkbox directly
+  function handleCheckboxClick(event, qid) {
+    if (event) event.stopPropagation();
+    const chk = document.getElementById('chk-' + qid);
+    const isChecked = chk ? chk.checked : !selectedIds.includes(qid);
+
     if (isChecked) {
-      let addedAny = false;
+      if (!selectedIds.includes(qid)) {
+        if (selectedIds.length >= requiredCount) {
+          if (chk) chk.checked = false;
+          Swal.fire({
+            icon: 'warning',
+            title: 'MAXIMUM QUESTIONS REACHED',
+            text: `Maximum ${requiredCount} questions reached.`,
+            timer: 2000,
+            showConfirmButton: false,
+            background: '#0d1527',
+            color: '#f8fafc',
+            iconColor: '#f59e0b'
+          });
+          return;
+        }
+        selectedIds.push(qid);
+        updateQuestionCardState(qid, true);
+      }
+    } else {
+      const idx = selectedIds.indexOf(qid);
+      if (idx > -1) {
+        selectedIds.splice(idx, 1);
+        updateQuestionCardState(qid, false);
+      }
+    }
+    renderSelectedPanel();
+    syncSelectAllStates();
+  }
+
+  // Handle clicking on question card body
+  function handleCardClick(event, qid) {
+    if (event) {
+      const target = event.target;
+      if (target.tagName === 'INPUT' || target.closest('.q-select-checkbox') || target.closest('.desc-answer-box') || target.closest('.mcq-options-list') || target.closest('button') || target.closest('a')) {
+        return;
+      }
+    }
+    const isCurrentlySelected = selectedIds.includes(qid);
+    if (isCurrentlySelected) {
+      const idx = selectedIds.indexOf(qid);
+      selectedIds.splice(idx, 1);
+      updateQuestionCardState(qid, false);
+    } else {
+      if (selectedIds.length >= requiredCount) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'MAXIMUM QUESTIONS REACHED',
+          text: `Maximum ${requiredCount} questions reached.`,
+          timer: 2000,
+          showConfirmButton: false,
+          background: '#0d1527',
+          color: '#f8fafc',
+          iconColor: '#f59e0b'
+        });
+        return;
+      }
+      selectedIds.push(qid);
+      updateQuestionCardState(qid, true);
+    }
+    renderSelectedPanel();
+    syncSelectAllStates();
+  }
+
+  // Remove question from selected panel
+  function removeSelected(qid) {
+    const idx = selectedIds.indexOf(qid);
+    if (idx > -1) {
+      selectedIds.splice(idx, 1);
+      updateQuestionCardState(qid, false);
+      renderSelectedPanel();
+      syncSelectAllStates();
+    }
+  }
+
+  // Select All within a single Course/Subject Box
+  function handleBoxSelectAll(groupId, isChecked) {
+    const box = document.getElementById('cs-box-' + groupId);
+    if (!box) return;
+    const visibleCards = box.querySelectorAll('.question-item-card:not([style*="display: none"])');
+
+    if (isChecked) {
+      let limitReached = false;
       for (const card of visibleCards) {
         const qid = card.getAttribute('data-qid');
         if (!selectedIds.includes(qid)) {
           if (selectedIds.length >= requiredCount) {
-            Swal.fire({
-              icon: 'warning',
-              title: 'MAXIMUM QUESTIONS REACHED',
-              text: `Maximum ${requiredCount} questions reached.`,
-              timer: 2000,
-              showConfirmButton: false,
-              background: '#0d1527',
-              color: '#f8fafc',
-              iconColor: '#f59e0b'
-            });
+            limitReached = true;
             break;
           }
           selectedIds.push(qid);
           updateQuestionCardState(qid, true);
-          addedAny = true;
         }
+      }
+      if (limitReached) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'MAXIMUM QUESTIONS REACHED',
+          text: `Maximum ${requiredCount} questions reached.`,
+          timer: 2000,
+          showConfirmButton: false,
+          background: '#0d1527',
+          color: '#f8fafc',
+          iconColor: '#f59e0b'
+        });
       }
     } else {
       visibleCards.forEach(card => {
@@ -1951,6 +2250,90 @@
       });
     }
     renderSelectedPanel();
+    syncSelectAllStates();
+  }
+
+  // Global Select All across all visible boxes
+  function handleSelectAllVisible(isChecked) {
+    const visibleCards = document.querySelectorAll('#questionsListContainer .question-item-card:not([style*="display: none"])');
+    if (isChecked) {
+      let limitReached = false;
+      for (const card of visibleCards) {
+        const qid = card.getAttribute('data-qid');
+        if (!selectedIds.includes(qid)) {
+          if (selectedIds.length >= requiredCount) {
+            limitReached = true;
+            break;
+          }
+          selectedIds.push(qid);
+          updateQuestionCardState(qid, true);
+        }
+      }
+      if (limitReached) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'MAXIMUM QUESTIONS REACHED',
+          text: `Maximum ${requiredCount} questions reached.`,
+          timer: 2000,
+          showConfirmButton: false,
+          background: '#0d1527',
+          color: '#f8fafc',
+          iconColor: '#f59e0b'
+        });
+      }
+    } else {
+      visibleCards.forEach(card => {
+        const qid = card.getAttribute('data-qid');
+        const idx = selectedIds.indexOf(qid);
+        if (idx > -1) {
+          selectedIds.splice(idx, 1);
+          updateQuestionCardState(qid, false);
+        }
+      });
+    }
+    renderSelectedPanel();
+    syncSelectAllStates();
+  }
+
+  // Synchronize Box Select All and Global Select All checkbox states
+  function syncSelectAllStates() {
+    const boxes = document.querySelectorAll('#questionsListContainer .course-subject-box');
+    boxes.forEach(box => {
+      const groupId = box.getAttribute('data-group-id');
+      const chkBox = document.getElementById('boxSelectAll-' + groupId);
+      if (!chkBox) return;
+
+      const visibleCards = box.querySelectorAll('.question-item-card:not([style*="display: none"])');
+      if (visibleCards.length === 0) {
+        chkBox.checked = false;
+        chkBox.indeterminate = false;
+      } else {
+        let countInBox = 0;
+        visibleCards.forEach(card => {
+          const qid = card.getAttribute('data-qid');
+          if (selectedIds.includes(qid)) countInBox++;
+        });
+        chkBox.checked = (countInBox === visibleCards.length);
+        chkBox.indeterminate = (countInBox > 0 && countInBox < visibleCards.length);
+      }
+    });
+
+    const globalChk = document.getElementById('selectAllVisibleBox');
+    if (globalChk) {
+      const allVisibleCards = document.querySelectorAll('#questionsListContainer .question-item-card:not([style*="display: none"])');
+      if (allVisibleCards.length === 0) {
+        globalChk.checked = false;
+        globalChk.indeterminate = false;
+      } else {
+        let totalCount = 0;
+        allVisibleCards.forEach(card => {
+          const qid = card.getAttribute('data-qid');
+          if (selectedIds.includes(qid)) totalCount++;
+        });
+        globalChk.checked = (totalCount === allVisibleCards.length);
+        globalChk.indeterminate = (totalCount > 0 && totalCount < allVisibleCards.length);
+      }
+    }
   }
 
   // Save Selection Submission
@@ -2201,6 +2584,71 @@
     const list = document.getElementById('questionsListContainer');
     if (!list) return;
 
+    // Register into questionsMap
+    questionsMap[q.id] = q;
+
+    // Determine group name matching our grouping logic
+    let grp = (q.subject || '').trim();
+    if (!grp || ['general', 'none', 'n/a', 'unassigned'].includes(grp.toLowerCase())) {
+      grp = (q.course_name || '').trim() || (q.course_code || '').trim() || 'UNASSIGNED';
+    }
+    const grpUpper = grp.toUpperCase();
+
+    // Check if matching course-subject-box exists
+    let targetBox = null;
+    const boxes = document.querySelectorAll('#questionsListContainer .course-subject-box');
+    for (const b of boxes) {
+      if (b.getAttribute('data-group-name') === grpUpper) {
+        targetBox = b;
+        break;
+      }
+    }
+
+    if (!targetBox) {
+      const boxId = 'dyn-' + Date.now();
+      targetBox = document.createElement('div');
+      targetBox.className = 'course-subject-box';
+      targetBox.id = 'cs-box-' + boxId;
+      targetBox.setAttribute('data-group-id', boxId);
+      targetBox.setAttribute('data-group-name', grpUpper);
+
+      let iconHtml = '<i class="fa-solid fa-book-bookmark text-primary"></i>';
+      const gl = grpUpper.toLowerCase();
+      if (gl.includes('python')) iconHtml = '<i class="fa-brands fa-python text-warning"></i>';
+      else if (gl.includes('java')) iconHtml = '<i class="fa-brands fa-java text-danger"></i>';
+      else if (gl.includes('ethics')) iconHtml = '<i class="fa-solid fa-scale-balanced text-info"></i>';
+      else if (gl.includes('electrical')) iconHtml = '<i class="fa-solid fa-bolt text-warning"></i>';
+      else if (gl.includes('artificial intelligence') || gl.includes('machine learning')) iconHtml = '<i class="fa-solid fa-robot text-primary"></i>';
+      else if (gl.includes('data structures') || gl.includes('algorithm')) iconHtml = '<i class="fa-solid fa-network-wired" style="color: #8b5cf6;"></i>';
+      else if (gl.includes('unassigned')) iconHtml = '<i class="fa-solid fa-folder-open text-muted"></i>';
+
+      targetBox.innerHTML = `
+        <div class="cs-box-header">
+          <div class="cs-box-header-left">
+            <div class="cs-box-title-wrap">
+              <span class="cs-box-icon">${iconHtml}</span>
+              <h3 class="cs-box-title">${escapeHtml(grpUpper)}</h3>
+            </div>
+            <span class="cs-box-count-badge">
+              <strong class="cs-visible-count">0</strong> Questions
+            </span>
+          </div>
+          <div class="cs-box-header-right">
+            <label class="cs-box-select-all-label" for="boxSelectAll-${boxId}">
+              <input type="checkbox"
+                     class="cs-box-select-all-checkbox"
+                     id="boxSelectAll-${boxId}"
+                     onchange="handleBoxSelectAll('${boxId}', this.checked)">
+              <span><i class="fa-solid fa-check-double me-1"></i> SELECT ALL</span>
+            </label>
+          </div>
+        </div>
+        <div class="cs-box-questions"></div>
+      `;
+      list.insertBefore(targetBox, list.firstChild);
+    }
+
+    const qContainer = targetBox.querySelector('.cs-box-questions');
     const qid = q.id;
     const isMcq = q.type === 'MCQ';
     const card = document.createElement('div');
@@ -2285,9 +2733,10 @@
       ${optHtml}
     `;
 
-    list.insertBefore(card, list.firstChild);
+    qContainer.insertBefore(card, qContainer.firstChild);
     applyFilters();
     updateLiveMetrics();
+    syncSelectAllStates();
   }
 
   function escapeHtml(text) {

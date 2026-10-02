@@ -25,6 +25,7 @@ from utils import (
     count_eligible_students,
     is_email_taken,
     is_student_code_taken,
+    group_questions_by_course_subject,
 )
 import re
 import json
@@ -2067,6 +2068,7 @@ def select_course_exam_questions(exam_id):
         page="select_exam_questions",
         exam=exam,
         questions=all_qs,
+        grouped_questions=group_questions_by_course_subject(all_qs),
         selected_ids=selected_ids,
         existing_courses=unique_data["courses"],
         existing_subjects=unique_data["subjects"],

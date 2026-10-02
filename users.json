@@ -3,7 +3,7 @@
     "username": "arnab_kumar",
     "email": "arnabkumarjana7543@gmail.com",
     "user_type": "UNIVERSITY",
-    "pw_hash": "scrypt:32768:8:1$bqqZIFjwvO5r9W9E$c1a3ebdc3a744c1dccf6710a21be89dac2502e4b70e6d3a648ad89937090e3ce70473229eeb677560f1b05617a1e568570bf85dfb82978f5b255d869b6c867b1",
+    "pw_hash": "scrypt:32768:8:1$6bBp8KhIP8utpZSQ$015d785b3a48bfe249cc94fb72526435e21a9f5a75d1d1e248cdb5aa20074b9d14bc4b759785f3c8ed8c0d60271438bd7764c77bd27c24e9c7780274b68cba81",
     "student_code": "BWU/AIR/24/001",
     "university_code": "BWU",
     "program_code": "AIR",
@@ -161,29 +161,63 @@
     "academic_year": "1st Year",
     "roll_number": "002"
   },
-  "user_fa44f71657": {
-    "id": "user_fa44f71657",
+  "user_be65430445": {
+    "id": "user_be65430445",
+    "name": "ARNAB KUMAR",
+    "username": "ARNAB KUMAR",
+    "email": "arnabkumarjana0223@gmail.com",
+    "pw_hash": "scrypt:32768:8:1$EkpB7VJGOLO6vWIV$47af999ae1bfbebf73c7dfa22ddd63e257b23ba3cda6c3bbe51e962ce1b2ce31a3c607ad24958731321b9bf35264e2f7d81b697b16c3bedcec1b1ecfb56d285f",
+    "password": "scrypt:32768:8:1$EkpB7VJGOLO6vWIV$47af999ae1bfbebf73c7dfa22ddd63e257b23ba3cda6c3bbe51e962ce1b2ce31a3c607ad24958731321b9bf35264e2f7d81b697b16c3bedcec1b1ecfb56d285f",
+    "user_type": "UNIVERSITY",
+    "student_code": "BWU/BTA/25/188",
+    "university_code": "BWU",
+    "program_code": "BTA",
+    "program_name": "AI & Machine Learning",
+    "department_name": "ELECTRICAL",
+    "admission_year": 2025,
+    "academic_year": "2nd Year",
+    "roll_number": "188"
+  },
+  "user_8e413e00d6": {
+    "id": "user_8e413e00d6",
+    "name": "SUNANDA MANDAL",
+    "username": "SUNANDA MANDAL",
+    "email": "arnabkumarjana023@gmail.com",
+    "pw_hash": "scrypt:32768:8:1$qYxXg7hry7ehY6k4$550b2e1c11c4b171fb7e96311ff61a73de8e7a297c52191be07a058c7703906107a3a34415672c71b2bce594d182144640a0d9f0608f150dca40bdc4914f55a9",
+    "password": "scrypt:32768:8:1$qYxXg7hry7ehY6k4$550b2e1c11c4b171fb7e96311ff61a73de8e7a297c52191be07a058c7703906107a3a34415672c71b2bce594d182144640a0d9f0608f150dca40bdc4914f55a9",
+    "user_type": "UNIVERSITY",
+    "student_code": "BWU/BTA/24/188",
+    "university_code": "BWU",
+    "program_code": "BTA",
+    "program_name": "AI & Machine Learning",
+    "department_name": "AI",
+    "admission_year": 2024,
+    "academic_year": "3rd Year",
+    "roll_number": "188"
+  },
+  "user_2b317fd28b": {
+    "id": "user_2b317fd28b",
     "username": "Rahul Das",
     "name": "Rahul Das",
     "email": "rahul1@test.com",
-    "pw_hash": "scrypt:32768:8:1$fwwOlOZev5d3oSIB$42ca3d2519f18a3be31835b3c9757cbec83178fc356bb2cdb91cf108ab04dd418e1dd6193a1ac03fab089d780d067b8225c5f9fed9a6adff5e62ad108692f622",
+    "pw_hash": "scrypt:32768:8:1$d5wrElY9Sb0opcwA$9b07b42bd69d23fe4dcbf699bb9e89df88738fbcb35ed9ef749ac93f16be2b25829471be25ee463bbfde0d7e48be66d8793dbbd13f919c01bfa2856d3d5a2a8e",
     "user_type": "EXTERNAL"
   },
-  "user_a2dfb896d4": {
-    "id": "user_a2dfb896d4",
+  "user_dd2e4796bf": {
+    "id": "user_dd2e4796bf",
     "username": "Rahul Das",
     "name": "Rahul Das",
     "email": "rahul2@test.com",
-    "pw_hash": "scrypt:32768:8:1$WhVluhdoIWBneHR1$327396a4db37d3f9f52ad1fc7ed7c9aaa2b35c3bf76bdc1c635daafa2a8a3aa7966a8707d69246bf9f56ee6675144c24bb077767f8801ba75e5cc4109bb8e232",
+    "pw_hash": "scrypt:32768:8:1$jtKJ7r52cuO59hJc$f7c68f644c1e1f990de9c36824af10662c844a4b9ba97fd1d060f5b54ddac479b84ce57ce3c532084c676542b693083a4c47026010d6dc9d99961de4275eff4d",
     "user_type": "EXTERNAL"
   },
-  "user_2940cfad51": {
-    "id": "user_2940cfad51",
+  "user_9c4c5622cb": {
+    "id": "user_9c4c5622cb",
     "name": "Rahul Das",
     "username": "Rahul Das",
     "email": "rahul3@test.com",
-    "pw_hash": "scrypt:32768:8:1$rmYAblFHBDnzUNVc$3b867720cef3724aab0ff1be21105b1d64d1876c92102debd6c0c38b909293f10f51b9fd05c570b97c3a8a5b68ed5d3c1d83f728315f08d032cf49bc36b419d8",
-    "password": "scrypt:32768:8:1$rmYAblFHBDnzUNVc$3b867720cef3724aab0ff1be21105b1d64d1876c92102debd6c0c38b909293f10f51b9fd05c570b97c3a8a5b68ed5d3c1d83f728315f08d032cf49bc36b419d8",
+    "pw_hash": "scrypt:32768:8:1$fxxiUq81S7YXY96f$55d4558354f9c548d97b73b7e4bf012471972c554642deed5696d5d1fed2cfe78e83763e4f42544dfd31719ada9a0f08f80720bc68b18f663cfe17507e2554cc",
+    "password": "scrypt:32768:8:1$fxxiUq81S7YXY96f$55d4558354f9c548d97b73b7e4bf012471972c554642deed5696d5d1fed2cfe78e83763e4f42544dfd31719ada9a0f08f80720bc68b18f663cfe17507e2554cc",
     "user_type": "UNIVERSITY",
     "student_code": "BWU/AIR/24/029",
     "university_code": "BWU",
@@ -194,13 +228,13 @@
     "academic_year": "3rd Year",
     "roll_number": "029"
   },
-  "user_a135c4633b": {
-    "id": "user_a135c4633b",
+  "user_bb36d319d3": {
+    "id": "user_bb36d319d3",
     "name": "Rahul Das",
     "username": "Rahul Das",
     "email": "rahul4@test.com",
-    "pw_hash": "scrypt:32768:8:1$iuKUyhfxSaif2Tnw$0e720656d1dc5576bce8275e7bc8d0bcc97416b93da5316125352c14ab499712ba994ee6e75914a208ba33eb4b57b1476a466ee71a9744065a2a1a2a0b887d03",
-    "password": "scrypt:32768:8:1$iuKUyhfxSaif2Tnw$0e720656d1dc5576bce8275e7bc8d0bcc97416b93da5316125352c14ab499712ba994ee6e75914a208ba33eb4b57b1476a466ee71a9744065a2a1a2a0b887d03",
+    "pw_hash": "scrypt:32768:8:1$o3bhNDNzEIRkWVVT$e53395e7e0c6239345e032c5b429f822ab93f2eb8140366f85d45d83594931c9092c319337c0274679c7016a633098713d086dc52a3d01a89bf612c1125d0c28",
+    "password": "scrypt:32768:8:1$o3bhNDNzEIRkWVVT$e53395e7e0c6239345e032c5b429f822ab93f2eb8140366f85d45d83594931c9092c319337c0274679c7016a633098713d086dc52a3d01a89bf612c1125d0c28",
     "user_type": "UNIVERSITY",
     "student_code": "BWU/AIR/24/030",
     "university_code": "BWU",
@@ -210,22 +244,5 @@
     "admission_year": 2024,
     "academic_year": "3rd Year",
     "roll_number": "030"
-  },
-  "user_be65430445": {
-    "id": "user_be65430445",
-    "name": "ARNAB KUMAR",
-    "username": "ARNAB KUMAR",
-    "email": "arnabkumarjana0223@gmail.com",
-    "pw_hash": "scrypt:32768:8:1$EkpB7VJGOLO6vWIV$47af999ae1bfbebf73c7dfa22ddd63e257b23ba3cda6c3bbe51e962ce1b2ce31a3c607ad24958731321b9bf35264e2f7d81b697b16c3bedcec1b1ecfb56d285f",
-    "password": "scrypt:32768:8:1$EkpB7VJGOLO6vWIV$47af999ae1bfbebf73c7dfa22ddd63e257b23ba3cda6c3bbe51e962ce1b2ce31a3c607ad24958731321b9bf35264e2f7d81b697b16c3bedcec1b1ecfb56d285f",
-    "user_type": "UNIVERSITY",
-    "student_code": "BWU/AIML/25/188",
-    "university_code": "BWU",
-    "program_code": "AIML",
-    "program_name": "AI & Machine Learning",
-    "department_name": "ELECTRICAL",
-    "admission_year": 2025,
-    "academic_year": "2nd Year",
-    "roll_number": "188"
   }
 }

@@ -526,14 +526,12 @@ def normalize_user_record(username: str, data: dict) -> dict:
 
     if utype == "UNIVERSITY":
         sc = rec.get("student_code", "")
-        if sc and ("university_code" not in rec or "program_code" not in rec or "academic_year" not in rec):
+        if sc and ("university_code" not in rec or "program_code" not in rec):
             parsed = parse_student_code(sc)
             if parsed:
                 for k, v in parsed.items():
-                    if k not in rec or not rec[k]:
+                    if k != "academic_year" and (k not in rec or not rec[k]):
                         rec[k] = v
-        if rec.get("admission_year") and not rec.get("academic_year"):
-            rec["academic_year"] = calculate_academic_year(rec["admission_year"])
         if rec.get("program_code") and not rec.get("program_name"):
             rec["program_name"] = get_program_name(rec["program_code"])
 
@@ -999,7 +997,7 @@ def get_available_admission_years() -> List[int]:
 
 def get_academic_years() -> List[str]:
     """Returns standard academic years."""
-    return ["1st Year", "2nd Year", "3rd Year", "4th Year"]
+    return ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "6th Year", "7th Year"]
 
 
 def get_all_students_for_eligibility() -> List[Dict[str, Any]]:

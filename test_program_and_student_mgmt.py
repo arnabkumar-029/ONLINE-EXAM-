@@ -65,6 +65,7 @@ class TestProgramAndStudentManagement(unittest.TestCase):
             'program_code': 'ROB',
             'department_name': 'Dept of Robotics & Automation',
             'admission_year': '2024',
+            'academic_year': '3rd Year',
             'roll_number': '015'
         }, follow_redirects=True)
         self.assertEqual(res.status_code, 200)
@@ -77,6 +78,7 @@ class TestProgramAndStudentManagement(unittest.TestCase):
         self.assertEqual(user['program_code'], 'ROB')
         self.assertEqual(user['program_name'], 'Robotics Engineering')
         self.assertEqual(user['department_name'], 'Dept of Robotics & Automation')
+        self.assertEqual(user['academic_year'], '3rd Year')
         self.assertEqual(user['roll_number'], '015')
         self.assertEqual(user['admission_year'], 2024)
         self.assertEqual(user['user_type'], 'UNIVERSITY')
@@ -121,6 +123,7 @@ class TestProgramAndStudentManagement(unittest.TestCase):
             'program_code': 'BAR',
             'department_name': 'Humanities',
             'admission_year': '2023',
+            'academic_year': '2nd Year',
             'roll_number': '088'
         }, follow_redirects=True)
 
@@ -129,7 +132,7 @@ class TestProgramAndStudentManagement(unittest.TestCase):
         amit_key, user = found_amit
         self.assertEqual(user['student_code'], 'BWU/BAR/23/088')
 
-        # Edit student to CSE and new roll 099
+        # Edit student to CSE and new roll 099 and 3rd Year
         res = self.client.post('/admin/edit_student', data={
             'user_id': user.get('id', amit_key),
             'name': 'Amit Roy',
@@ -138,6 +141,7 @@ class TestProgramAndStudentManagement(unittest.TestCase):
             'program_code': 'CSE',
             'department_name': 'Computer Science',
             'admission_year': '2023',
+            'academic_year': '3rd Year',
             'roll_number': '099'
         }, follow_redirects=True)
         self.assertEqual(res.status_code, 200)
@@ -147,6 +151,7 @@ class TestProgramAndStudentManagement(unittest.TestCase):
         self.assertEqual(updated_user['program_name'], 'Computer Science & Engineering')
         self.assertEqual(updated_user['student_code'], 'BWU/CSE/23/099')
         self.assertEqual(updated_user['department_name'], 'Computer Science')
+        self.assertEqual(updated_user['academic_year'], '3rd Year')
 
     def test_05_duplicate_name_allowed(self):
         # Add student 1
@@ -157,6 +162,7 @@ class TestProgramAndStudentManagement(unittest.TestCase):
             'program_code': 'CSE',
             'department_name': 'Computer Science',
             'admission_year': '2024',
+            'academic_year': '1st Year',
             'roll_number': '101'
         }, follow_redirects=True)
 
@@ -168,6 +174,7 @@ class TestProgramAndStudentManagement(unittest.TestCase):
             'program_code': 'CSE',
             'department_name': 'Computer Science',
             'admission_year': '2024',
+            'academic_year': '1st Year',
             'roll_number': '102'
         }, follow_redirects=True)
         self.assertEqual(res.status_code, 200)

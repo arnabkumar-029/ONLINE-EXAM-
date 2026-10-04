@@ -256,7 +256,9 @@ def students_page():
         dept_name = str(info.get("department_name") or "-").strip()
         roll_num = str(info.get("roll_number") or "-").strip()
         adm_yr = str(info.get("admission_year") or "").strip()
-        acad_yr = calculate_academic_year(adm_yr) if adm_yr else "-"
+        acad_yr = str(info.get("academic_year") or "-").strip()
+        if not acad_yr or acad_yr == "None":
+            acad_yr = "-"
 
         if p_name and p_name != "-":
             programs_set.add(p_name)
@@ -282,16 +284,23 @@ def students_page():
             **summary,
         })
 
-    from utils import get_available_programs
+    from utils import get_available_programs, get_academic_years
+
+    valid_years = ["1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "6th Year", "7th Year"]
+    sorted_acad_years = sorted(
+        [y for y in academic_years_set if y and y != "-"],
+        key=lambda y: valid_years.index(y) if y in valid_years else 99
+    )
 
     return render_template(
         "admin_dashboard.html",
         page="students",
         students=students,
         available_programs=get_available_programs(),
+        available_academic_years=get_academic_years(),
         filter_programs=sorted(list(programs_set)),
         filter_admission_years=sorted(list(admission_years_set), reverse=True),
-        filter_academic_years=sorted(list(academic_years_set))
+        filter_academic_years=sorted_acad_years
     )
 
 
@@ -340,8 +349,22 @@ def add_student():
     program_code = (request.form.get("program_code") or request.form.get("program") or "").strip().upper()
     dept_name = (request.form.get("department_name") or "").strip()
     adm_yr_raw = (request.form.get("admission_year") or "2024").strip()
+    academic_year = (request.form.get("academic_year") or "").strip()
     roll_raw = (request.form.get("roll_number") or "").strip()
     direct_student_code = (request.form.get("student_code") or "").strip().upper()
+
+    if not dept_name:
+        flash("Department Name is required.", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if not academic_year:
+        flash("Academic Year is required.", "error")
+        return redirect(url_for("admin.students_page"))
+
+    valid_academic_years = {"1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "6th Year", "7th Year"}
+    if academic_year not in valid_academic_years:
+        flash("Academic Year is required.", "error")
+        return redirect(url_for("admin.students_page"))
 
     if program_code:
         # Program mapping flow: Code comes automatically from Admin's program data
@@ -358,7 +381,6 @@ def add_student():
         roll_number = roll_raw.zfill(3) if roll_raw.isdigit() else roll_raw.upper()
         student_code = f"BWU/{program_code}/{yy}/{roll_number}"
         university_code = "BWU"
-        academic_year = calculate_academic_year(admission_year)
     elif direct_student_code:
         # Fallback for direct student_code submission (backward compatibility)
         parsed = parse_student_code(direct_student_code)
@@ -370,7 +392,8 @@ def add_student():
         program_code = parsed["program_code"]
         program_name = parsed["program_name"]
         admission_year = parsed["admission_year"]
-        academic_year = parsed["academic_year"]
+        if not academic_year:
+            academic_year = parsed.get("academic_year", "")
         roll_number = parsed["roll_number"]
     else:
         flash("Please select a Program from the dropdown!", "error")
@@ -425,6 +448,7 @@ def edit_student():
     program_code = (request.form.get("program_code") or "").strip().upper()
     dept_name = (request.form.get("department_name") or "").strip()
     adm_yr_raw = (request.form.get("admission_year") or "").strip()
+    academic_year = (request.form.get("academic_year") or "").strip()
     roll_raw = (request.form.get("roll_number") or "").strip()
     new_password = (request.form.get("new_password") or "").strip()
 
@@ -451,6 +475,19 @@ def edit_student():
 
     if not email:
         flash("Student Email is required!", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if not dept_name:
+        flash("Department Name is required.", "error")
+        return redirect(url_for("admin.students_page"))
+
+    if not academic_year:
+        flash("Academic Year is required.", "error")
+        return redirect(url_for("admin.students_page"))
+
+    valid_academic_years = {"1st Year", "2nd Year", "3rd Year", "4th Year", "5th Year", "6th Year", "7th Year"}
+    if academic_year not in valid_academic_years:
+        flash("Academic Year is required.", "error")
         return redirect(url_for("admin.students_page"))
 
     # Check email duplicate across other accounts
@@ -491,7 +528,7 @@ def edit_student():
     user_record["program_name"] = program_name
     user_record["department_name"] = dept_name
     user_record["admission_year"] = admission_year
-    user_record["academic_year"] = calculate_academic_year(admission_year)
+    user_record["academic_year"] = academic_year
     user_record["roll_number"] = roll_clean
     user_record["student_code"] = new_student_code
 

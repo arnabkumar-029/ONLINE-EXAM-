@@ -649,6 +649,7 @@
               data-progcode="{{ s.program_code }}"
               data-dept="{{ s.department_name|e }}"
               data-admyear="{{ s.admission_year }}"
+              data-acadyear="{{ s.academic_year|e }}"
               data-roll="{{ s.roll_number }}"
               onclick="openEditStudentModalFromBtn(this)">
               <i class="fa-solid fa-pen-to-square"></i>
@@ -717,19 +718,32 @@
           </div>
 
           <div style="margin-bottom: 12px;">
-            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Department Name</label>
-            <input type="text" name="department_name" id="addStudentDept" placeholder="e.g. Computer Science and Engineering" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Department Name *</label>
+            <input type="text" name="department_name" id="addStudentDept" placeholder="e.g. Computer Science and Engineering" required style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-            <div>
-              <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Admission Year *</label>
-              <input type="number" name="admission_year" id="addStudentAdmYear" value="2024" min="2000" max="2099" required oninput="calcAddStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
-            </div>
-            <div>
-              <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Roll Number *</label>
-              <input type="text" name="roll_number" id="addStudentRoll" placeholder="e.g. 029" required oninput="calcAddStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
-            </div>
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Admission Year *</label>
+            <input type="number" name="admission_year" id="addStudentAdmYear" value="2024" min="2000" max="2099" required oninput="calcAddStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Academic Year *</label>
+            <select name="academic_year" id="addStudentAcadYear" required style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px; background: #fff; cursor: pointer;">
+              <option value="" disabled selected>-- Select Academic Year --</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+              <option value="5th Year">5th Year</option>
+              <option value="6th Year">6th Year</option>
+              <option value="7th Year">7th Year</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Roll Number *</label>
+            <input type="text" name="roll_number" id="addStudentRoll" placeholder="e.g. 029" required oninput="calcAddStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
           </div>
 
           <!-- Live Generated Student Code Display -->
@@ -798,19 +812,32 @@
           </div>
 
           <div style="margin-bottom: 12px;">
-            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Department Name</label>
-            <input type="text" name="department_name" id="editStudentDept" placeholder="e.g. Computer Science and Engineering" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Department Name *</label>
+            <input type="text" name="department_name" id="editStudentDept" placeholder="e.g. Computer Science and Engineering" required style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
           </div>
 
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-            <div>
-              <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Admission Year *</label>
-              <input type="number" name="admission_year" id="editStudentAdmYear" min="2000" max="2099" required oninput="calcEditStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
-            </div>
-            <div>
-              <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Roll Number *</label>
-              <input type="text" name="roll_number" id="editStudentRoll" required oninput="calcEditStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
-            </div>
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Admission Year *</label>
+            <input type="number" name="admission_year" id="editStudentAdmYear" min="2000" max="2099" required oninput="calcEditStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Academic Year *</label>
+            <select name="academic_year" id="editStudentAcadYear" required style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px; background: #fff; cursor: pointer;">
+              <option value="" disabled selected>-- Select Academic Year --</option>
+              <option value="1st Year">1st Year</option>
+              <option value="2nd Year">2nd Year</option>
+              <option value="3rd Year">3rd Year</option>
+              <option value="4th Year">4th Year</option>
+              <option value="5th Year">5th Year</option>
+              <option value="6th Year">6th Year</option>
+              <option value="7th Year">7th Year</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 12px; font-weight: 700; color: #475569; text-transform: uppercase;">Roll Number *</label>
+            <input type="text" name="roll_number" id="editStudentRoll" required oninput="calcEditStudentCode()" style="width: 100%; padding: 9px 12px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 13.5px; box-sizing: border-box; margin-top: 4px;">
           </div>
 
           <!-- Updated Student Code Display -->
@@ -913,6 +940,8 @@
 
   function openAddStudentModal() {
     calcAddStudentCode();
+    const acadSelect = document.getElementById('addStudentAcadYear');
+    if (acadSelect) acadSelect.selectedIndex = 0;
     const modal = document.getElementById('addStudentModal');
     if (modal) modal.style.display = 'flex';
   }
@@ -929,6 +958,7 @@
     const pcode = btn.getAttribute('data-progcode');
     const dept = btn.getAttribute('data-dept');
     const admyear = btn.getAttribute('data-admyear');
+    const acadyear = btn.getAttribute('data-acadyear');
     const roll = btn.getAttribute('data-roll');
 
     document.getElementById('editStudentUserId').value = id || '';
@@ -940,6 +970,10 @@
     }
     document.getElementById('editStudentDept').value = (dept && dept !== '-') ? dept : '';
     document.getElementById('editStudentAdmYear').value = (admyear && admyear !== '-') ? admyear : 2024;
+    const editAcadSelect = document.getElementById('editStudentAcadYear');
+    if (editAcadSelect) {
+      editAcadSelect.value = (acadyear && acadyear !== '-' && acadyear !== 'N/A') ? acadyear : '';
+    }
     document.getElementById('editStudentRoll').value = (roll && roll !== '-') ? roll : '';
 
     calcEditStudentCode();

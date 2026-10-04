@@ -177,10 +177,7 @@ def login():
     session["program_name"] = user_record.get("program_name") or (get_program_name(user_record.get("program_code", "")) if user_record.get("program_code") else "")
     session["admission_year"] = user_record.get("admission_year", "")
 
-    if user_record.get("admission_year"):
-        session["academic_year"] = calculate_academic_year(user_record["admission_year"])
-    else:
-        session["academic_year"] = "N/A"
+    session["academic_year"] = user_record.get("academic_year") or "N/A"
 
     session["questions"] = []   # keep empty
     session["index"] = 0

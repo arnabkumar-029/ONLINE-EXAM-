@@ -228,6 +228,82 @@
   }
 
   /* ==============================================================
+     COMPACT DESCRIPTIVE ANSWER DISPLAY IN QUESTION BANK TABLE
+     ============================================================== */
+  #questionsTable td {
+    vertical-align: top;
+  }
+
+  .qb-desc-cell-wrapper {
+    max-width: 270px;
+    min-width: 190px;
+  }
+
+  .qb-desc-wrap {
+    position: relative;
+  }
+
+  .qb-desc-preview {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #475569;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    text-overflow: ellipsis;
+    max-height: 80px;
+    transition: max-height 0.25s ease-out;
+  }
+
+  .qb-desc-wrap.is-expanded .qb-desc-preview {
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .qb-btn-toggle-answer {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: none;
+    padding: 3px 0 0 0;
+    margin-top: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #4f46e5;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    user-select: none;
+    transition: color 0.15s ease;
+  }
+
+  .qb-btn-toggle-answer:hover {
+    color: #3730a3;
+    text-decoration: underline;
+  }
+
+  .qb-btn-toggle-answer:focus {
+    outline: none;
+  }
+
+  .qb-desc-short {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #475569;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-width: 270px;
+  }
+
+  /* ==============================================================
      CUSTOM IN-PAGE DELETE CONFIRMATION MODAL (Dark Navy Glassmorphism)
      ============================================================== */
   .delete-modal-overlay {
@@ -715,8 +791,19 @@
             <!-- Correct Answer / Keywords -->
             <td>
               {% if q.type == "DESCRIPTIVE" %}
-                <div style="font-size: 12px; color: #475569; max-width: 250px;">
-                  {{ q.answer_key }}
+                {% set ans_text = (q.answer_key|default(''))|string|trim %}
+                {% set is_long = (ans_text|length > 120) or ('\n' in ans_text and ans_text.split('\n')|length > 3) %}
+                <div class="qb-desc-cell-wrapper">
+                  {% if is_long %}
+                    <div class="qb-desc-wrap" id="qbDescWrap-{{ loop.index }}">
+                      <div class="qb-desc-preview">{{ ans_text }}</div>
+                      <button type="button" class="qb-btn-toggle-answer" onclick="toggleDescAnswer(this)" aria-expanded="false" title="Click to view full answer">
+                        <span class="btn-text">VIEW MORE &rarr;</span>
+                      </button>
+                    </div>
+                  {% else %}
+                    <div class="qb-desc-short">{{ ans_text }}</div>
+                  {% endif %}
                 </div>
               {% else %}
                 <div style="font-weight: 600; color: #15803d; font-size: 12.5px;">
@@ -1170,4 +1257,44 @@
       }
     }
   });
+
+  /* ==============================================================
+     DESCRIPTIVE ANSWER TOGGLE SYSTEM (VIEW MORE / VIEW LESS)
+     ============================================================== */
+  function toggleDescAnswer(btn) {
+    if (!btn) return;
+    const wrap = btn.closest('.qb-desc-wrap');
+    if (!wrap) return;
+
+    const isExpanded = wrap.classList.toggle('is-expanded');
+    btn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+
+    const textSpan = btn.querySelector('.btn-text');
+    if (textSpan) {
+      textSpan.innerHTML = isExpanded ? 'VIEW LESS &uarr;' : 'VIEW MORE &rarr;';
+    }
+  }
+
+  // Hide VIEW MORE button if the descriptive answer fits within preview without overflowing
+  function initDescAnswerPreviews() {
+    const wraps = document.querySelectorAll('.qb-desc-wrap');
+    wraps.forEach(function(wrap) {
+      const preview = wrap.querySelector('.qb-desc-preview');
+      const btn = wrap.querySelector('.qb-btn-toggle-answer');
+      if (preview && btn) {
+        if (preview.scrollHeight <= preview.clientHeight + 4) {
+          btn.style.display = 'none';
+          preview.style.maxHeight = 'none';
+          preview.style.webkitLineClamp = 'unset';
+          preview.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDescAnswerPreviews);
+  } else {
+    initDescAnswerPreviews();
+  }
 </script>

@@ -30,7 +30,11 @@ from utils import (
 import re
 import json
 import os
-import google.generativeai as genai
+import time
+import socket
+import threading
+import urllib.request
+import urllib.error
 from dotenv import load_dotenv  # 👈 load from .env
 
 # -----------------------
@@ -38,14 +42,12 @@ from dotenv import load_dotenv  # 👈 load from .env
 # -----------------------
 load_dotenv()  # This reads .env file locally
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
+GEMINI_API_KEY = (os.getenv("GEMINI_API_KEY") or "").strip()
 if not GEMINI_API_KEY:
-    # You will see this error if GEMINI_API_KEY is missing
-    raise RuntimeError("GEMINI_API_KEY not set in environment!")
+    print("[admin_routes] Note: GEMINI_API_KEY is not set in environment. AI question generation will return a configuration error when called.")
 
-# Configure Gemini once (global)
-genai.configure(api_key=GEMINI_API_KEY)
+# Concurrency lock to prevent simultaneous heavy AI generation requests from exhausting memory on Render
+_AI_GENERATION_LOCK = threading.BoundedSemaphore(value=1)
 
 # Blueprint MUST be defined before any @admin_bp.route()
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -1170,6 +1172,103 @@ def _clean_and_parse_ai_json(raw_text: str):
 # =======================
 #  AI Question Generation (Preview Stage)
 # =======================
+def _call_gemini_http(prompt: str, api_key: str, model: str = "gemini-2.5-flash", timeout: float = 22.0):
+    """
+    Production-safe HTTP REST call to Google Gemini generateContent endpoint.
+    Uses standard library urllib.request to eliminate gRPC fork issues, heavy native C-extensions,
+    and excessive memory consumption on Render's 512MB RAM environment.
+    Enforces a strict timeout (default 22s) so Gunicorn workers are never aborted by SIGKILL.
+    Returns (raw_text, error_message). Exactly one is non-None.
+    """
+    if not api_key or not str(api_key).strip():
+        return None, "AI service is not configured correctly."
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    payload_bytes = json.dumps({
+        "contents": [
+            {
+                "parts": [
+                    {"text": prompt}
+                ]
+            }
+        ],
+        "generationConfig": {
+            "temperature": 0.7,
+            "maxOutputTokens": 8192
+        }
+    }).encode("utf-8")
+
+    req = urllib.request.Request(
+        url,
+        data=payload_bytes,
+        headers={"Content-Type": "application/json"},
+        method="POST"
+    )
+
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            candidates = data.get("candidates") or []
+            if not candidates:
+                feedback = data.get("promptFeedback") or {}
+                block_reason = feedback.get("blockReason")
+                if block_reason:
+                    return None, f"AI generation blocked by safety policy ({block_reason})."
+                return None, "AI provider returned an empty response."
+
+            content = candidates[0].get("content") or {}
+            parts = content.get("parts") or []
+            if not parts:
+                return None, "AI provider returned no text parts in response."
+
+            raw_text = parts[0].get("text") or ""
+            return raw_text, None
+
+    except urllib.error.HTTPError as e:
+        body = ""
+        try:
+            body = e.read().decode("utf-8", errors="ignore")
+        except Exception:
+            pass
+
+        err_reason = ""
+        err_msg = ""
+        try:
+            err_json = json.loads(body)
+            err_obj = err_json.get("error") or {}
+            err_msg = str(err_obj.get("message") or "")
+            details = err_obj.get("details") or []
+            for d in details:
+                if isinstance(d, dict) and "reason" in d:
+                    err_reason = str(d["reason"])
+        except Exception:
+            pass
+
+        # Check for API key errors (400, 401, 403)
+        if e.code in (400, 401, 403) and ("API_KEY" in err_reason or "api key" in err_msg.lower() or "key" in err_msg.lower()):
+            return None, "AI service is not configured correctly."
+
+        if e.code == 429:
+            return None, "AI service is busy or rate limit reached. Please try again in a few moments."
+
+        if e.code in (500, 502, 503, 504):
+            return None, "AI provider service is temporarily unavailable. Please try again later."
+
+        return None, f"AI provider returned error (HTTP {e.code}). Please try again."
+
+    except (socket.timeout, TimeoutError):
+        return None, "AI generation timed out. Please try again."
+
+    except urllib.error.URLError as e:
+        reason_str = str(getattr(e, "reason", "")).lower()
+        if isinstance(getattr(e, "reason", None), socket.timeout) or "timed out" in reason_str:
+            return None, "AI generation timed out. Please try again."
+        return None, "Network connection to AI service failed. Please check internet connection."
+
+    except Exception as e:
+        return None, "An unexpected error occurred during AI generation."
+
+
 @admin_bp.route("/api_generate", methods=["POST"])
 def api_generate():
     """
@@ -1177,16 +1276,17 @@ def api_generate():
     Returns generated questions in a structured format for PREVIEW before saving.
     Classification values (course_code, course_name, subject, unit, topic) are strictly
     enforced from the admin form and CANNOT be altered or invented by the AI.
+    Always returns JSON responses to prevent unexpected HTML parsing errors.
     """
     if not session.get("admin"):
-        if request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest":
-            return jsonify({"success": False, "error": "Unauthorized. Please log in as admin."}), 401
-        return redirect(url_for("admin.admin_login"))
+        return jsonify({"success": False, "error": "Unauthorized. Please log in as admin."}), 401
 
     import uuid
 
     # Support JSON payload or Form data
     data = request.get_json(silent=True) if request.is_json else request.form
+    if not data:
+        data = {}
 
     course_code = (data.get("course_code") or "").strip().upper()
     course_name = (data.get("course_name") or "").strip()
@@ -1228,13 +1328,8 @@ def api_generate():
     except Exception:
         count = 5
 
-    is_ajax = request.is_json or request.headers.get("X-Requested-With") == "XMLHttpRequest" or "application/json" in request.headers.get("Accept", "")
-
-    def error_response(msg):
-        if is_ajax:
-            return jsonify({"success": False, "error": msg}), 400
-        flash(msg, "error")
-        return redirect(url_for("admin.generate_questions_page"))
+    def error_response(msg, status_code=400):
+        return jsonify({"success": False, "error": msg}), status_code
 
     # Required field validations
     if not course_code:
@@ -1250,11 +1345,27 @@ def api_generate():
     if count < 1 or count > 50:
         return error_response("Number of questions must be between 1 and 50.")
 
-    # Build prompt instructions based on question type
-    if qtype == "MIXED":
-        mcq_count = max(1, count // 2)
-        desc_count = max(1, count - mcq_count)
-        type_instructions = f"""
+    # Validate API key configuration safely
+    api_key = (os.getenv("GEMINI_API_KEY") or "").strip()
+    if not api_key:
+        print("[api_generate] Missing GEMINI_API_KEY in environment.")
+        return error_response("AI service is not configured correctly.", 400)
+
+    # Concurrency control: prevent multiple simultaneous AI calls from creating memory/process pressure on Render
+    acquired = _AI_GENERATION_LOCK.acquire(blocking=True, timeout=2.0)
+    if not acquired:
+        print("[api_generate] Rejected concurrent request - lock busy.")
+        return error_response("Another AI generation request is currently processing. Please wait a few seconds and try again.", 429)
+
+    try:
+        # Logging: Request started
+        print(f"[api_generate] Request started: course={course_code}, type={qtype}, count={count}, topic='{topic[:30]}'")
+
+        # Build prompt instructions based on question type
+        if qtype == "MIXED":
+            mcq_count = max(1, count // 2)
+            desc_count = max(1, count - mcq_count)
+            type_instructions = f"""
 Generate a MIXED set containing exactly {mcq_count} Multiple Choice Questions (MCQ) and {desc_count} Descriptive Questions (Total: {count} questions).
 For MCQ questions:
 - "type": "MCQ"
@@ -1270,8 +1381,8 @@ For Descriptive questions:
 - "max_marks": 5
 - "level": "{difficulty}"
 """
-    elif qtype == "MCQ":
-        type_instructions = f"""
+        elif qtype == "MCQ":
+            type_instructions = f"""
 Generate {count} Multiple Choice Questions (MCQ).
 Every question object MUST contain:
 - "type": "MCQ"
@@ -1280,8 +1391,8 @@ Every question object MUST contain:
 - "correct": "The exact verbatim text of the correct option from options list"
 - "level": "{difficulty}"
 """
-    else:  # DESCRIPTIVE
-        type_instructions = f"""
+        else:  # DESCRIPTIVE
+            type_instructions = f"""
 Generate {count} Descriptive examination questions.
 Every question object MUST contain:
 - "type": "DESCRIPTIVE"
@@ -1291,7 +1402,7 @@ Every question object MUST contain:
 - "level": "{difficulty}"
 """
 
-    prompt = f"""You are a university examination professor and curriculum assessment specialist.
+        prompt = f"""You are a university examination professor and curriculum assessment specialist.
 Generate high-quality academic questions strictly aligned with this curriculum syllabus:
 - Course Code: {course_code}
 - Course Name: {course_name}
@@ -1312,14 +1423,29 @@ CRITICAL RULES:
 4. Ensure every question is academically accurate and tests concepts specific to {topic} under {unit} tailored for {academic_year} university students in {program_name}.
 """
 
-    try:
-        model = genai.GenerativeModel("models/gemini-2.5-flash")
-        response = model.generate_content(prompt)
-        raw_text = (getattr(response, "text", "") or "").strip()
+        timeout_seconds = 22.0
+        model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
+
+        # Logging: AI request started
+        print(f"[api_generate] AI request started (model={model_name}, timeout={timeout_seconds}s)")
+        t0 = time.time()
+
+        raw_text, ai_error = _call_gemini_http(prompt, api_key, model=model_name, timeout=timeout_seconds)
+        elapsed = time.time() - t0
+
+        if ai_error:
+            if "timed out" in ai_error.lower():
+                print(f"[api_generate] Timeout: AI request timed out after {timeout_seconds}s")
+            else:
+                print(f"[api_generate] AI error: {ai_error} (elapsed: {elapsed:.2f}s)")
+            return error_response(ai_error, 400)
+
+        # Logging: AI request completed
+        print(f"[api_generate] AI request completed in {elapsed:.2f}s (response size={len(raw_text or '')} chars)")
 
         parsed_list, parse_err = _clean_and_parse_ai_json(raw_text)
         if not parsed_list:
-            print("[api_generate] JSON parse error:", parse_err, "Raw text:", raw_text[:500])
+            print("[api_generate] JSON parse error:", parse_err, "Raw text preview:", (raw_text or "")[:200])
             return error_response(f"AI generation produced invalid JSON. {parse_err}")
 
         # Normalize and strictly enforce admin classification fields
@@ -1374,7 +1500,6 @@ CRITICAL RULES:
 
                 correct = str(item.get("correct") or "").strip()
                 if correct not in opts:
-                    # Check letter prefix match like 'A' or 'Option A'
                     matched = False
                     for idx, prefix in enumerate(["A", "B", "C", "D"]):
                         if correct.upper() == prefix or correct.upper().startswith(f"OPTION {prefix}"):
@@ -1407,29 +1532,33 @@ CRITICAL RULES:
         if not normalized_questions:
             return error_response("AI generated output contained no usable question items.")
 
-        if is_ajax:
-            return jsonify({
-                "success": True,
-                "questions": normalized_questions,
-                "count": len(normalized_questions),
-                "course_code": course_code,
-                "course_name": course_name,
-                "subject": subject,
-                "program_code": program_code,
-                "program_name": program_name,
-                "admission_year": admission_year,
-                "academic_year": academic_year,
-                "unit": unit,
-                "topic": topic,
-            })
+        # Logging: Response generated
+        print(f"[api_generate] Response generated: {len(normalized_questions)} questions returned successfully")
 
-        # Traditional fallback
-        session["ai_preview_questions"] = normalized_questions
-        return redirect(url_for("admin.generate_questions_page"))
+        return jsonify({
+            "success": True,
+            "questions": normalized_questions,
+            "count": len(normalized_questions),
+            "course_code": course_code,
+            "course_name": course_name,
+            "subject": subject,
+            "program_code": program_code,
+            "program_name": program_name,
+            "admission_year": admission_year,
+            "academic_year": academic_year,
+            "unit": unit,
+            "topic": topic,
+        })
 
     except Exception as e:
-        print("[api_generate] AI Exception:", e)
-        return error_response(f"AI generation failed: {str(e)}")
+        print(f"[api_generate] Unhandled exception: {type(e).__name__} - {str(e)[:100]}")
+        return jsonify({
+            "success": False,
+            "error": "An unexpected error occurred during AI generation. Please try again."
+        }), 500
+
+    finally:
+        _AI_GENERATION_LOCK.release()
 
 
 # =======================

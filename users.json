@@ -173,56 +173,6 @@
     "academic_year": "3rd Year",
     "roll_number": "055"
   },
-  "user_1d05bedeed": {
-    "id": "user_1d05bedeed",
-    "username": "Rahul Das",
-    "name": "Rahul Das",
-    "email": "rahul1@test.com",
-    "pw_hash": "scrypt:32768:8:1$3tRcZsZwNWeg3iZe$fee5d92e8f944ba55d7a54f805298f9e719e81e25c347740e6ebc8a0a79b827469d2077a15964d4e0c3f614dfbc2d05c179077a58fd5b5e7b1d13b184c4f0f81",
-    "user_type": "EXTERNAL"
-  },
-  "user_a99e0a9b0e": {
-    "id": "user_a99e0a9b0e",
-    "username": "Rahul Das",
-    "name": "Rahul Das",
-    "email": "rahul2@test.com",
-    "pw_hash": "scrypt:32768:8:1$DUhNxcH0f8rd6WZR$89f4434a5e32d00cb365952f9a2fcceec5c6bb7059b5b640da43d39c3ef6e01908b018aaa56d1374f40e61e62f30032f38af8b132c96eae190e0c64482eedc46",
-    "user_type": "EXTERNAL"
-  },
-  "user_aa48454378": {
-    "id": "user_aa48454378",
-    "name": "Rahul Das",
-    "username": "Rahul Das",
-    "email": "rahul4@test.com",
-    "pw_hash": "scrypt:32768:8:1$RRTSMIOAM08lgfC0$a5ee593acf207585a3dc270f4fb1cb04969880a142f76c561735d9d94979377338d2d1c8700a8053802547ea494d7964e02e9ee92c89f7713e225d1d5caaa18b",
-    "password": "scrypt:32768:8:1$RRTSMIOAM08lgfC0$a5ee593acf207585a3dc270f4fb1cb04969880a142f76c561735d9d94979377338d2d1c8700a8053802547ea494d7964e02e9ee92c89f7713e225d1d5caaa18b",
-    "user_type": "UNIVERSITY",
-    "student_code": "BWU/AIR/24/030",
-    "university_code": "BWU",
-    "program_code": "AIR",
-    "program_name": "AI & Robotics",
-    "department_name": "AI",
-    "admission_year": 2024,
-    "academic_year": "3rd Year",
-    "roll_number": "030"
-  },
-  "user_6d25e5bff7": {
-    "id": "user_6d25e5bff7",
-    "name": "Different Student",
-    "username": "Different Student",
-    "email": "rahul3@test.com",
-    "pw_hash": "scrypt:32768:8:1$VnY2LpZ5kYev3y1m$2e971319e3dd399d9ad8278a6e125a7a45f67ca1186478b7cd444baf7863d2b5ee55f959d7f387a929e32c928acecebb2cf4adb8372a1921c104f03c2754126c",
-    "password": "scrypt:32768:8:1$VnY2LpZ5kYev3y1m$2e971319e3dd399d9ad8278a6e125a7a45f67ca1186478b7cd444baf7863d2b5ee55f959d7f387a929e32c928acecebb2cf4adb8372a1921c104f03c2754126c",
-    "user_type": "UNIVERSITY",
-    "student_code": "BWU/AIR/24/031",
-    "university_code": "BWU",
-    "program_code": "AIR",
-    "program_name": "AI & Robotics",
-    "department_name": "AI",
-    "admission_year": 2024,
-    "academic_year": "3rd Year",
-    "roll_number": "031"
-  },
   "user_9f75c56403": {
     "id": "user_9f75c56403",
     "name": "ARNAB KUMAR JANA",
@@ -290,5 +240,21 @@
     "admission_year": 2027,
     "academic_year": "2nd Year",
     "roll_number": "029"
+  },
+  "user_4e28344b87": {
+    "id": "user_4e28344b87",
+    "username": "Rahul Das",
+    "name": "Rahul Das",
+    "email": "rahul1@test.com",
+    "pw_hash": "scrypt:32768:8:1$D33FFj8tM2Hzw3jr$2b3cd40e8728c60644477ca4964f742d1d248f64343434602b2d6f58f2f89dd702b742cf4339550ef6d7a79c5d91537e72696ac5bb047d1067b02ba4712ba377",
+    "user_type": "EXTERNAL"
+  },
+  "user_8ce7117aab": {
+    "id": "user_8ce7117aab",
+    "username": "Rahul Das",
+    "name": "Rahul Das",
+    "email": "rahul2@test.com",
+    "pw_hash": "scrypt:32768:8:1$uwLZiAAFuhwp0LRU$ee5ffcdb31e3927d86c0f8d49eeab02c542fa56761d4e14173c8d6762e21434cae8f11334e989308a6cfaf12535f88f88b0a200c11e8b8b94c4e13d84bb87635",
+    "user_type": "EXTERNAL"
   }
 }

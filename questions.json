@@ -1536,15 +1536,22 @@
     "topic": "Java Fundamentals",
     "type": "MCQ",
     "level": "Easy",
-    "source": "MANUAL",
     "question": "Which keyword is used to define a class in Java?",
+    "q": "Which keyword is used to define a class in Java?",
     "options": [
       "class",
       "struct",
       "define",
       "object"
     ],
-    "correct": "class"
+    "a": [
+      "class",
+      "struct",
+      "define",
+      "object"
+    ],
+    "correct": "class",
+    "source": "MANUAL"
   },
   {
     "id": "Q-JAVA-002",
@@ -1559,15 +1566,22 @@
     "topic": "JVM Architecture",
     "type": "MCQ",
     "level": "Medium",
-    "source": "MANUAL",
     "question": "What is the primary function of the Java Virtual Machine (JVM)?",
+    "q": "What is the primary function of the Java Virtual Machine (JVM)?",
     "options": [
       "To execute compiled Java bytecode into platform-specific machine code",
       "To compile Java source code directly into native machine code",
       "To manage database transactions exclusively",
       "To design graphical user interfaces"
     ],
-    "correct": "To execute compiled Java bytecode into platform-specific machine code"
+    "a": [
+      "To execute compiled Java bytecode into platform-specific machine code",
+      "To compile Java source code directly into native machine code",
+      "To manage database transactions exclusively",
+      "To design graphical user interfaces"
+    ],
+    "correct": "To execute compiled Java bytecode into platform-specific machine code",
+    "source": "MANUAL"
   },
   {
     "id": "Q-JAVA-003",
@@ -1582,10 +1596,11 @@
     "topic": "OOP Concepts",
     "type": "DESCRIPTIVE",
     "level": "Medium",
-    "source": "MANUAL",
     "question": "Explain the difference between method overloading and method overriding in Java with suitable examples.",
+    "q": "Explain the difference between method overloading and method overriding in Java with suitable examples.",
     "answer_key": "keywords: overloading compile-time polymorphism same name different parameters overriding runtime polymorphism inheritance @Override",
-    "max_marks": 5
+    "max_marks": 5,
+    "source": "MANUAL"
   },
   {
     "id": "Q-ETHICS-001",
@@ -1600,15 +1615,22 @@
     "topic": "Engineering Ethics",
     "type": "MCQ",
     "level": "Easy",
-    "source": "MANUAL",
     "question": "What is the primary objective of a code of professional ethics in engineering?",
+    "q": "What is the primary objective of a code of professional ethics in engineering?",
     "options": [
       "To protect the safety, health, and welfare of the public",
       "To maximize corporate profit regardless of consequences",
       "To protect employers from employee grievances",
       "To eliminate the need for legal regulations"
     ],
-    "correct": "To protect the safety, health, and welfare of the public"
+    "a": [
+      "To protect the safety, health, and welfare of the public",
+      "To maximize corporate profit regardless of consequences",
+      "To protect employers from employee grievances",
+      "To eliminate the need for legal regulations"
+    ],
+    "correct": "To protect the safety, health, and welfare of the public",
+    "source": "MANUAL"
   },
   {
     "id": "Q-ETHICS-002",
@@ -1623,15 +1645,22 @@
     "topic": "Workplace Ethics",
     "type": "MCQ",
     "level": "Medium",
-    "source": "MANUAL",
     "question": "Which of the following actions constitutes whistleblowing in a professional organization?",
+    "q": "Which of the following actions constitutes whistleblowing in a professional organization?",
     "options": [
       "Reporting illegal, unsafe, or unethical practices to relevant authorities or the public",
       "Sharing confidential trade secrets with competitor companies",
       "Taking credit for another team member contributions",
       "Refusing to attend mandatory safety training sessions"
     ],
-    "correct": "Reporting illegal, unsafe, or unethical practices to relevant authorities or the public"
+    "a": [
+      "Reporting illegal, unsafe, or unethical practices to relevant authorities or the public",
+      "Sharing confidential trade secrets with competitor companies",
+      "Taking credit for another team member contributions",
+      "Refusing to attend mandatory safety training sessions"
+    ],
+    "correct": "Reporting illegal, unsafe, or unethical practices to relevant authorities or the public",
+    "source": "MANUAL"
   },
   {
     "id": "Q-ETHICS-003",
@@ -1646,10 +1675,11 @@
     "topic": "Intellectual Property",
     "type": "DESCRIPTIVE",
     "level": "Medium",
-    "source": "MANUAL",
     "question": "Discuss the moral responsibility of engineers regarding conflict of interest and intellectual property rights.",
+    "q": "Discuss the moral responsibility of engineers regarding conflict of interest and intellectual property rights.",
     "answer_key": "keywords: conflict of interest disclosure transparency integrity patents trade secrets confidentiality public trust",
-    "max_marks": 5
+    "max_marks": 5,
+    "source": "MANUAL"
   },
   {
     "id": "Q-ELEC-001",
@@ -1664,15 +1694,22 @@
     "topic": "Circuit Laws",
     "type": "MCQ",
     "level": "Easy",
-    "source": "MANUAL",
     "question": "According to Ohms Law, what is the mathematical relationship between Voltage (V), Current (I), and Resistance (R)?",
+    "q": "According to Ohms Law, what is the mathematical relationship between Voltage (V), Current (I), and Resistance (R)?",
     "options": [
       "V = I * R",
       "V = I / R",
       "V = I + R",
       "V = R / I"
     ],
-    "correct": "V = I * R"
+    "a": [
+      "V = I * R",
+      "V = I / R",
+      "V = I + R",
+      "V = R / I"
+    ],
+    "correct": "V = I * R",
+    "source": "MANUAL"
   },
   {
     "id": "Q-ELEC-002",
@@ -1687,15 +1724,22 @@
     "topic": "Electrical Units",
     "type": "MCQ",
     "level": "Easy",
-    "source": "MANUAL",
     "question": "What is the SI unit of electrical capacitance?",
+    "q": "What is the SI unit of electrical capacitance?",
     "options": [
       "Farad",
       "Henry",
       "Ohm",
       "Tesla"
     ],
-    "correct": "Farad"
+    "a": [
+      "Farad",
+      "Henry",
+      "Ohm",
+      "Tesla"
+    ],
+    "correct": "Farad",
+    "source": "MANUAL"
   },
   {
     "id": "Q-ELEC-003",
@@ -1710,9 +1754,10 @@
     "topic": "Kirchhoff Laws",
     "type": "DESCRIPTIVE",
     "level": "Medium",
-    "source": "MANUAL",
     "question": "State and explain Kirchhoffs Current Law (KCL) and Kirchhoffs Voltage Law (KVL) with their underlying conservation principles.",
+    "q": "State and explain Kirchhoffs Current Law (KCL) and Kirchhoffs Voltage Law (KVL) with their underlying conservation principles.",
     "answer_key": "keywords: KCL nodal current algebraic sum zero conservation of charge KVL loop voltage conservation of energy",
-    "max_marks": 5
+    "max_marks": 5,
+    "source": "MANUAL"
   }
 ]

@@ -435,7 +435,42 @@ class TestBatchGeneration(unittest.TestCase):
             self.assertIn("invalid", data["error"].lower())
 
     def test_gemini_rest_request_payload_format(self):
-        """Verifies that _call_gemini_http configures thinkingBudget: 0 and responseMimeType."""
+        """Verifies that _call_gemini_http configures gemini-3.7-flash with thinkingLevel: 'low' and responseMimeType."""
+        import admin_routes
+        with patch("urllib.request.urlopen") as mock_urlopen:
+            mock_resp = MagicMock()
+            mock_resp.read.return_value = json.dumps({
+                "candidates": [{
+                    "content": {
+                        "parts": [{"text": json.dumps([{"question": "test"}])}]
+                    }
+                }]
+            }).encode("utf-8")
+            mock_resp.__enter__.return_value = mock_resp
+            mock_urlopen.return_value = mock_resp
+
+            text, err = admin_routes._call_gemini_http(
+                prompt="test prompt",
+                api_key="TEST_API_KEY",
+                model="gemini-3.7-flash",
+                timeout=22.0
+            )
+            self.assertIsNone(err)
+            self.assertIsNotNone(text)
+
+            # Inspect urllib.request.Request passed to urlopen
+            call_args, call_kwargs = mock_urlopen.call_args
+            req_obj = call_args[0]
+            self.assertIn("gemini-3.7-flash", req_obj.full_url)
+            self.assertIn("key=TEST_API_KEY", req_obj.full_url)
+            
+            payload = json.loads(req_obj.data.decode("utf-8"))
+            gen_cfg = payload["generationConfig"]
+            self.assertEqual(gen_cfg["responseMimeType"], "application/json")
+            self.assertEqual(gen_cfg["thinkingConfig"]["thinkingLevel"], "low")
+
+    def test_gemini_25_backward_compatibility(self):
+        """Verifies backward compatibility for gemini-2.5-flash with thinkingBudget: 0."""
         import admin_routes
         with patch("urllib.request.urlopen") as mock_urlopen:
             mock_resp = MagicMock()
@@ -456,18 +491,96 @@ class TestBatchGeneration(unittest.TestCase):
                 timeout=22.0
             )
             self.assertIsNone(err)
-            self.assertIsNotNone(text)
-
-            # Inspect urllib.request.Request passed to urlopen
-            call_args, call_kwargs = mock_urlopen.call_args
+            call_args, _ = mock_urlopen.call_args
             req_obj = call_args[0]
-            self.assertIn("gemini-2.5-flash", req_obj.full_url)
-            self.assertIn("key=TEST_API_KEY", req_obj.full_url)
-            
             payload = json.loads(req_obj.data.decode("utf-8"))
-            gen_cfg = payload["generationConfig"]
-            self.assertEqual(gen_cfg["responseMimeType"], "application/json")
-            self.assertEqual(gen_cfg["thinkingConfig"]["thinkingBudget"], 0)
+            self.assertEqual(payload["generationConfig"]["thinkingConfig"]["thinkingBudget"], 0)
+
+    def test_rate_limit_backoff_and_retry(self):
+        """Verifies that HTTP 429 triggers exponential backoff and succeeds on retry."""
+        import admin_routes
+        import urllib.error
+
+        attempts = 0
+        def fake_urlopen(req, timeout=22.0):
+            nonlocal attempts
+            attempts += 1
+            if attempts < 3:
+                # Raise 429 HTTPError on attempts 1 and 2
+                fp = MagicMock()
+                fp.read.return_value = json.dumps({"error": {"message": "Rate limit exceeded", "details": [{"reason": "RESOURCE_EXHAUSTED"}]}}).encode("utf-8")
+                headers = MagicMock()
+                headers.get.return_value = None
+                raise urllib.error.HTTPError(req.full_url, 429, "Too Many Requests", headers, fp)
+            else:
+                # Succeed on attempt 3
+                mock_resp = MagicMock()
+                mock_resp.read.return_value = json.dumps({
+                    "candidates": [{"content": {"parts": [{"text": json.dumps([{"question": "success"}])}]}}]
+                }).encode("utf-8")
+                mock_resp.__enter__.return_value = mock_resp
+                return mock_resp
+
+        with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep") as mock_sleep:
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.7-flash")
+            self.assertIsNone(err)
+            self.assertIsNotNone(text)
+            self.assertEqual(attempts, 3)
+            # Verify exponential backoff calls: 1.0s, 2.0s
+            self.assertEqual(mock_sleep.call_count, 2)
+            self.assertEqual(mock_sleep.call_args_list[0][0][0], 1.0)
+            self.assertEqual(mock_sleep.call_args_list[1][0][0], 2.0)
+
+    def test_rate_limit_respects_retry_after_header(self):
+        """Verifies that HTTP 429 respects Retry-After header when present."""
+        import admin_routes
+        import urllib.error
+
+        attempts = 0
+        def fake_urlopen(req, timeout=22.0):
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                fp = MagicMock()
+                fp.read.return_value = json.dumps({"error": {"message": "Rate limit exceeded"}}).encode("utf-8")
+                headers = MagicMock()
+                headers.get.side_effect = lambda k: "2.5" if k == "Retry-After" else None
+                raise urllib.error.HTTPError(req.full_url, 429, "Too Many Requests", headers, fp)
+            else:
+                mock_resp = MagicMock()
+                mock_resp.read.return_value = json.dumps({
+                    "candidates": [{"content": {"parts": [{"text": json.dumps([{"question": "success"}])}]}}]
+                }).encode("utf-8")
+                mock_resp.__enter__.return_value = mock_resp
+                return mock_resp
+
+        with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep") as mock_sleep:
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.7-flash")
+            self.assertIsNone(err)
+            self.assertEqual(attempts, 2)
+            mock_sleep.assert_called_once_with(2.5)
+
+    def test_rate_limit_max_retries_exceeded(self):
+        """Verifies that exceeding 3 retries stops and returns clean rate limit error."""
+        import admin_routes
+        import urllib.error
+
+        attempts = 0
+        def fake_urlopen(req, timeout=22.0):
+            nonlocal attempts
+            attempts += 1
+            fp = MagicMock()
+            fp.read.return_value = json.dumps({"error": {"message": "Rate limit exceeded"}}).encode("utf-8")
+            headers = MagicMock()
+            headers.get.return_value = None
+            raise urllib.error.HTTPError(req.full_url, 429, "Too Many Requests", headers, fp)
+
+        with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep"):
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.7-flash")
+            self.assertIsNone(text)
+            self.assertIn("rate limit reached", err.lower())
+            # 1 initial + 3 retries = 4 total attempts
+            self.assertEqual(attempts, 4)
 
     def test_gunicorn_conf_timeout_setting(self):
         """Verifies that gunicorn.conf.py provides at least 120s timeout buffer."""

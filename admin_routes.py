@@ -1541,8 +1541,8 @@ def api_generate():
         return error_response("Another AI generation request is currently processing. Please wait a few seconds and try again.", 429)
 
     try:
-        # Determine batch partition (safe batches of at most 10 questions each)
-        BATCH_SIZE = 10
+        # Determine batch partition (safe batches of at most 5 questions each)
+        BATCH_SIZE = 5
         batches = []
         rem = count
         while rem > 0:
@@ -1583,10 +1583,25 @@ def api_generate():
             rem_desc -= b_desc
             batch_plans.append((b_mcq, b_desc))
 
-        print(f"[api_generate] Request started: course={course_code}, type={qtype}, count={count}, topic='{topic[:30]}' -> split into {total_batches} batch(es): {batches}")
+        print(f"[api_generate] Request started: count={count}")
+        print(f"[api_generate] Internal generation: {total_batches} batches of {BATCH_SIZE}")
 
         final_questions = []
         seen_keys = set()
+
+        # Pre-populate seen_keys with existing questions for this course to prevent duplicates
+        try:
+            existing_qb = load_questions()
+            for eq in existing_qb:
+                if isinstance(eq, dict):
+                    eq_course = str(eq.get("course_code") or "").strip().upper()
+                    if eq_course == course_code.upper():
+                        q_text = eq.get("question") or eq.get("q")
+                        if q_text:
+                            seen_keys.add(_normalize_question_text_for_dedup(q_text))
+        except Exception as e:
+            print(f"[api_generate] Note: could not load existing questions for dedup: {e}")
+
         timeout_seconds = float(os.getenv("GEMINI_TIMEOUT", "22.0"))
         model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
 
@@ -1619,11 +1634,11 @@ def api_generate():
             if ai_error:
                 if "timed out" in ai_error.lower():
                     print(f"[api_generate] Batch {batch_idx}/{total_batches} timed out")
-                    err_msg = "AI generation timed out. Please try again." if total_batches == 1 else f"AI generation timed out during Batch {batch_idx} of {total_batches}. Please try again."
+                    err_msg = "AI generation timed out. Please try again." if total_batches == 1 else f"AI generation timed out while creating the complete question set (Batch {batch_idx} of {total_batches}). Please try again."
                     return error_response(err_msg, 400)
                 else:
                     print(f"[api_generate] AI error in Batch {batch_idx}/{total_batches}: {ai_error} (elapsed: {elapsed:.2f}s)")
-                    err_msg = ai_error if total_batches == 1 else f"AI generation failed during Batch {batch_idx} of {total_batches}: {ai_error}"
+                    err_msg = ai_error if total_batches == 1 else "AI generation failed while creating the complete question set. Please try again."
                     return error_response(err_msg, 400)
 
             # Validate JSON immediately after each batch
@@ -1651,25 +1666,26 @@ def api_generate():
 
             print(f"[api_generate] Batch {batch_idx}/{total_batches} completed")
 
-        # Top-up batch if deduplication resulted in fewer questions than requested
-        missing_count = count - len(final_questions)
-        if missing_count > 0 and missing_count <= 10:
-            print(f"[api_generate] Top-up batch started ({missing_count} question(s) needed to reach requested {count})")
-            t0 = time.time()
+        # Top-up batches if deduplication or validation resulted in fewer questions than requested
+        topup_attempts = 0
+        max_topup_attempts = 10
+        while len(final_questions) < count and topup_attempts < max_topup_attempts:
+            topup_attempts += 1
+            missing_count = count - len(final_questions)
+            topup_batch_size = min(BATCH_SIZE, missing_count)
+
             curr_mcq = sum(1 for q in final_questions if q["type"] == "MCQ")
             curr_desc = sum(1 for q in final_questions if q["type"] == "DESCRIPTIVE")
 
             if qtype == "MIXED":
-                topup_mcq = max(0, total_mcq_target - curr_mcq)
-                topup_desc = max(0, total_desc_target - curr_desc)
-                if topup_mcq + topup_desc < missing_count:
-                    topup_desc += (missing_count - (topup_mcq + topup_desc))
+                topup_mcq = min(topup_batch_size, max(0, total_mcq_target - curr_mcq))
+                topup_desc = topup_batch_size - topup_mcq
             elif qtype == "MCQ":
-                topup_mcq = missing_count
+                topup_mcq = topup_batch_size
                 topup_desc = 0
             else:
                 topup_mcq = 0
-                topup_desc = missing_count
+                topup_desc = topup_batch_size
 
             sample_titles = [q["question"] for q in final_questions[-8:]]
             topup_prompt = _build_batch_prompt(
@@ -1689,25 +1705,33 @@ def api_generate():
             )
 
             raw_text, ai_error = _call_gemini_http(topup_prompt, api_key, model=model_name, timeout=timeout_seconds)
-            elapsed = time.time() - t0
-            if not ai_error and raw_text:
-                parsed_list, _ = _clean_and_parse_ai_json(raw_text)
-                if parsed_list:
-                    for item in parsed_list:
-                        if len(final_questions) >= count:
-                            break
-                        q_obj = _normalize_ai_question_item(
-                            item, course_code, course_name, subject, program_code, program_name,
-                            admission_year, academic_year, unit, topic, difficulty
-                        )
-                        if not q_obj:
-                            continue
-                        k = _normalize_question_text_for_dedup(q_obj["question"])
-                        if k in seen_keys:
-                            continue
-                        seen_keys.add(k)
-                        final_questions.append(q_obj)
-            print(f"[api_generate] Top-up batch completed in {elapsed:.2f}s (final count: {len(final_questions)}/{count})")
+            if ai_error or not raw_text:
+                print(f"[api_generate] Top-up batch failed: {ai_error}")
+                break
+
+            parsed_list, _ = _clean_and_parse_ai_json(raw_text)
+            if not parsed_list:
+                break
+
+            added_in_topup = 0
+            for item in parsed_list:
+                if len(final_questions) >= count:
+                    break
+                q_obj = _normalize_ai_question_item(
+                    item, course_code, course_name, subject, program_code, program_name,
+                    admission_year, academic_year, unit, topic, difficulty
+                )
+                if not q_obj:
+                    continue
+                k = _normalize_question_text_for_dedup(q_obj["question"])
+                if k in seen_keys:
+                    continue
+                seen_keys.add(k)
+                final_questions.append(q_obj)
+                added_in_topup += 1
+
+            if added_in_topup == 0:
+                break
 
         # Trim to exact requested count if any excess items were returned
         if len(final_questions) > count:
@@ -1716,7 +1740,8 @@ def api_generate():
         if not final_questions:
             return error_response("AI generated output contained no usable question items.", 400)
 
-        # Logging: Response generated
+        # Logging: Combined and response generated
+        print(f"[api_generate] Combined result: {len(final_questions)} questions")
         print(f"[api_generate] Response generated: {len(final_questions)} unique questions returned successfully")
 
         return jsonify({
@@ -1869,15 +1894,17 @@ def api_save_generated():
     if not validated_questions:
         return jsonify({"success": False, "error": "No valid questions were processed."}), 400
 
+    print(f"[api_save_generated] Saving {len(validated_questions)} questions")
     # Append to existing questions
     existing_questions = load_questions()
     existing_questions.extend(validated_questions)
     save_json("questions.json", existing_questions)
+    print(f"[api_save_generated] {len(validated_questions)} questions saved successfully")
 
     return jsonify({
         "success": True,
         "saved_count": len(validated_questions),
-        "message": f"Successfully saved {len(validated_questions)} AI-generated questions to the Question Bank!"
+        "message": f"{len(validated_questions)} questions saved successfully."
     })
 
 

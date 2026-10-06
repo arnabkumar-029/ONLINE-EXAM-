@@ -3,6 +3,7 @@ import json
 import re
 from unittest.mock import patch, MagicMock
 from app import create_app
+import utils
 
 class TestBatchGeneration(unittest.TestCase):
     def setUp(self):
@@ -10,13 +11,159 @@ class TestBatchGeneration(unittest.TestCase):
         self.app.config["TESTING"] = True
         self.client = self.app.test_client()
 
+        # Save snapshot of questions for clean restore
+        self._orig_questions = list(utils.load_questions())
+
         # Simulate admin login session
         with self.client.session_transaction() as sess:
             sess["admin"] = True
             sess["user_id"] = "ADMIN001"
 
-    def test_batch_split_50_questions(self):
-        """Test that requesting 50 questions splits into 5 batches of 10 sequentially."""
+    def tearDown(self):
+        # Restore questions snapshot
+        utils.save_json("questions.json", self._orig_questions)
+        utils.reload_questions_from_disk()
+
+    def test_case_1_count_5(self):
+        """Case 1: Count = 5 -> Generate 5 -> Preview 5 -> Save once."""
+        call_count = 0
+        def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
+            nonlocal call_count
+            call_count += 1
+            items = [{
+                "type": "MCQ",
+                "question": f"Case 1 Question {i+1} on OS Processes?",
+                "options": ["Process A", "Process B", "Process C", "Process D"],
+                "correct": "Process A",
+                "level": "Easy"
+            } for i in range(5)]
+            return json.dumps(items), None
+
+        with patch("admin_routes._call_gemini_http", side_effect=mock_call_gemini):
+            res = self.client.post("/admin/api_generate", json={
+                "course_code": "CS301",
+                "course_name": "Operating Systems",
+                "subject": "CS",
+                "unit": "Unit 1",
+                "topic": "Process Management",
+                "qtype": "MCQ",
+                "count": 5
+            })
+            self.assertEqual(res.status_code, 200)
+            data = res.get_json()
+            self.assertTrue(data["success"])
+            self.assertEqual(data["count"], 5)
+            self.assertEqual(len(data["questions"]), 5)
+            self.assertEqual(call_count, 1) # 1 batch of 5
+
+            # Save once
+            save_res = self.client.post("/admin/api_save_generated", json={"questions": data["questions"]})
+            self.assertEqual(save_res.status_code, 200)
+            save_data = save_res.get_json()
+            self.assertTrue(save_data["success"])
+            self.assertEqual(save_data["saved_count"], 5)
+            self.assertIn("5 questions saved successfully", save_data["message"])
+
+    def test_case_2_count_10(self):
+        """Case 2: Count = 10 -> Internally 2 x 5 -> Preview 10 -> Save once."""
+        call_count = 0
+        batch_sizes = []
+
+        def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
+            nonlocal call_count
+            call_count += 1
+            match = re.search(r"Generate exactly (\d+)", prompt)
+            if not match:
+                match = re.search(r"Total:\s*(\d+)\s*questions", prompt)
+            if match:
+                batch_sizes.append(int(match.group(1)))
+
+            items = [{
+                "type": "MCQ",
+                "question": f"Case 2 Question {(call_count-1)*5 + i + 1} on Threads?",
+                "options": ["A", "B", "C", "D"],
+                "correct": "A",
+                "level": "Medium"
+            } for i in range(5)]
+            return json.dumps(items), None
+
+        with patch("admin_routes._call_gemini_http", side_effect=mock_call_gemini):
+            res = self.client.post("/admin/api_generate", json={
+                "course_code": "CS301",
+                "course_name": "Operating Systems",
+                "subject": "CS",
+                "unit": "Unit 2",
+                "topic": "Multithreading",
+                "qtype": "MCQ",
+                "count": 10
+            })
+            self.assertEqual(res.status_code, 200)
+            data = res.get_json()
+            self.assertTrue(data["success"])
+            self.assertEqual(data["count"], 10)
+            self.assertEqual(len(data["questions"]), 10)
+            self.assertEqual(call_count, 2) # 2 batches of 5
+            self.assertEqual(batch_sizes, [5, 5])
+
+            # Save once
+            save_res = self.client.post("/admin/api_save_generated", json={"questions": data["questions"]})
+            self.assertEqual(save_res.status_code, 200)
+            save_data = save_res.get_json()
+            self.assertTrue(save_data["success"])
+            self.assertEqual(save_data["saved_count"], 10)
+            self.assertIn("10 questions saved successfully", save_data["message"])
+
+    def test_case_3_count_20(self):
+        """Case 3: Count = 20 -> Internally 4 x 5 -> Preview 20 -> Save once."""
+        call_count = 0
+        batch_sizes = []
+
+        def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
+            nonlocal call_count
+            call_count += 1
+            match = re.search(r"Generate exactly (\d+)", prompt)
+            if not match:
+                match = re.search(r"Total:\s*(\d+)\s*questions", prompt)
+            if match:
+                batch_sizes.append(int(match.group(1)))
+
+            items = [{
+                "type": "MCQ",
+                "question": f"Case 3 Question {(call_count-1)*5 + i + 1} on Deadlocks?",
+                "options": ["Opt1", "Opt2", "Opt3", "Opt4"],
+                "correct": "Opt1",
+                "level": "Medium"
+            } for i in range(5)]
+            return json.dumps(items), None
+
+        with patch("admin_routes._call_gemini_http", side_effect=mock_call_gemini):
+            res = self.client.post("/admin/api_generate", json={
+                "course_code": "CS301",
+                "course_name": "Operating Systems",
+                "subject": "CS",
+                "unit": "Unit 3",
+                "topic": "Deadlocks",
+                "qtype": "MCQ",
+                "count": 20
+            })
+            self.assertEqual(res.status_code, 200)
+            data = res.get_json()
+            self.assertTrue(data["success"])
+            self.assertEqual(data["count"], 20)
+            self.assertEqual(len(data["questions"]), 20)
+            self.assertEqual(call_count, 4) # 4 batches of 5
+            self.assertEqual(batch_sizes, [5, 5, 5, 5])
+
+            # Save once
+            save_res = self.client.post("/admin/api_save_generated", json={"questions": data["questions"]})
+            self.assertEqual(save_res.status_code, 200)
+            save_data = save_res.get_json()
+            self.assertTrue(save_data["success"])
+            self.assertEqual(save_data["saved_count"], 20)
+            self.assertIn("20 questions saved successfully", save_data["message"])
+
+    def test_case_4_count_50(self):
+        """Case 4: Count = 50 -> Internally 10 x 5 -> Preview 50 -> Save once -> Confirm 50 added to Question Bank."""
         call_count = 0
         batch_sizes_requested = []
 
@@ -29,29 +176,31 @@ class TestBatchGeneration(unittest.TestCase):
             if match:
                 batch_sizes_requested.append(int(match.group(1)))
 
-            # Return 10 unique MCQ questions per batch
+            # 5 items per batch
             batch_items = []
-            for i in range(10):
-                q_num = (call_count - 1) * 10 + i + 1
+            for i in range(5):
+                q_num = (call_count - 1) * 5 + i + 1
                 batch_items.append({
                     "type": "MCQ",
-                    "question": f"Batch question {q_num} on Process Scheduling?",
+                    "question": f"Case 4 50-batch question {q_num} on AI in Robotics?",
                     "options": [f"Option A{q_num}", f"Option B{q_num}", f"Option C{q_num}", f"Option D{q_num}"],
                     "correct": f"Option A{q_num}",
                     "level": "Medium"
                 })
             return json.dumps(batch_items), None
 
+        initial_count = len(utils.load_questions())
+
         with patch("admin_routes._call_gemini_http", side_effect=mock_call_gemini):
             res = self.client.post("/admin/api_generate", json={
                 "course_code": "CS301",
                 "course_name": "Operating Systems",
-                "subject": "Computer Science",
+                "subject": "CS",
                 "program_code": "CSE",
                 "admission_year": "2024",
                 "academic_year": "3rd Year",
-                "unit": "Unit 1",
-                "topic": "Process Scheduling",
+                "unit": "Unit 5",
+                "topic": "AI IN ROBOTICS",
                 "qtype": "MCQ",
                 "difficulty": "Medium",
                 "count": 50
@@ -63,12 +212,24 @@ class TestBatchGeneration(unittest.TestCase):
             self.assertTrue(data["success"])
             self.assertEqual(data["count"], 50)
             self.assertEqual(len(data["questions"]), 50)
-            # Verify 5 calls made for 50 questions
-            self.assertEqual(call_count, 5)
-            self.assertEqual(batch_sizes_requested, [10, 10, 10, 10, 10])
+            # Verify 10 calls of 5 made for 50 questions
+            self.assertEqual(call_count, 10)
+            self.assertEqual(batch_sizes_requested, [5] * 10)
+
+            # Save once: all 50 saved in single operation
+            save_res = self.client.post("/admin/api_save_generated", json={"questions": data["questions"]})
+            self.assertEqual(save_res.status_code, 200)
+            save_data = save_res.get_json()
+            self.assertTrue(save_data["success"])
+            self.assertEqual(save_data["saved_count"], 50)
+            self.assertIn("50 questions saved successfully", save_data["message"])
+
+            # Verify in Question Bank
+            updated_questions = utils.load_questions()
+            self.assertEqual(len(updated_questions), initial_count + 50)
 
     def test_batch_failure_reports_batch_number(self):
-        """Test that failure in batch 3 returns clean JSON mentioning Batch 3 of 5."""
+        """Test that failure in batch 3 returns clean JSON mentioning Batch 3 of 10."""
         current_batch = 0
 
         def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
@@ -83,7 +244,7 @@ class TestBatchGeneration(unittest.TestCase):
                 "options": ["A", "B", "C", "D"],
                 "correct": "A",
                 "level": "Easy"
-            } for i in range(10)]
+            } for i in range(5)]
             return json.dumps(items), None
 
         with patch("admin_routes._call_gemini_http", side_effect=mock_call_gemini):
@@ -101,18 +262,18 @@ class TestBatchGeneration(unittest.TestCase):
             self.assertTrue(res.is_json)
             data = res.get_json()
             self.assertFalse(data["success"])
-            self.assertIn("Batch 3 of 5", data["error"])
+            self.assertIn("Batch 3 of 10", data["error"])
             self.assertIn("timed out", data["error"].lower())
 
     def test_deduplication_and_topup_batch(self):
-        """Test deduplication across batches triggers top-up to fulfill requested 20 questions."""
+        """Test deduplication across batches triggers top-up to fulfill requested 10 questions."""
         batch_counter = 0
 
         def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
             nonlocal batch_counter
             batch_counter += 1
             if batch_counter == 1:
-                # 10 questions
+                # 5 questions
                 return json.dumps([
                     {
                         "type": "MCQ",
@@ -120,10 +281,10 @@ class TestBatchGeneration(unittest.TestCase):
                         "options": ["A", "B", "C", "D"],
                         "correct": "A",
                         "level": "Easy"
-                    } for i in range(10)
+                    } for i in range(5)
                 ]), None
             elif batch_counter == 2:
-                # 8 unique, 2 duplicates from batch 1
+                # 3 unique, 2 duplicates from batch 1
                 items = [
                     {
                         "type": "MCQ",
@@ -147,7 +308,7 @@ class TestBatchGeneration(unittest.TestCase):
                         "options": ["A", "B", "C", "D"],
                         "correct": "A",
                         "level": "Easy"
-                    } for i in range(8)
+                    } for i in range(3)
                 ])
                 return json.dumps(items), None
             elif batch_counter == 3:
@@ -170,14 +331,14 @@ class TestBatchGeneration(unittest.TestCase):
                 "unit": "Unit 2",
                 "topic": "Deadlocks",
                 "qtype": "MCQ",
-                "count": 20
+                "count": 10
             })
 
             self.assertEqual(res.status_code, 200)
             data = res.get_json()
             self.assertTrue(data["success"])
-            self.assertEqual(data["count"], 20)
-            self.assertEqual(len(data["questions"]), 20)
+            self.assertEqual(data["count"], 10)
+            self.assertEqual(len(data["questions"]), 10)
             self.assertEqual(batch_counter, 3) # 2 main batches + 1 top-up batch
 
     def test_all_question_fields_preserved(self):
@@ -236,78 +397,6 @@ class TestBatchGeneration(unittest.TestCase):
             self.assertEqual(desc["source"], "AI")
             self.assertEqual(desc["answer_key"], "Page table, frames, TLB.")
             self.assertEqual(desc["max_marks"], 5)
-
-    def test_single_question_generation(self):
-        """Verifies generating 1 question works as a single batch."""
-        fake_items = [{
-            "type": "MCQ",
-            "question": "What is an OS?",
-            "options": ["Software", "Hardware", "Firmware", "None"],
-            "correct": "Software",
-            "level": "Easy"
-        }]
-        with patch("admin_routes._call_gemini_http", return_value=(json.dumps(fake_items), None)):
-            res = self.client.post("/admin/api_generate", json={
-                "course_code": "CS301",
-                "course_name": "Operating Systems",
-                "subject": "CS",
-                "unit": "Unit 1",
-                "topic": "Overview",
-                "qtype": "MCQ",
-                "count": 1
-            })
-            self.assertEqual(res.status_code, 200)
-            data = res.get_json()
-            self.assertTrue(data["success"])
-            self.assertEqual(data["count"], 1)
-
-    def test_five_questions_generation(self):
-        """Verifies generating 5 questions works as a single batch."""
-        fake_items = [{
-            "type": "MCQ",
-            "question": f"Question {i}",
-            "options": ["A", "B", "C", "D"],
-            "correct": "A",
-            "level": "Easy"
-        } for i in range(5)]
-        with patch("admin_routes._call_gemini_http", return_value=(json.dumps(fake_items), None)):
-            res = self.client.post("/admin/api_generate", json={
-                "course_code": "CS301",
-                "course_name": "Operating Systems",
-                "subject": "CS",
-                "unit": "Unit 1",
-                "topic": "Overview",
-                "qtype": "MCQ",
-                "count": 5
-            })
-            self.assertEqual(res.status_code, 200)
-            data = res.get_json()
-            self.assertTrue(data["success"])
-            self.assertEqual(data["count"], 5)
-
-    def test_ten_questions_generation(self):
-        """Verifies generating 10 questions works as a single batch."""
-        fake_items = [{
-            "type": "MCQ",
-            "question": f"Question {i}",
-            "options": ["A", "B", "C", "D"],
-            "correct": "A",
-            "level": "Easy"
-        } for i in range(10)]
-        with patch("admin_routes._call_gemini_http", return_value=(json.dumps(fake_items), None)):
-            res = self.client.post("/admin/api_generate", json={
-                "course_code": "CS301",
-                "course_name": "Operating Systems",
-                "subject": "CS",
-                "unit": "Unit 1",
-                "topic": "Overview",
-                "qtype": "MCQ",
-                "count": 10
-            })
-            self.assertEqual(res.status_code, 200)
-            data = res.get_json()
-            self.assertTrue(data["success"])
-            self.assertEqual(data["count"], 10)
 
     def test_missing_api_key_returns_json(self):
         """Verifies missing API key returns a clean JSON error response."""
@@ -380,33 +469,6 @@ class TestBatchGeneration(unittest.TestCase):
             self.assertEqual(gen_cfg["responseMimeType"], "application/json")
             self.assertEqual(gen_cfg["thinkingConfig"]["thinkingBudget"], 0)
 
-    def test_save_to_question_bank_workflow(self):
-        """Verifies generated questions can be saved to Question Bank via api_save_generated."""
-        sample_q = [{
-            "id": "Q-CS301-SAVE1",
-            "course_code": "CS301",
-            "course_name": "Operating Systems",
-            "subject": "CS",
-            "program_code": "CSE",
-            "admission_year": 2024,
-            "academic_year": "3rd Year",
-            "unit": "Unit 1",
-            "topic": "Processes",
-            "type": "MCQ",
-            "difficulty": "Medium",
-            "level": "Medium",
-            "source": "AI",
-            "question": "Which OS scheduling algorithm is preemptive?",
-            "options": ["Round Robin", "FCFS", "Non-preemptive SJF", "None"],
-            "correct": "Round Robin"
-        }]
-        res = self.client.post("/admin/api_save_generated", json={"questions": sample_q})
-        self.assertEqual(res.status_code, 200)
-        self.assertTrue(res.is_json)
-        data = res.get_json()
-        self.assertTrue(data["success"])
-        self.assertIn("saved", data.get("message", "").lower())
-
     def test_gunicorn_conf_timeout_setting(self):
         """Verifies that gunicorn.conf.py provides at least 120s timeout buffer."""
         import importlib.util
@@ -418,4 +480,3 @@ class TestBatchGeneration(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

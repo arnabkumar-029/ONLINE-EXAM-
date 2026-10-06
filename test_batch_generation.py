@@ -27,7 +27,7 @@ class TestBatchGeneration(unittest.TestCase):
     def test_case_1_count_5(self):
         """Case 1: Count = 5 -> Generate 5 -> Preview 5 -> Save once."""
         call_count = 0
-        def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
+        def mock_call_gemini(prompt, api_key, model="gemini-3.5-flash-lite", timeout=60.0):
             nonlocal call_count
             call_count += 1
             items = [{
@@ -69,7 +69,7 @@ class TestBatchGeneration(unittest.TestCase):
         call_count = 0
         batch_sizes = []
 
-        def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
+        def mock_call_gemini(prompt, api_key, model="gemini-3.5-flash-lite", timeout=60.0):
             nonlocal call_count
             call_count += 1
             match = re.search(r"Generate exactly (\d+)", prompt)
@@ -118,7 +118,7 @@ class TestBatchGeneration(unittest.TestCase):
         call_count = 0
         batch_sizes = []
 
-        def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
+        def mock_call_gemini(prompt, api_key, model="gemini-3.5-flash-lite", timeout=60.0):
             nonlocal call_count
             call_count += 1
             match = re.search(r"Generate exactly (\d+)", prompt)
@@ -167,7 +167,7 @@ class TestBatchGeneration(unittest.TestCase):
         call_count = 0
         batch_sizes_requested = []
 
-        def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
+        def mock_call_gemini(prompt, api_key, model="gemini-3.5-flash-lite", timeout=60.0):
             nonlocal call_count
             call_count += 1
             match = re.search(r"Generate exactly (\d+)", prompt)
@@ -232,7 +232,7 @@ class TestBatchGeneration(unittest.TestCase):
         """Test that failure in batch 3 returns clean JSON mentioning Batch 3 of 10."""
         current_batch = 0
 
-        def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
+        def mock_call_gemini(prompt, api_key, model="gemini-3.5-flash-lite", timeout=60.0):
             nonlocal current_batch
             current_batch += 1
             if current_batch == 3:
@@ -269,7 +269,7 @@ class TestBatchGeneration(unittest.TestCase):
         """Test deduplication across batches triggers top-up to fulfill requested 10 questions."""
         batch_counter = 0
 
-        def mock_call_gemini(prompt, api_key, model="gemini-2.5-flash", timeout=22.0):
+        def mock_call_gemini(prompt, api_key, model="gemini-3.5-flash-lite", timeout=60.0):
             nonlocal batch_counter
             batch_counter += 1
             if batch_counter == 1:
@@ -435,7 +435,7 @@ class TestBatchGeneration(unittest.TestCase):
             self.assertIn("invalid", data["error"].lower())
 
     def test_gemini_rest_request_payload_format(self):
-        """Verifies that _call_gemini_http configures gemini-3.7-flash with thinkingLevel: 'low' and responseMimeType."""
+        """Verifies that _call_gemini_http configures gemini-3.5-flash-lite with thinkingLevel: 'low' and responseMimeType."""
         import admin_routes
         with patch("urllib.request.urlopen") as mock_urlopen:
             mock_resp = MagicMock()
@@ -452,8 +452,8 @@ class TestBatchGeneration(unittest.TestCase):
             text, err = admin_routes._call_gemini_http(
                 prompt="test prompt",
                 api_key="TEST_API_KEY",
-                model="gemini-3.7-flash",
-                timeout=22.0
+                model="gemini-3.5-flash-lite",
+                timeout=60.0
             )
             self.assertIsNone(err)
             self.assertIsNotNone(text)
@@ -461,7 +461,7 @@ class TestBatchGeneration(unittest.TestCase):
             # Inspect urllib.request.Request passed to urlopen
             call_args, call_kwargs = mock_urlopen.call_args
             req_obj = call_args[0]
-            self.assertIn("gemini-3.7-flash", req_obj.full_url)
+            self.assertIn("gemini-3.5-flash-lite", req_obj.full_url)
             self.assertIn("key=TEST_API_KEY", req_obj.full_url)
             
             payload = json.loads(req_obj.data.decode("utf-8"))
@@ -469,8 +469,8 @@ class TestBatchGeneration(unittest.TestCase):
             self.assertEqual(gen_cfg["responseMimeType"], "application/json")
             self.assertEqual(gen_cfg["thinkingConfig"]["thinkingLevel"], "low")
 
-    def test_gemini_25_backward_compatibility(self):
-        """Verifies backward compatibility for gemini-2.5-flash with thinkingBudget: 0."""
+    def test_gemini_35_no_unsupported_params(self):
+        """Verifies that deprecated/unsupported parameters are completely absent in gemini-3.5-flash-lite request."""
         import admin_routes
         with patch("urllib.request.urlopen") as mock_urlopen:
             mock_resp = MagicMock()
@@ -487,28 +487,36 @@ class TestBatchGeneration(unittest.TestCase):
             text, err = admin_routes._call_gemini_http(
                 prompt="test prompt",
                 api_key="TEST_API_KEY",
-                model="gemini-2.5-flash",
-                timeout=22.0
+                model="gemini-3.5-flash-lite",
+                timeout=60.0
             )
             self.assertIsNone(err)
             call_args, _ = mock_urlopen.call_args
             req_obj = call_args[0]
             payload = json.loads(req_obj.data.decode("utf-8"))
-            self.assertEqual(payload["generationConfig"]["thinkingConfig"]["thinkingBudget"], 0)
+            gen_cfg = payload["generationConfig"]
+            for unsupported in ["temperature", "top_p", "top_k", "candidate_count", "thinking_budget", "thinkingBudget"]:
+                self.assertNotIn(unsupported, gen_cfg, f"Param '{unsupported}' must NOT be in generationConfig for Gemini 3.5")
 
     def test_rate_limit_backoff_and_retry(self):
-        """Verifies that HTTP 429 triggers exponential backoff and succeeds on retry."""
+        """Verifies that HTTP 429 with retryDelay triggers backoff and succeeds on retry."""
         import admin_routes
         import urllib.error
 
         attempts = 0
-        def fake_urlopen(req, timeout=22.0):
+        def fake_urlopen(req, timeout=60.0):
             nonlocal attempts
             attempts += 1
             if attempts < 3:
-                # Raise 429 HTTPError on attempts 1 and 2
+                # Raise 429 HTTPError on attempts 1 and 2 with retryDelay <= 15s
                 fp = MagicMock()
-                fp.read.return_value = json.dumps({"error": {"message": "Rate limit exceeded", "details": [{"reason": "RESOURCE_EXHAUSTED"}]}}).encode("utf-8")
+                fp.read.return_value = json.dumps({
+                    "error": {
+                        "message": "Rate limit exceeded",
+                        "status": "RESOURCE_EXHAUSTED",
+                        "details": [{"@type": "type.googleapis.com/google.rpc.RetryInfo", "retryDelay": "2s"}]
+                    }
+                }).encode("utf-8")
                 headers = MagicMock()
                 headers.get.return_value = None
                 raise urllib.error.HTTPError(req.full_url, 429, "Too Many Requests", headers, fp)
@@ -522,13 +530,13 @@ class TestBatchGeneration(unittest.TestCase):
                 return mock_resp
 
         with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep") as mock_sleep:
-            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.7-flash")
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.5-flash-lite", timeout=60.0)
             self.assertIsNone(err)
             self.assertIsNotNone(text)
             self.assertEqual(attempts, 3)
-            # Verify exponential backoff calls: 1.0s, 2.0s
+            # Verify retry delay respected: 2.0s
             self.assertEqual(mock_sleep.call_count, 2)
-            self.assertEqual(mock_sleep.call_args_list[0][0][0], 1.0)
+            self.assertEqual(mock_sleep.call_args_list[0][0][0], 2.0)
             self.assertEqual(mock_sleep.call_args_list[1][0][0], 2.0)
 
     def test_rate_limit_respects_retry_after_header(self):
@@ -537,7 +545,7 @@ class TestBatchGeneration(unittest.TestCase):
         import urllib.error
 
         attempts = 0
-        def fake_urlopen(req, timeout=22.0):
+        def fake_urlopen(req, timeout=60.0):
             nonlocal attempts
             attempts += 1
             if attempts == 1:
@@ -555,32 +563,248 @@ class TestBatchGeneration(unittest.TestCase):
                 return mock_resp
 
         with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep") as mock_sleep:
-            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.7-flash")
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.5-flash-lite", timeout=60.0)
             self.assertIsNone(err)
             self.assertEqual(attempts, 2)
             mock_sleep.assert_called_once_with(2.5)
 
     def test_rate_limit_max_retries_exceeded(self):
-        """Verifies that exceeding 3 retries stops and returns clean rate limit error."""
+        """Verifies that HTTP 429 quota exhaustion returns clear free-tier quota message without spin-retrying."""
         import admin_routes
         import urllib.error
 
         attempts = 0
-        def fake_urlopen(req, timeout=22.0):
+        def fake_urlopen(req, timeout=60.0):
             nonlocal attempts
             attempts += 1
             fp = MagicMock()
-            fp.read.return_value = json.dumps({"error": {"message": "Rate limit exceeded"}}).encode("utf-8")
+            fp.read.return_value = json.dumps({"error": {"message": "Quota exceeded", "status": "RESOURCE_EXHAUSTED"}}).encode("utf-8")
             headers = MagicMock()
             headers.get.return_value = None
             raise urllib.error.HTTPError(req.full_url, 429, "Too Many Requests", headers, fp)
 
         with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep"):
-            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.7-flash")
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.5-flash-lite", timeout=60.0)
             self.assertIsNone(text)
-            self.assertIn("rate limit reached", err.lower())
-            # 1 initial + 3 retries = 4 total attempts
-            self.assertEqual(attempts, 4)
+            self.assertIn("free-tier request quota has been reached", err.lower())
+            # Doesn't spin-retry long/unspecified quota errors
+            self.assertEqual(attempts, 1)
+
+    def test_http_503_temporary_error_retry_and_success(self):
+        """Verifies that HTTP 503 triggers exponential backoff (~5s, ~10s) and succeeds on retry."""
+        import admin_routes
+        import urllib.error
+
+        attempts = 0
+        def fake_urlopen(req, timeout=60.0):
+            nonlocal attempts
+            attempts += 1
+            if attempts < 3:
+                fp = MagicMock()
+                fp.read.return_value = json.dumps({"error": {"code": 503, "status": "UNAVAILABLE", "message": "High demand"}}).encode("utf-8")
+                headers = MagicMock()
+                headers.get.return_value = None
+                raise urllib.error.HTTPError(req.full_url, 503, "Service Unavailable", headers, fp)
+            else:
+                mock_resp = MagicMock()
+                mock_resp.read.return_value = json.dumps({
+                    "candidates": [{"content": {"parts": [{"text": json.dumps([{"question": "success"}])}]}}]
+                }).encode("utf-8")
+                mock_resp.__enter__.return_value = mock_resp
+                return mock_resp
+
+        with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep") as mock_sleep:
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.5-flash-lite", timeout=60.0)
+            self.assertIsNone(err)
+            self.assertIsNotNone(text)
+            self.assertEqual(attempts, 3)
+            self.assertEqual(mock_sleep.call_count, 2)
+            self.assertGreaterEqual(mock_sleep.call_args_list[0][0][0], 5.0)
+            self.assertLessEqual(mock_sleep.call_args_list[0][0][0], 6.0)
+            self.assertGreaterEqual(mock_sleep.call_args_list[1][0][0], 10.0)
+            self.assertLessEqual(mock_sleep.call_args_list[1][0][0], 11.0)
+
+    def test_http_503_max_retries_exceeded(self):
+        """Verifies that exceeding 4 retries on 503 stops and returns temporary provider error."""
+        import admin_routes
+        import urllib.error
+
+        attempts = 0
+        def fake_urlopen(req, timeout=60.0):
+            nonlocal attempts
+            attempts += 1
+            fp = MagicMock()
+            fp.read.return_value = json.dumps({"error": {"code": 503, "status": "UNAVAILABLE", "message": "High demand"}}).encode("utf-8")
+            headers = MagicMock()
+            headers.get.return_value = None
+            raise urllib.error.HTTPError(req.full_url, 503, "Service Unavailable", headers, fp)
+
+        with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep") as mock_sleep:
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.5-flash-lite", timeout=60.0)
+            self.assertIsNone(text)
+            self.assertIn("temporarily unavailable", err.lower())
+            self.assertEqual(attempts, 5)
+            self.assertEqual(mock_sleep.call_count, 4)
+
+    def test_http_401_403_auth_error_no_retry(self):
+        """Verifies that HTTP 401/403 returns configuration error immediately without retrying."""
+        import admin_routes
+        import urllib.error
+
+        attempts = 0
+        def fake_urlopen(req, timeout=60.0):
+            nonlocal attempts
+            attempts += 1
+            fp = MagicMock()
+            fp.read.return_value = json.dumps({"error": {"code": 403, "status": "PERMISSION_DENIED", "message": "Method doesn't allow unregistered callers"}}).encode("utf-8")
+            headers = MagicMock()
+            headers.get.return_value = None
+            raise urllib.error.HTTPError(req.full_url, 403, "Forbidden", headers, fp)
+
+        with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep") as mock_sleep:
+            text, err = admin_routes._call_gemini_http("test", "INVALID_KEY", model="gemini-3.5-flash-lite", timeout=60.0)
+            self.assertIsNone(text)
+            self.assertIn("not configured correctly or api key is invalid", err.lower())
+            # Zero retries: strictly 1 attempt
+            self.assertEqual(attempts, 1)
+            mock_sleep.assert_not_called()
+
+    def test_http_404_model_not_found_no_retry(self):
+        """Verifies that HTTP 404 returns model unsupported error without retrying and without silent fallback."""
+        import admin_routes
+        import urllib.error
+
+        attempts = 0
+        def fake_urlopen(req, timeout=60.0):
+            nonlocal attempts
+            attempts += 1
+            fp = MagicMock()
+            fp.read.return_value = json.dumps({"error": {"code": 404, "status": "NOT_FOUND", "message": "Model not found"}}).encode("utf-8")
+            headers = MagicMock()
+            headers.get.return_value = None
+            raise urllib.error.HTTPError(req.full_url, 404, "Not Found", headers, fp)
+
+        with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep") as mock_sleep:
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.5-flash-lite", timeout=60.0)
+            self.assertIsNone(text)
+            self.assertIn("was not found or is unsupported", err.lower())
+            self.assertIn("gemini-3.5-flash-lite", err)
+            # Zero retries: strictly 1 attempt, no silent fallback
+            self.assertEqual(attempts, 1)
+            mock_sleep.assert_not_called()
+
+    def test_gemini_35_unsupported_model_reports_error_without_fallback(self):
+        """Verifies that if gemini-3.5-flash-lite is unsupported, it reports configuration error without falling back."""
+        import admin_routes
+        import urllib.error
+
+        attempts = 0
+        models_called = []
+        def fake_urlopen(req, timeout=60.0):
+            nonlocal attempts
+            attempts += 1
+            models_called.append("gemini-3.5-flash-lite" if "gemini-3.5-flash-lite" in req.full_url else "other")
+            fp = MagicMock()
+            fp.read.return_value = json.dumps({"error": {"code": 404, "status": "NOT_FOUND", "message": "models/gemini-3.5-flash-lite not found"}}).encode("utf-8")
+            headers = MagicMock()
+            headers.get.return_value = None
+            raise urllib.error.HTTPError(req.full_url, 404, "Not Found", headers, fp)
+
+        with patch("urllib.request.urlopen", side_effect=fake_urlopen):
+            text, err = admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.5-flash-lite", timeout=60.0)
+            self.assertIsNone(text)
+            self.assertIn("gemini-3.5-flash-lite", err)
+            self.assertIn("was not found or is unsupported", err)
+            # Must ONLY call gemini-3.5-flash-lite, NEVER silently fall back
+            self.assertEqual(models_called, ["gemini-3.5-flash-lite"])
+
+    def test_safe_diagnostic_logging_does_not_leak_api_key(self):
+        """Verifies that diagnostic logging logs status and error message but NEVER prints the API key."""
+        import io
+        import sys
+        import admin_routes
+        import urllib.error
+
+        secret_key = "AIzaSy_SUPER_SECRET_KEY_NEVER_LEAK"
+        def fake_urlopen(req, timeout=60.0):
+            fp = MagicMock()
+            fp.read.return_value = json.dumps({"error": {"code": 503, "status": "UNAVAILABLE", "message": "High demand on server"}}).encode("utf-8")
+            headers = MagicMock()
+            headers.get.return_value = None
+            raise urllib.error.HTTPError(req.full_url, 503, "Service Unavailable", headers, fp)
+
+        captured_stdout = io.StringIO()
+        old_stdout = sys.stdout
+        sys.stdout = captured_stdout
+        try:
+            with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep"):
+                admin_routes._call_gemini_http("test", secret_key, model="gemini-3.5-flash-lite", timeout=60.0)
+        finally:
+            sys.stdout = old_stdout
+
+        logs = captured_stdout.getvalue()
+        self.assertIn("Gemini HTTP error: status=503", logs)
+        self.assertIn("error_status='UNAVAILABLE'", logs)
+        self.assertIn("message='High demand on server'", logs)
+        self.assertIn("model='gemini-3.5-flash-lite'", logs)
+        # MUST NEVER log the secret key!
+        self.assertNotIn(secret_key, logs)
+
+    def test_startup_log_confirms_gemini_35_model(self):
+        """Verifies that startup log confirms gemini-3.5-flash-lite model safely."""
+        import io
+        import sys
+        import os
+
+        captured_stdout = io.StringIO()
+        old_stdout = sys.stdout
+        sys.stdout = captured_stdout
+        try:
+            model_to_log = (os.getenv("GEMINI_MODEL") or "gemini-3.5-flash-lite").strip()
+            print(f"[AI] Gemini model: {model_to_log}")
+        finally:
+            sys.stdout = old_stdout
+
+        logs = captured_stdout.getvalue()
+        self.assertIn("[AI] Gemini model: gemini-3.5-flash-lite", logs)
+
+    def test_503_retry_logging_format(self):
+        """Verifies that HTTP 503 retry logs match the required format: [api_generate] Gemini 503/UNAVAILABLE and Retry 1/4 in X seconds."""
+        import io
+        import sys
+        import admin_routes
+        import urllib.error
+
+        attempts = 0
+        def fake_urlopen(req, timeout=60.0):
+            nonlocal attempts
+            attempts += 1
+            if attempts == 1:
+                fp = MagicMock()
+                fp.read.return_value = json.dumps({"error": {"code": 503, "status": "UNAVAILABLE", "message": "High demand"}}).encode("utf-8")
+                headers = MagicMock()
+                headers.get.return_value = None
+                raise urllib.error.HTTPError(req.full_url, 503, "Service Unavailable", headers, fp)
+            else:
+                mock_resp = MagicMock()
+                mock_resp.read.return_value = json.dumps({
+                    "candidates": [{"content": {"parts": [{"text": json.dumps([{"question": "success"}])}]}}]
+                }).encode("utf-8")
+                mock_resp.__enter__.return_value = mock_resp
+                return mock_resp
+
+        captured_stdout = io.StringIO()
+        old_stdout = sys.stdout
+        sys.stdout = captured_stdout
+        try:
+            with patch("urllib.request.urlopen", side_effect=fake_urlopen), patch("time.sleep"):
+                admin_routes._call_gemini_http("test", "TEST_KEY", model="gemini-3.5-flash-lite", timeout=60.0)
+        finally:
+            sys.stdout = old_stdout
+
+        logs = captured_stdout.getvalue()
+        self.assertIn("[api_generate] Gemini 503/UNAVAILABLE", logs)
+        self.assertRegex(logs, r"\[api_generate\] Retry 1/4 in \d+ seconds")
 
     def test_gunicorn_conf_timeout_setting(self):
         """Verifies that gunicorn.conf.py provides at least 120s timeout buffer."""

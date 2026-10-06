@@ -241,20 +241,54 @@
     "academic_year": "2nd Year",
     "roll_number": "029"
   },
-  "user_4f3e296a0a": {
-    "id": "user_4f3e296a0a",
+  "user_e936b7f938": {
+    "id": "user_e936b7f938",
     "username": "Rahul Das",
     "name": "Rahul Das",
     "email": "rahul1@test.com",
-    "pw_hash": "scrypt:32768:8:1$F772Lqs2rD3E0Ull$fdc49aa7e6da741fdccc7dfb7c17c7f778df81a32360320dd66de01c55fb728317fd49804e02663dddb58e235b11a510f92b8ee1e86c1115579e153d60ac7441",
+    "pw_hash": "scrypt:32768:8:1$ZxGNfrOKNo3UKfiV$fc3ad0d881eb1742cb881a16defbedff5c6f2664307f8f9dfa225f271236d6f730defc73486205f29da8b30f7dabb8005ee44206d9f95e20b95c367fd5c649ef",
     "user_type": "EXTERNAL"
   },
-  "user_a4b4cce282": {
-    "id": "user_a4b4cce282",
+  "user_646217d5c6": {
+    "id": "user_646217d5c6",
     "username": "Rahul Das",
     "name": "Rahul Das",
     "email": "rahul2@test.com",
-    "pw_hash": "scrypt:32768:8:1$7iVv7ROpA4JOgAt6$6222d09af710efec8b19a5ade19ede5c17ec4778ecaa46d4a65bbb4c0879a24d1c7e5184fa91297e107a8d233dd0b7b987255d62a37160e23754581902756d9c",
+    "pw_hash": "scrypt:32768:8:1$tEDmiH2KPVQPjB0P$27d7a77c26c540c4637577b1752fd7378bceed70aaa448fd9fda07f80533c344403d6ca06ee4e3aee630cb4e6e8a59f42e9c4f413cc11017f5faabaa2f04b698",
     "user_type": "EXTERNAL"
+  },
+  "user_99d2ebcdd1": {
+    "id": "user_99d2ebcdd1",
+    "name": "Rahul Das",
+    "username": "Rahul Das",
+    "email": "rahul4@test.com",
+    "pw_hash": "scrypt:32768:8:1$zdrfbbf7t54LDPbU$14df1e03ad3b580a42c4f0702ab3aa148678f0ef695193ad5f9c4b0eb1b09fd3af2f755b25b3a82df27cc44b3d5a15103c31fbb501ab31e30efa0151a91e667a",
+    "password": "scrypt:32768:8:1$zdrfbbf7t54LDPbU$14df1e03ad3b580a42c4f0702ab3aa148678f0ef695193ad5f9c4b0eb1b09fd3af2f755b25b3a82df27cc44b3d5a15103c31fbb501ab31e30efa0151a91e667a",
+    "user_type": "UNIVERSITY",
+    "student_code": "BWU/AIR/24/030",
+    "university_code": "BWU",
+    "program_code": "AIR",
+    "program_name": "AI & Robotics",
+    "department_name": "Computer Science and Engineering",
+    "admission_year": 2024,
+    "academic_year": "1st Year",
+    "roll_number": "030"
+  },
+  "user_19ffe0cb9e": {
+    "id": "user_19ffe0cb9e",
+    "name": "Different Student",
+    "username": "Different Student",
+    "email": "rahul3@test.com",
+    "pw_hash": "scrypt:32768:8:1$TiZln0p45gfdhbGx$0469b8999ed519a7efc17987d163a4eae48b2ef802907e8188bf9e308b43f041a72a66db0b48105a4cc51c18a4b518fdb512943472eb7e176383879d50bbc4e2",
+    "password": "scrypt:32768:8:1$TiZln0p45gfdhbGx$0469b8999ed519a7efc17987d163a4eae48b2ef802907e8188bf9e308b43f041a72a66db0b48105a4cc51c18a4b518fdb512943472eb7e176383879d50bbc4e2",
+    "user_type": "UNIVERSITY",
+    "student_code": "BWU/AIR/24/031",
+    "university_code": "BWU",
+    "program_code": "AIR",
+    "program_name": "AI & Robotics",
+    "department_name": "Computer Science and Engineering",
+    "admission_year": 2024,
+    "academic_year": "1st Year",
+    "roll_number": "031"
   }
 }

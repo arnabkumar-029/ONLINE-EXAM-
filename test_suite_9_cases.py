@@ -59,8 +59,12 @@ with client.session_transaction() as sess:
 res4 = client.post("/admin/add_student", data={
     "name": "Rahul Das",
     "email": "rahul3@test.com",
-    "student_code": "BWU/AIR/24/029",
-    "password": "123"
+    "password": "123",
+    "program_code": "AIR",
+    "department_name": "Computer Science and Engineering",
+    "admission_year": "2024",
+    "academic_year": "1st Year",
+    "roll_number": "029"
 }, follow_redirects=True)
 users = load_users()
 found4 = any(isinstance(v, dict) and v.get("name") == "Rahul Das" and v.get("email") == "rahul3@test.com" and v.get("student_code") == "BWU/AIR/24/029" and v.get("user_type") == "UNIVERSITY" for v in users.values())
@@ -71,8 +75,12 @@ results["TEST 4"] = "PASS" if found4 and b"added successfully" in res4.data.lowe
 res5 = client.post("/admin/add_student", data={
     "name": "Rahul Das",
     "email": "rahul4@test.com",
-    "student_code": "BWU/AIR/24/030",
-    "password": "123"
+    "password": "123",
+    "program_code": "AIR",
+    "department_name": "Computer Science and Engineering",
+    "admission_year": "2024",
+    "academic_year": "1st Year",
+    "roll_number": "030"
 }, follow_redirects=True)
 users = load_users()
 found5 = any(isinstance(v, dict) and v.get("name") == "Rahul Das" and v.get("email") == "rahul4@test.com" and v.get("student_code") == "BWU/AIR/24/030" and v.get("user_type") == "UNIVERSITY" for v in users.values())
@@ -83,8 +91,12 @@ results["TEST 5"] = "PASS" if found5 and b"added successfully" in res5.data.lowe
 res6 = client.post("/admin/add_student", data={
     "name": "Different Student",
     "email": "different@test.com",
-    "student_code": "BWU/AIR/24/029",
-    "password": "123"
+    "password": "123",
+    "program_code": "AIR",
+    "department_name": "Computer Science and Engineering",
+    "admission_year": "2024",
+    "academic_year": "1st Year",
+    "roll_number": "029"
 }, follow_redirects=True)
 results["TEST 6"] = "PASS" if b"Student Code already exists." in res6.data else "FAIL"
 
@@ -93,8 +105,12 @@ results["TEST 6"] = "PASS" if b"Student Code already exists." in res6.data else 
 res7 = client.post("/admin/add_student", data={
     "name": "Different Student",
     "email": "rahul3@test.com",
-    "student_code": "BWU/AIR/24/031",
-    "password": "123"
+    "password": "123",
+    "program_code": "AIR",
+    "department_name": "Computer Science and Engineering",
+    "admission_year": "2024",
+    "academic_year": "1st Year",
+    "roll_number": "031"
 }, follow_redirects=True)
 results["TEST 7"] = "PASS" if b"Email already exists. Please use a different email." in res7.data else "FAIL"
 

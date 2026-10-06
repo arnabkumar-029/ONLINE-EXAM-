@@ -31,6 +31,7 @@ import re
 import json
 import os
 import time
+import random
 import uuid
 import socket
 import threading
@@ -46,6 +47,10 @@ load_dotenv()  # This reads .env file locally
 GEMINI_API_KEY = (os.getenv("GEMINI_API_KEY") or "").strip()
 if not GEMINI_API_KEY:
     print("[admin_routes] Note: GEMINI_API_KEY is not set in environment. AI question generation will return a configuration error when called.")
+
+DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite"
+GEMINI_MODEL = (os.getenv("GEMINI_MODEL") or DEFAULT_GEMINI_MODEL).strip() or DEFAULT_GEMINI_MODEL
+print(f"[AI] Gemini model: {GEMINI_MODEL}")
 
 # Concurrency lock to prevent simultaneous heavy AI generation requests from exhausting memory on Render
 _AI_GENERATION_LOCK = threading.BoundedSemaphore(value=1)
@@ -1173,71 +1178,70 @@ def _clean_and_parse_ai_json(raw_text: str):
 # =======================
 #  AI Question Generation (Preview Stage)
 # =======================
-def _call_gemini_http(prompt: str, api_key: str, model: str = "gemini-3.7-flash", timeout: float = 22.0):
+DEFAULT_GEMINI_MODEL = "gemini-3.5-flash-lite"
+
+
+def _call_gemini_http(prompt: str, api_key: str, model: str = DEFAULT_GEMINI_MODEL, timeout: float = 60.0):
     """
     Production-safe HTTP REST call to Google Gemini generateContent endpoint.
     Uses standard library urllib.request to eliminate gRPC fork issues, heavy native C-extensions,
     and excessive memory consumption on Render's 512MB RAM environment.
-    Enforces a strict timeout so Gunicorn workers are never aborted by SIGKILL.
-    Includes rate-limit (429 / RESOURCE_EXHAUSTED) retry handling with exponential backoff (max 3 retries).
+    Enforces a strict timeout (default 60s) so Gunicorn workers are never aborted by SIGKILL.
+    Includes rate-limit (429) and temporary provider error (500/502/503/504) retry handling with exponential backoff:
+      - 503 / UNAVAILABLE: 4 retries (~5s, ~10s, ~20s, ~40s + jitter)
+    Provides safe detailed diagnostic logging without exposing API keys.
     Returns (raw_text, error_message). Exactly one is non-None.
     """
     if not api_key or not str(api_key).strip():
         return None, "AI service is not configured correctly."
 
     clean_key = str(api_key).strip().strip('"').strip("'")
-    clean_model = str(model).strip() or "gemini-3.7-flash"
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:generateContent?key={clean_key}"
+    current_model = str(model).strip() or DEFAULT_GEMINI_MODEL
 
-    # Build generationConfig.
-    # Note: For Gemini 3.x models (including gemini-3.7-flash), use thinkingLevel: "low" to minimize
-    # latency and cost for rapid exam question generation.
-    # For Gemini 2.5 models, thinkingBudget: 0 disables dynamic thinking.
-    generation_config = {
-        "temperature": 0.7,
-        "maxOutputTokens": 8192,
-        "responseMimeType": "application/json"
-    }
-    if "3." in clean_model or "3.7" in clean_model:
-        generation_config["thinkingConfig"] = {
-            "thinkingLevel": "low"
-        }
-    elif "2.5" in clean_model:
-        generation_config["thinkingConfig"] = {
-            "thinkingBudget": 0
-        }
-
-    payload_bytes = json.dumps({
-        "contents": [
-            {
-                "parts": [
-                    {"text": prompt}
-                ]
-            }
-        ],
-        "generationConfig": generation_config
-    }).encode("utf-8")
-
-    req = urllib.request.Request(
-        url,
-        data=payload_bytes,
-        headers={
-            "Content-Type": "application/json",
-            "Accept": "application/json"
-        },
-        method="POST"
-    )
-
-    max_retries = 3
+    max_retries = 4
     retry_count = 0
-    base_delay = 1.0
+    base_delays = [5.0, 10.0, 20.0, 40.0]
 
     while True:
-        print("[api_generate] Gemini HTTP request started")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{current_model}:generateContent?key={clean_key}"
+
+        # Build generationConfig for Gemini 3.5 Flash-Lite
+        # Supports responseMimeType="application/json" and thinkingConfig with thinkingLevel: "low"
+        generation_config = {
+            "responseMimeType": "application/json",
+            "thinkingConfig": {
+                "thinkingLevel": "low"
+            }
+        }
+
+        payload_bytes = json.dumps({
+            "contents": [
+                {
+                    "parts": [
+                        {"text": prompt}
+                    ]
+                }
+            ],
+            "generationConfig": generation_config
+        }).encode("utf-8")
+
+        req = urllib.request.Request(
+            url,
+            data=payload_bytes,
+            headers={
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            method="POST"
+        )
+
+        call_t0 = time.time()
+        print(f"[api_generate] Gemini HTTP request started (model={current_model})")
         try:
             with urllib.request.urlopen(req, timeout=timeout) as resp:
+                call_elapsed = time.time() - call_t0
                 data = json.loads(resp.read().decode("utf-8"))
-                print("[api_generate] Gemini HTTP request completed")
+                print(f"[api_generate] Gemini HTTP request completed (status={resp.status}, elapsed={call_elapsed:.2f}s)")
                 candidates = data.get("candidates") or []
                 if not candidates:
                     feedback = data.get("promptFeedback") or {}
@@ -1255,65 +1259,135 @@ def _call_gemini_http(prompt: str, api_key: str, model: str = "gemini-3.7-flash"
                 return raw_text, None
 
         except urllib.error.HTTPError as e:
+            call_elapsed = time.time() - call_t0
             body = ""
             try:
                 body = e.read().decode("utf-8", errors="ignore")
             except Exception:
                 pass
 
-            err_reason = ""
+            err_status = ""
             err_msg = ""
+            err_reason = ""
+            retry_delay_from_body = None
+
             try:
-                err_json = json.loads(body)
-                err_obj = err_json.get("error") or {}
-                err_msg = str(err_obj.get("message") or "")
-                details = err_obj.get("details") or []
-                for d in details:
-                    if isinstance(d, dict) and "reason" in d:
-                        err_reason = str(d["reason"])
+                if body:
+                    err_json = json.loads(body)
+                    err_obj = err_json.get("error") or {}
+                    err_status = str(err_obj.get("status") or "")
+                    err_msg = str(err_obj.get("message") or "")
+                    details = err_obj.get("details") or []
+                    for d in details:
+                        if isinstance(d, dict):
+                            if "reason" in d and not err_reason:
+                                err_reason = str(d["reason"])
+                            if "@type" in d and "RetryInfo" in d["@type"] and "retryDelay" in d:
+                                delay_str = str(d["retryDelay"]).rstrip("s")
+                                try:
+                                    retry_delay_from_body = float(delay_str)
+                                except (ValueError, TypeError):
+                                    pass
             except Exception:
                 pass
 
-            # Check for API key errors (400, 401, 403)
-            if e.code in (400, 401, 403) and ("API_KEY" in err_reason or "api key" in err_msg.lower() or "key" in err_msg.lower()):
-                return None, "AI service is not configured correctly."
+            # Safe diagnostic logging: NEVER print API key or Authorization headers
+            print(
+                f"[api_generate] Gemini HTTP error: status={e.code}, "
+                f"error_status='{err_status}', message='{err_msg}', "
+                f"model='{current_model}', elapsed={call_elapsed:.2f}s"
+            )
 
-            # Rate limit / Quota handling (HTTP 429 or RESOURCE_EXHAUSTED) with exponential backoff (max 3 retries)
-            is_rate_limit = (e.code == 429 or "RESOURCE_EXHAUSTED" in err_reason or "quota" in err_msg.lower() or "rate" in err_msg.lower())
-            if is_rate_limit:
+            # --- Classification 1: 401 / 403 or 400 with API key invalid (Authentication / Project configuration) ---
+            # DO NOT retry! Clearly report configuration error.
+            is_auth_error = (
+                e.code in (401, 403)
+                or (e.code == 400 and ("API_KEY" in err_reason or "api key" in err_msg.lower() or "key" in err_msg.lower()))
+            )
+            if is_auth_error:
+                return None, "AI service is not configured correctly or API key is invalid."
+
+            # --- Classification 2: 404 Model or endpoint problem ---
+            # DO NOT retry! Clearly report configuration/model error.
+            if e.code == 404:
+                return None, f"Configured AI model '{current_model}' was not found or is unsupported."
+
+            # --- Classification 3: 429 Quota / Rate limit problem ---
+            # Free tier quota reached: do not spin-retry long-reset errors (> 15s)
+            if e.code == 429 or "RESOURCE_EXHAUSTED" in err_reason or "RESOURCE_EXHAUSTED" in err_status:
+                retry_after_hdr = e.headers.get("Retry-After") if (hasattr(e, "headers") and e.headers) else None
+                sleep_time = None
+                if retry_after_hdr:
+                    try:
+                        sleep_time = float(retry_after_hdr)
+                    except (ValueError, TypeError):
+                        sleep_time = None
+                if sleep_time is None and retry_delay_from_body is not None:
+                    sleep_time = retry_delay_from_body
+
+                if sleep_time is not None and sleep_time > 15.0:
+                    print(f"[api_generate] Quota exhausted with long reset window ({sleep_time:.0f}s). Aborting retries.")
+                    return None, "AI service free-tier request quota has been reached. Please try again later."
+
+                if sleep_time is not None and retry_count < max_retries:
+                    retry_count += 1
+                    sleep_time_actual = max(sleep_time, 1.0)
+                    print(f"[api_generate] Rate limit (HTTP 429/RESOURCE_EXHAUSTED) encountered. Backing off for {sleep_time_actual:.2f}s (retry {retry_count}/{max_retries})...")
+                    time.sleep(sleep_time_actual)
+                    continue
+
+                return None, "AI service free-tier request quota has been reached. Please try again later."
+
+            # --- Classification 4: 500 / 502 / 503 / 504 Temporary Gemini provider / server problem ---
+            # Retry with exponential backoff: 1st ~5s, 2nd ~10s, 3rd ~20s, 4th ~40s (max 4 retries)
+            if e.code in (500, 502, 503, 504):
                 if retry_count < max_retries:
                     retry_count += 1
-                    retry_after_hdr = e.headers.get("Retry-After") if (hasattr(e, "headers") and e.headers) else None
-                    sleep_time = None
-                    if retry_after_hdr:
-                        try:
-                            sleep_time = float(retry_after_hdr)
-                        except (ValueError, TypeError):
-                            sleep_time = None
-                    if sleep_time is None:
-                        sleep_time = base_delay * (2 ** (retry_count - 1))
-                    sleep_time = min(max(sleep_time, 1.0), 10.0)
-                    print(f"[api_generate] Rate limit (HTTP 429/RESOURCE_EXHAUSTED) encountered. Backing off for {sleep_time:.2f}s (retry {retry_count}/{max_retries})...")
+                    sleep_base = base_delays[retry_count - 1]
+                    jitter = round(random.uniform(0.1, 0.9), 2)
+                    sleep_time = sleep_base + jitter
+
+                    if e.code == 503 or "UNAVAILABLE" in err_status.upper() or "UNAVAILABLE" in err_reason.upper():
+                        print("[api_generate] Gemini 503/UNAVAILABLE")
+                        print(f"[api_generate] Retry {retry_count}/{max_retries} in {int(round(sleep_time))} seconds")
+                    else:
+                        print(f"[api_generate] Gemini {e.code}/{err_status or 'SERVER_ERROR'}")
+                        print(f"[api_generate] Retry {retry_count}/{max_retries} in {int(round(sleep_time))} seconds")
+
                     time.sleep(sleep_time)
                     continue
                 else:
-                    return None, "AI service is busy or rate limit reached. Please try again in a few moments."
+                    return None, "AI provider service is temporarily unavailable. Please try again later."
 
-            if e.code in (500, 502, 503, 504):
-                return None, "AI provider service is temporarily unavailable. Please try again later."
+            # Other 400 Bad Request - DO NOT retry
+            if e.code == 400:
+                err_detail = err_msg if err_msg else "Please check input parameters."
+                return None, f"AI request was rejected by provider (HTTP 400). {err_detail}"
 
-            return None, "AI generation failed. Please try again."
+            # Other 4xx errors - DO NOT retry
+            if 400 <= e.code < 500:
+                return None, f"AI request was rejected by provider (HTTP {e.code}). Please check input parameters."
+
+            # Any other unclassified status
+            return None, f"AI generation failed (HTTP {e.code}). Please try again."
 
         except (socket.timeout, TimeoutError):
+            call_elapsed = time.time() - call_t0
+            print(f"[api_generate] Gemini HTTP request timed out after {call_elapsed:.2f}s (model='{current_model}')")
             return None, "AI generation timed out. Please try again."
 
         except urllib.error.URLError as e:
+            call_elapsed = time.time() - call_t0
             reason_str = str(getattr(e, "reason", "")).lower()
             if isinstance(getattr(e, "reason", None), socket.timeout) or "timed out" in reason_str:
+                print(f"[api_generate] Gemini HTTP connection timed out after {call_elapsed:.2f}s (model='{current_model}')")
                 return None, "AI generation timed out. Please try again."
+            print(f"[api_generate] Gemini HTTP network error: {e.reason} (elapsed: {call_elapsed:.2f}s)")
             return None, "Network connection to AI service failed. Please check internet connection."
 
-        except Exception:
+        except Exception as ex:
+            call_elapsed = time.time() - call_t0
+            print(f"[api_generate] Unexpected error calling Gemini: {type(ex).__name__} (elapsed: {call_elapsed:.2f}s)")
             return None, "An unexpected error occurred during AI generation."
 
 
@@ -1630,8 +1704,8 @@ def api_generate():
         except Exception as e:
             print(f"[api_generate] Note: could not load existing questions for dedup: {e}")
 
-        timeout_seconds = float(os.getenv("GEMINI_TIMEOUT", "22.0"))
-        model_name = os.getenv("GEMINI_MODEL", "gemini-3.7-flash").strip() or "gemini-3.7-flash"
+        timeout_seconds = float(os.getenv("GEMINI_TIMEOUT", "60.0"))
+        model_name = os.getenv("GEMINI_MODEL", DEFAULT_GEMINI_MODEL).strip() or DEFAULT_GEMINI_MODEL
 
         # Execute batches sequentially to avoid memory spikes and API rate-limit issues
         for batch_idx, (b_mcq, b_desc) in enumerate(batch_plans, start=1):
@@ -1666,7 +1740,7 @@ def api_generate():
                     return error_response(err_msg, 400)
                 else:
                     print(f"[api_generate] AI error in Batch {batch_idx}/{total_batches}: {ai_error} (elapsed: {elapsed:.2f}s)")
-                    err_msg = ai_error if total_batches == 1 else "AI generation failed while creating the complete question set. Please try again."
+                    err_msg = ai_error
                     return error_response(err_msg, 400)
 
             # Validate JSON immediately after each batch

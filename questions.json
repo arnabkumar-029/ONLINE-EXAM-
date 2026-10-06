@@ -1759,5 +1759,35 @@
     "answer_key": "keywords: KCL nodal current algebraic sum zero conservation of charge KVL loop voltage conservation of energy",
     "max_marks": 5,
     "source": "MANUAL"
+  },
+  {
+    "id": "Q-CS301-SAVE1",
+    "course_code": "CS301",
+    "course_name": "Operating Systems",
+    "subject": "CS",
+    "program_code": "CSE",
+    "program_name": "Computer Science & Engineering",
+    "admission_year": 2024,
+    "academic_year": "3rd Year",
+    "unit": "Unit 1",
+    "topic": "Processes",
+    "type": "MCQ",
+    "level": "Medium",
+    "question": "Which OS scheduling algorithm is preemptive?",
+    "q": "Which OS scheduling algorithm is preemptive?",
+    "options": [
+      "Round Robin",
+      "FCFS",
+      "Non-preemptive SJF",
+      "None"
+    ],
+    "a": [
+      "Round Robin",
+      "FCFS",
+      "Non-preemptive SJF",
+      "None"
+    ],
+    "correct": "Round Robin",
+    "source": "AI"
   }
 ]

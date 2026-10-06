@@ -1178,13 +1178,30 @@ def _call_gemini_http(prompt: str, api_key: str, model: str = "gemini-2.5-flash"
     Production-safe HTTP REST call to Google Gemini generateContent endpoint.
     Uses standard library urllib.request to eliminate gRPC fork issues, heavy native C-extensions,
     and excessive memory consumption on Render's 512MB RAM environment.
-    Enforces a strict timeout (default 22s) so Gunicorn workers are never aborted by SIGKILL.
+    Enforces a strict timeout so Gunicorn workers are never aborted by SIGKILL.
     Returns (raw_text, error_message). Exactly one is non-None.
     """
     if not api_key or not str(api_key).strip():
         return None, "AI service is not configured correctly."
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+    clean_key = str(api_key).strip().strip('"').strip("'")
+    clean_model = str(model).strip() or "gemini-2.5-flash"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{clean_model}:generateContent?key={clean_key}"
+
+    # Build generationConfig.
+    # Note: Gemini 2.5 Flash enables 'dynamic thinking' (thinkingBudget = -1) by default,
+    # which spends 20-35s generating internal reasoning tokens before outputting response tokens.
+    # Setting thinkingBudget = 0 turns off thinking mode, reducing generation time to 2-4 seconds.
+    generation_config = {
+        "temperature": 0.7,
+        "maxOutputTokens": 8192,
+        "responseMimeType": "application/json"
+    }
+    if "2.5" in clean_model:
+        generation_config["thinkingConfig"] = {
+            "thinkingBudget": 0
+        }
+
     payload_bytes = json.dumps({
         "contents": [
             {
@@ -1193,22 +1210,24 @@ def _call_gemini_http(prompt: str, api_key: str, model: str = "gemini-2.5-flash"
                 ]
             }
         ],
-        "generationConfig": {
-            "temperature": 0.7,
-            "maxOutputTokens": 8192
-        }
+        "generationConfig": generation_config
     }).encode("utf-8")
 
     req = urllib.request.Request(
         url,
         data=payload_bytes,
-        headers={"Content-Type": "application/json"},
+        headers={
+            "Content-Type": "application/json",
+            "Accept": "application/json"
+        },
         method="POST"
     )
 
+    print("[api_generate] Gemini HTTP request started")
     try:
         with urllib.request.urlopen(req, timeout=timeout) as resp:
             data = json.loads(resp.read().decode("utf-8"))
+            print("[api_generate] Gemini HTTP request completed")
             candidates = data.get("candidates") or []
             if not candidates:
                 feedback = data.get("promptFeedback") or {}
@@ -1255,7 +1274,7 @@ def _call_gemini_http(prompt: str, api_key: str, model: str = "gemini-2.5-flash"
         if e.code in (500, 502, 503, 504):
             return None, "AI provider service is temporarily unavailable. Please try again later."
 
-        return None, f"AI provider returned error (HTTP {e.code}). Please try again."
+        return None, "AI generation failed. Please try again."
 
     except (socket.timeout, TimeoutError):
         return None, "AI generation timed out. Please try again."
@@ -1266,7 +1285,7 @@ def _call_gemini_http(prompt: str, api_key: str, model: str = "gemini-2.5-flash"
             return None, "AI generation timed out. Please try again."
         return None, "Network connection to AI service failed. Please check internet connection."
 
-    except Exception as e:
+    except Exception:
         return None, "An unexpected error occurred during AI generation."
 
 
@@ -1568,7 +1587,7 @@ def api_generate():
 
         final_questions = []
         seen_keys = set()
-        timeout_seconds = 22.0
+        timeout_seconds = float(os.getenv("GEMINI_TIMEOUT", "22.0"))
         model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
 
         # Execute batches sequentially to avoid memory spikes and API rate-limit issues
@@ -1599,7 +1618,7 @@ def api_generate():
 
             if ai_error:
                 if "timed out" in ai_error.lower():
-                    print(f"[api_generate] Timeout: AI request timed out after {timeout_seconds}s in Batch {batch_idx}/{total_batches}")
+                    print(f"[api_generate] Batch {batch_idx}/{total_batches} timed out")
                     err_msg = "AI generation timed out. Please try again." if total_batches == 1 else f"AI generation timed out during Batch {batch_idx} of {total_batches}. Please try again."
                     return error_response(err_msg, 400)
                 else:

@@ -31,6 +31,7 @@ import re
 import json
 import os
 import time
+import uuid
 import socket
 import threading
 import urllib.request
@@ -1269,19 +1270,182 @@ def _call_gemini_http(prompt: str, api_key: str, model: str = "gemini-2.5-flash"
         return None, "An unexpected error occurred during AI generation."
 
 
+def _normalize_question_text_for_dedup(text: str) -> str:
+    """Normalizes question text for robust deduplication comparison."""
+    return re.sub(r"[^a-z0-9]", "", str(text or "").lower())
+
+
+def _build_batch_prompt(course_code, course_name, subject, program_name, program_code,
+                        admission_year, academic_year, unit, topic, difficulty,
+                        batch_mcq_count, batch_desc_count, sample_existing_questions=None):
+    """
+    Builds an academically grounded prompt tailored specifically for a single batch.
+    Includes anti-duplication hints if previous questions have already been generated in earlier batches.
+    """
+    batch_count = batch_mcq_count + batch_desc_count
+
+    if batch_mcq_count > 0 and batch_desc_count > 0:
+        type_instructions = f"""
+Generate a MIXED set containing exactly {batch_mcq_count} Multiple Choice Questions (MCQ) and {batch_desc_count} Descriptive Questions (Total: {batch_count} questions).
+For MCQ questions:
+- "type": "MCQ"
+- "question": "Clear and rigorous question statement"
+- "options": ["Option A text", "Option B text", "Option C text", "Option D text"] (exactly 4 distinct options)
+- "correct": "The exact verbatim text of the correct option from options list"
+- "level": "{difficulty}"
+
+For Descriptive questions:
+- "type": "DESCRIPTIVE"
+- "question": "Analytical, theoretical, or problem-solving question"
+- "answer_key": "Thorough model answer, essential concepts, and grading criteria"
+- "max_marks": 5
+- "level": "{difficulty}"
+"""
+    elif batch_mcq_count > 0:
+        type_instructions = f"""
+Generate exactly {batch_mcq_count} Multiple Choice Questions (MCQ).
+Every question object MUST contain:
+- "type": "MCQ"
+- "question": "Clear and rigorous question statement"
+- "options": ["Option A text", "Option B text", "Option C text", "Option D text"] (exactly 4 distinct options)
+- "correct": "The exact verbatim text of the correct option from options list"
+- "level": "{difficulty}"
+"""
+    else:
+        type_instructions = f"""
+Generate exactly {batch_desc_count} Descriptive examination questions.
+Every question object MUST contain:
+- "type": "DESCRIPTIVE"
+- "question": "Analytical, theoretical, or problem-solving question"
+- "answer_key": "Thorough model answer, essential concepts, and grading criteria"
+- "max_marks": 5
+- "level": "{difficulty}"
+"""
+
+    existing_note = ""
+    if sample_existing_questions:
+        cleaned_samples = [q[:70] for q in sample_existing_questions[-8:] if q]
+        if cleaned_samples:
+            existing_note = "\nDO NOT duplicate or repeat the following questions already generated in previous batches:\n- " + "\n- ".join(cleaned_samples) + "\n"
+
+    prompt = f"""You are a university examination professor and curriculum assessment specialist.
+Generate high-quality academic questions strictly aligned with this curriculum syllabus:
+- Course Code: {course_code}
+- Course Name: {course_name}
+- Subject: {subject}
+- Program / Degree: {program_name} ({program_code})
+- Target Batch / Admission Year: {admission_year}
+- Target Academic Year: {academic_year}
+- Unit / Module: {unit}
+- Topic: {topic}
+- Target Difficulty: {difficulty}
+{existing_note}
+{type_instructions}
+
+CRITICAL RULES:
+1. Return ONLY a valid JSON array of objects: [ ... ]
+2. Do NOT wrap in markdown code blocks or backticks (no ```json or ```).
+3. Do NOT include introductory greetings, notes, comments, or summaries.
+4. Ensure every question is academically accurate, distinct, and tests concepts specific to {topic} under {unit} tailored for {academic_year} university students in {program_name}.
+"""
+    return prompt
+
+
+def _normalize_ai_question_item(item, course_code, course_name, subject, program_code,
+                                program_name, admission_year, academic_year, unit, topic, difficulty):
+    """
+    Validates and normalizes an individual raw AI question dictionary into the standard schema.
+    """
+    if not isinstance(item, dict):
+        return None
+
+    q_text = str(item.get("question") or item.get("q") or "").strip()
+    if not q_text:
+        return None
+
+    raw_t = str(item.get("type") or "").strip().upper()
+    if "MCQ" in raw_t or "OBJECTIVE" in raw_t or "CHOICE" in raw_t or "options" in item:
+        item_type = "MCQ"
+    else:
+        item_type = "DESCRIPTIVE"
+
+    item_level = str(item.get("level") or difficulty).strip().capitalize()
+    if item_level not in ("Easy", "Medium", "Hard"):
+        item_level = difficulty
+
+    qid = f"Q-{course_code}-{uuid.uuid4().hex[:6].upper()}"
+
+    q_obj = {
+        "id": qid,
+        "course_code": course_code,
+        "course_name": course_name,
+        "subject": subject,
+        "program_code": program_code,
+        "program_name": program_name,
+        "admission_year": admission_year,
+        "academic_year": academic_year,
+        "unit": unit,
+        "topic": topic,
+        "type": item_type,
+        "level": item_level,
+        "question": q_text,
+        "q": q_text,
+        "source": "AI",
+    }
+
+    if item_type == "MCQ":
+        opts_raw = item.get("options") or item.get("a") or []
+        if isinstance(opts_raw, list):
+            opts = [str(x).strip() for x in opts_raw if str(x).strip()]
+        else:
+            opts = []
+
+        if len(opts) < 2:
+            return None
+
+        correct = str(item.get("correct") or "").strip()
+        if correct not in opts:
+            matched = False
+            for idx, prefix in enumerate(["A", "B", "C", "D"]):
+                if correct.upper() == prefix or correct.upper().startswith(f"OPTION {prefix}"):
+                    if idx < len(opts):
+                        correct = opts[idx]
+                        matched = True
+                        break
+            if not matched:
+                correct = opts[0]
+
+        q_obj["options"] = opts
+        q_obj["a"] = opts
+        q_obj["correct"] = correct
+
+    else:  # DESCRIPTIVE
+        ak = str(item.get("answer_key") or item.get("model_answer") or "").strip()
+        if not ak:
+            ak = "Comprehensive model answer criteria with core concepts and key terminology."
+        try:
+            mm = int(item.get("max_marks", 5))
+        except Exception:
+            mm = 5
+
+        q_obj["answer_key"] = ak
+        q_obj["model_answer"] = ak
+        q_obj["max_marks"] = mm
+
+    return q_obj
+
+
 @admin_bp.route("/api_generate", methods=["POST"])
 def api_generate():
     """
     Generates questions using Gemini based on strict academic classification.
+    Processes large requests in safe batches (max 10 questions per batch) sequentially
+    to stay well within the 22.0s per-request timeout while producing up to 50 questions reliably.
     Returns generated questions in a structured format for PREVIEW before saving.
-    Classification values (course_code, course_name, subject, unit, topic) are strictly
-    enforced from the admin form and CANNOT be altered or invented by the AI.
     Always returns JSON responses to prevent unexpected HTML parsing errors.
     """
     if not session.get("admin"):
         return jsonify({"success": False, "error": "Unauthorized. Please log in as admin."}), 401
-
-    import uuid
 
     # Support JSON payload or Form data
     data = request.get_json(silent=True) if request.is_json else request.form
@@ -1358,187 +1522,188 @@ def api_generate():
         return error_response("Another AI generation request is currently processing. Please wait a few seconds and try again.", 429)
 
     try:
-        # Logging: Request started
-        print(f"[api_generate] Request started: course={course_code}, type={qtype}, count={count}, topic='{topic[:30]}'")
+        # Determine batch partition (safe batches of at most 10 questions each)
+        BATCH_SIZE = 10
+        batches = []
+        rem = count
+        while rem > 0:
+            b_size = min(BATCH_SIZE, rem)
+            batches.append(b_size)
+            rem -= b_size
 
-        # Build prompt instructions based on question type
+        total_batches = len(batches)
+
+        # Calculate overall target counts
         if qtype == "MIXED":
-            mcq_count = max(1, count // 2)
-            desc_count = max(1, count - mcq_count)
-            type_instructions = f"""
-Generate a MIXED set containing exactly {mcq_count} Multiple Choice Questions (MCQ) and {desc_count} Descriptive Questions (Total: {count} questions).
-For MCQ questions:
-- "type": "MCQ"
-- "question": "Clear and rigorous question statement"
-- "options": ["Option A text", "Option B text", "Option C text", "Option D text"] (exactly 4 distinct options)
-- "correct": "The exact verbatim text of the correct option from options list"
-- "level": "{difficulty}"
-
-For Descriptive questions:
-- "type": "DESCRIPTIVE"
-- "question": "Analytical, theoretical, or problem-solving question"
-- "answer_key": "Thorough model answer, essential concepts, and grading criteria"
-- "max_marks": 5
-- "level": "{difficulty}"
-"""
+            total_mcq_target = count // 2
+            total_desc_target = count - total_mcq_target
         elif qtype == "MCQ":
-            type_instructions = f"""
-Generate {count} Multiple Choice Questions (MCQ).
-Every question object MUST contain:
-- "type": "MCQ"
-- "question": "Clear and rigorous question statement"
-- "options": ["Option A text", "Option B text", "Option C text", "Option D text"] (exactly 4 distinct options)
-- "correct": "The exact verbatim text of the correct option from options list"
-- "level": "{difficulty}"
-"""
-        else:  # DESCRIPTIVE
-            type_instructions = f"""
-Generate {count} Descriptive examination questions.
-Every question object MUST contain:
-- "type": "DESCRIPTIVE"
-- "question": "Analytical, theoretical, or problem-solving question"
-- "answer_key": "Thorough model answer, essential concepts, and grading criteria"
-- "max_marks": 5
-- "level": "{difficulty}"
-"""
+            total_mcq_target = count
+            total_desc_target = 0
+        else:
+            total_mcq_target = 0
+            total_desc_target = count
 
-        prompt = f"""You are a university examination professor and curriculum assessment specialist.
-Generate high-quality academic questions strictly aligned with this curriculum syllabus:
-- Course Code: {course_code}
-- Course Name: {course_name}
-- Subject: {subject}
-- Program / Degree: {program_name} ({program_code})
-- Target Batch / Admission Year: {admission_year}
-- Target Academic Year: {academic_year}
-- Unit / Module: {unit}
-- Topic: {topic}
-- Target Difficulty: {difficulty}
+        # Determine per-batch MCQ and Descriptive allocations
+        batch_plans = []
+        rem_mcq = total_mcq_target
+        rem_desc = total_desc_target
+        for b_size in batches:
+            if qtype == "MIXED":
+                b_mcq = min(rem_mcq, (b_size + 1) // 2)
+                if b_size - b_mcq > rem_desc:
+                    b_mcq = b_size - rem_desc
+                b_desc = b_size - b_mcq
+            elif qtype == "MCQ":
+                b_mcq = b_size
+                b_desc = 0
+            else:
+                b_mcq = 0
+                b_desc = b_size
+            rem_mcq -= b_mcq
+            rem_desc -= b_desc
+            batch_plans.append((b_mcq, b_desc))
 
-{type_instructions}
+        print(f"[api_generate] Request started: course={course_code}, type={qtype}, count={count}, topic='{topic[:30]}' -> split into {total_batches} batch(es): {batches}")
 
-CRITICAL RULES:
-1. Return ONLY a valid JSON array of objects: [ ... ]
-2. Do NOT wrap in markdown code blocks or backticks (no ```json or ```).
-3. Do NOT include introductory greetings, notes, comments, or summaries.
-4. Ensure every question is academically accurate and tests concepts specific to {topic} under {unit} tailored for {academic_year} university students in {program_name}.
-"""
-
+        final_questions = []
+        seen_keys = set()
         timeout_seconds = 22.0
         model_name = os.getenv("GEMINI_MODEL", "gemini-2.5-flash").strip() or "gemini-2.5-flash"
 
-        # Logging: AI request started
-        print(f"[api_generate] AI request started (model={model_name}, timeout={timeout_seconds}s)")
-        t0 = time.time()
+        # Execute batches sequentially to avoid memory spikes and API rate-limit issues
+        for batch_idx, (b_mcq, b_desc) in enumerate(batch_plans, start=1):
+            b_size = b_mcq + b_desc
+            print(f"[api_generate] Batch {batch_idx}/{total_batches} started")
+            t0 = time.time()
 
-        raw_text, ai_error = _call_gemini_http(prompt, api_key, model=model_name, timeout=timeout_seconds)
-        elapsed = time.time() - t0
+            sample_titles = [q["question"] for q in final_questions[-8:]]
+            prompt = _build_batch_prompt(
+                course_code=course_code,
+                course_name=course_name,
+                subject=subject,
+                program_name=program_name,
+                program_code=program_code,
+                admission_year=admission_year,
+                academic_year=academic_year,
+                unit=unit,
+                topic=topic,
+                difficulty=difficulty,
+                batch_mcq_count=b_mcq,
+                batch_desc_count=b_desc,
+                sample_existing_questions=sample_titles
+            )
 
-        if ai_error:
-            if "timed out" in ai_error.lower():
-                print(f"[api_generate] Timeout: AI request timed out after {timeout_seconds}s")
-            else:
-                print(f"[api_generate] AI error: {ai_error} (elapsed: {elapsed:.2f}s)")
-            return error_response(ai_error, 400)
+            raw_text, ai_error = _call_gemini_http(prompt, api_key, model=model_name, timeout=timeout_seconds)
+            elapsed = time.time() - t0
 
-        # Logging: AI request completed
-        print(f"[api_generate] AI request completed in {elapsed:.2f}s (response size={len(raw_text or '')} chars)")
-
-        parsed_list, parse_err = _clean_and_parse_ai_json(raw_text)
-        if not parsed_list:
-            print("[api_generate] JSON parse error:", parse_err, "Raw text preview:", (raw_text or "")[:200])
-            return error_response(f"AI generation produced invalid JSON. {parse_err}")
-
-        # Normalize and strictly enforce admin classification fields
-        normalized_questions = []
-        for item in parsed_list:
-            if not isinstance(item, dict):
-                continue
-
-            q_text = str(item.get("question") or item.get("q") or "").strip()
-            if not q_text:
-                continue
-
-            raw_t = str(item.get("type") or "").strip().upper()
-            if "MCQ" in raw_t or "OBJECTIVE" in raw_t or "CHOICE" in raw_t or "options" in item:
-                item_type = "MCQ"
-            else:
-                item_type = "DESCRIPTIVE"
-
-            item_level = str(item.get("level") or difficulty).strip().capitalize()
-            if item_level not in ("Easy", "Medium", "Hard"):
-                item_level = difficulty
-
-            qid = f"Q-{course_code}-{uuid.uuid4().hex[:6].upper()}"
-
-            q_obj = {
-                "id": qid,
-                "course_code": course_code,
-                "course_name": course_name,
-                "subject": subject,
-                "program_code": program_code,
-                "program_name": program_name,
-                "admission_year": admission_year,
-                "academic_year": academic_year,
-                "unit": unit,
-                "topic": topic,
-                "type": item_type,
-                "level": item_level,
-                "question": q_text,
-                "q": q_text,
-                "source": "AI",
-            }
-
-            if item_type == "MCQ":
-                opts_raw = item.get("options") or item.get("a") or []
-                if isinstance(opts_raw, list):
-                    opts = [str(x).strip() for x in opts_raw if str(x).strip()]
+            if ai_error:
+                if "timed out" in ai_error.lower():
+                    print(f"[api_generate] Timeout: AI request timed out after {timeout_seconds}s in Batch {batch_idx}/{total_batches}")
+                    err_msg = "AI generation timed out. Please try again." if total_batches == 1 else f"AI generation timed out during Batch {batch_idx} of {total_batches}. Please try again."
+                    return error_response(err_msg, 400)
                 else:
-                    opts = []
+                    print(f"[api_generate] AI error in Batch {batch_idx}/{total_batches}: {ai_error} (elapsed: {elapsed:.2f}s)")
+                    err_msg = ai_error if total_batches == 1 else f"AI generation failed during Batch {batch_idx} of {total_batches}: {ai_error}"
+                    return error_response(err_msg, 400)
 
-                if len(opts) < 2:
+            # Validate JSON immediately after each batch
+            parsed_list, parse_err = _clean_and_parse_ai_json(raw_text)
+            if not parsed_list:
+                print(f"[api_generate] JSON parse error in Batch {batch_idx}/{total_batches}: {parse_err}. Raw text preview: {(raw_text or '')[:200]}")
+                err_msg = "AI generation returned invalid format. Please try again." if total_batches == 1 else f"AI generation produced invalid JSON in Batch {batch_idx} of {total_batches}. Please try again."
+                return error_response(err_msg, 400)
+
+            batch_added = 0
+            for item in parsed_list:
+                q_obj = _normalize_ai_question_item(
+                    item, course_code, course_name, subject, program_code, program_name,
+                    admission_year, academic_year, unit, topic, difficulty
+                )
+                if not q_obj:
                     continue
 
-                correct = str(item.get("correct") or "").strip()
-                if correct not in opts:
-                    matched = False
-                    for idx, prefix in enumerate(["A", "B", "C", "D"]):
-                        if correct.upper() == prefix or correct.upper().startswith(f"OPTION {prefix}"):
-                            if idx < len(opts):
-                                correct = opts[idx]
-                                matched = True
-                                break
-                    if not matched:
-                        correct = opts[0]
+                k = _normalize_question_text_for_dedup(q_obj["question"])
+                if k in seen_keys:
+                    continue
+                seen_keys.add(k)
+                final_questions.append(q_obj)
+                batch_added += 1
 
-                q_obj["options"] = opts
-                q_obj["a"] = opts
-                q_obj["correct"] = correct
+            print(f"[api_generate] Batch {batch_idx}/{total_batches} completed")
 
-            else:  # DESCRIPTIVE
-                ak = str(item.get("answer_key") or item.get("model_answer") or "").strip()
-                if not ak:
-                    ak = "Comprehensive model answer criteria with core concepts and key terminology."
-                try:
-                    mm = int(item.get("max_marks", 5))
-                except Exception:
-                    mm = 5
+        # Top-up batch if deduplication resulted in fewer questions than requested
+        missing_count = count - len(final_questions)
+        if missing_count > 0 and missing_count <= 10:
+            print(f"[api_generate] Top-up batch started ({missing_count} question(s) needed to reach requested {count})")
+            t0 = time.time()
+            curr_mcq = sum(1 for q in final_questions if q["type"] == "MCQ")
+            curr_desc = sum(1 for q in final_questions if q["type"] == "DESCRIPTIVE")
 
-                q_obj["answer_key"] = ak
-                q_obj["model_answer"] = ak
-                q_obj["max_marks"] = mm
+            if qtype == "MIXED":
+                topup_mcq = max(0, total_mcq_target - curr_mcq)
+                topup_desc = max(0, total_desc_target - curr_desc)
+                if topup_mcq + topup_desc < missing_count:
+                    topup_desc += (missing_count - (topup_mcq + topup_desc))
+            elif qtype == "MCQ":
+                topup_mcq = missing_count
+                topup_desc = 0
+            else:
+                topup_mcq = 0
+                topup_desc = missing_count
 
-            normalized_questions.append(q_obj)
+            sample_titles = [q["question"] for q in final_questions[-8:]]
+            topup_prompt = _build_batch_prompt(
+                course_code=course_code,
+                course_name=course_name,
+                subject=subject,
+                program_name=program_name,
+                program_code=program_code,
+                admission_year=admission_year,
+                academic_year=academic_year,
+                unit=unit,
+                topic=topic,
+                difficulty=difficulty,
+                batch_mcq_count=topup_mcq,
+                batch_desc_count=topup_desc,
+                sample_existing_questions=sample_titles
+            )
 
-        if not normalized_questions:
-            return error_response("AI generated output contained no usable question items.")
+            raw_text, ai_error = _call_gemini_http(topup_prompt, api_key, model=model_name, timeout=timeout_seconds)
+            elapsed = time.time() - t0
+            if not ai_error and raw_text:
+                parsed_list, _ = _clean_and_parse_ai_json(raw_text)
+                if parsed_list:
+                    for item in parsed_list:
+                        if len(final_questions) >= count:
+                            break
+                        q_obj = _normalize_ai_question_item(
+                            item, course_code, course_name, subject, program_code, program_name,
+                            admission_year, academic_year, unit, topic, difficulty
+                        )
+                        if not q_obj:
+                            continue
+                        k = _normalize_question_text_for_dedup(q_obj["question"])
+                        if k in seen_keys:
+                            continue
+                        seen_keys.add(k)
+                        final_questions.append(q_obj)
+            print(f"[api_generate] Top-up batch completed in {elapsed:.2f}s (final count: {len(final_questions)}/{count})")
+
+        # Trim to exact requested count if any excess items were returned
+        if len(final_questions) > count:
+            final_questions = final_questions[:count]
+
+        if not final_questions:
+            return error_response("AI generated output contained no usable question items.", 400)
 
         # Logging: Response generated
-        print(f"[api_generate] Response generated: {len(normalized_questions)} questions returned successfully")
+        print(f"[api_generate] Response generated: {len(final_questions)} unique questions returned successfully")
 
         return jsonify({
             "success": True,
-            "questions": normalized_questions,
-            "count": len(normalized_questions),
+            "questions": final_questions,
+            "count": len(final_questions),
             "course_code": course_code,
             "course_name": course_name,
             "subject": subject,

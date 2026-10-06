@@ -241,20 +241,20 @@
     "academic_year": "2nd Year",
     "roll_number": "029"
   },
-  "user_4e28344b87": {
-    "id": "user_4e28344b87",
+  "user_4f3e296a0a": {
+    "id": "user_4f3e296a0a",
     "username": "Rahul Das",
     "name": "Rahul Das",
     "email": "rahul1@test.com",
-    "pw_hash": "scrypt:32768:8:1$D33FFj8tM2Hzw3jr$2b3cd40e8728c60644477ca4964f742d1d248f64343434602b2d6f58f2f89dd702b742cf4339550ef6d7a79c5d91537e72696ac5bb047d1067b02ba4712ba377",
+    "pw_hash": "scrypt:32768:8:1$F772Lqs2rD3E0Ull$fdc49aa7e6da741fdccc7dfb7c17c7f778df81a32360320dd66de01c55fb728317fd49804e02663dddb58e235b11a510f92b8ee1e86c1115579e153d60ac7441",
     "user_type": "EXTERNAL"
   },
-  "user_8ce7117aab": {
-    "id": "user_8ce7117aab",
+  "user_a4b4cce282": {
+    "id": "user_a4b4cce282",
     "username": "Rahul Das",
     "name": "Rahul Das",
     "email": "rahul2@test.com",
-    "pw_hash": "scrypt:32768:8:1$uwLZiAAFuhwp0LRU$ee5ffcdb31e3927d86c0f8d49eeab02c542fa56761d4e14173c8d6762e21434cae8f11334e989308a6cfaf12535f88f88b0a200c11e8b8b94c4e13d84bb87635",
+    "pw_hash": "scrypt:32768:8:1$7iVv7ROpA4JOgAt6$6222d09af710efec8b19a5ade19ede5c17ec4778ecaa46d4a65bbb4c0879a24d1c7e5184fa91297e107a8d233dd0b7b987255d62a37160e23754581902756d9c",
     "user_type": "EXTERNAL"
   }
 }

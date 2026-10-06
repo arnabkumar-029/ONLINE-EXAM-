@@ -10,8 +10,8 @@ workers = int(os.getenv("WEB_CONCURRENCY", "1"))
 # 4 threads handle concurrent web requests efficiently with minimal memory overhead
 threads = int(os.getenv("GUNICORN_THREADS", "4"))
 
-# 60s timeout prevents premature worker termination (internal AI REST timeout is strictly 22s)
-timeout = int(os.getenv("GUNICORN_TIMEOUT", "60"))
+# 120s timeout gives ample headroom for multi-batch generation (internal AI REST timeout is strictly 22s per batch)
+timeout = int(os.getenv("GUNICORN_TIMEOUT", "120"))
 
 # Keepalive for persistent HTTP connections
 keepalive = 5

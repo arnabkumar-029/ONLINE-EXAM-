@@ -3,3 +3,5 @@ gunicorn
 jinja2
 mysql-connector-python
 python-dotenv
+SQLAlchemy
+psycopg2-binary

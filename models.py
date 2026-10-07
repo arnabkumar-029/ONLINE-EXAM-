@@ -313,3 +313,6 @@ class ExamResult(Base):
         if self.descriptive_reports:
             res["descriptive_reports"] = self.descriptive_reports
         return res
+
+    def to_dict(self):
+        return self.to_history_dict()

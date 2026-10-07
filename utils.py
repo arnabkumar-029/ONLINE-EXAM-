@@ -5,6 +5,18 @@ import re
 import time
 import uuid
 from typing import List, Dict, Any, Optional
+from db import is_database_configured, get_db_session
+from models import (
+    Program,
+    User,
+    Question,
+    CourseExam,
+    CourseExamQuestion,
+    CourseExamTargetedStudent,
+    ExamResult,
+)
+from sqlalchemy import func
+from sqlalchemy.orm import selectinload
 
 # ---- Light-weight module-level constants (no heavy imports here) ----
 USERS_FILE = "users.json"
@@ -68,7 +80,12 @@ DEFAULT_PROGRAMS = [
 ]
 
 def load_programs() -> List[Dict[str, str]]:
-    """Loads program definitions from programs.json or initializes defaults."""
+    """Loads program definitions from PostgreSQL (if configured) or programs.json."""
+    if is_database_configured():
+        with get_db_session() as session:
+            progs = session.query(Program).order_by(Program.id.asc()).all()
+            return [p.to_dict() for p in progs]
+
     if not os.path.exists(PROGRAMS_FILE):
         save_programs(DEFAULT_PROGRAMS)
         return list(DEFAULT_PROGRAMS)
@@ -91,6 +108,11 @@ def get_program_by_code(code: str) -> Optional[Dict[str, str]]:
     if not code:
         return None
     c = str(code).strip().upper()
+    if is_database_configured():
+        with get_db_session() as session:
+            prog = session.query(Program).filter(func.upper(Program.code) == c).first()
+            return prog.to_dict() if prog else None
+
     for p in load_programs():
         if str(p.get("code") or "").strip().upper() == c:
             return p
@@ -101,6 +123,11 @@ def get_program_by_name(name: str) -> Optional[Dict[str, str]]:
     if not name:
         return None
     n = str(name).strip().lower()
+    if is_database_configured():
+        with get_db_session() as session:
+            prog = session.query(Program).filter(func.lower(Program.name) == n).first()
+            return prog.to_dict() if prog else None
+
     for p in load_programs():
         if str(p.get("name") or "").strip().lower() == n:
             return p
@@ -208,6 +235,13 @@ def is_student_code_taken(student_code: str, exclude_id: str = None) -> bool:
     if not student_code:
         return False
     target = str(student_code).strip().upper()
+    if is_database_configured():
+        with get_db_session() as session:
+            query = session.query(User).filter(func.upper(User.student_code) == target)
+            if exclude_id:
+                query = query.filter(User.id != str(exclude_id))
+            return query.first() is not None
+
     users = load_users()
     for ukey, udata in users.items():
         if not isinstance(udata, dict):
@@ -225,6 +259,13 @@ def is_email_taken(email: str, exclude_id: str = None) -> bool:
     if not email:
         return False
     target = str(email).strip().lower()
+    if is_database_configured():
+        with get_db_session() as session:
+            query = session.query(User).filter(func.lower(User.email) == target)
+            if exclude_id:
+                query = query.filter(User.id != str(exclude_id))
+            return query.first() is not None
+
     users = load_users()
     for ukey, udata in users.items():
         if not isinstance(udata, dict):
@@ -538,6 +579,11 @@ def normalize_user_record(username: str, data: dict) -> dict:
     return rec
 
 def load_users() -> Dict[str, Dict[str, Any]]:
+    if is_database_configured():
+        with get_db_session() as session:
+            users = session.query(User).all()
+            return {u.id: u.to_dict() for u in users}
+
     raw = load_json(USERS_FILE)
     if not isinstance(raw, dict):
         return {}
@@ -547,7 +593,21 @@ def load_users() -> Dict[str, Dict[str, Any]]:
     return normalized
 
 def save_users(x): save_json(USERS_FILE, x)
-def load_results(): return load_json(RESULTS_FILE)
+
+def load_results():
+    if is_database_configured():
+        with get_db_session() as session:
+            all_results = session.query(ExamResult).order_by(ExamResult.id.asc()).all()
+            grouped = {}
+            for r in all_results:
+                key = r.user_key or r.user_id
+                if key not in grouped:
+                    grouped[key] = {"history": []}
+                grouped[key]["history"].append(r.to_history_dict())
+            return grouped
+
+    return load_json(RESULTS_FILE)
+
 def save_results(x): save_json(RESULTS_FILE, x)
 
 def find_user_by_email(email: str):
@@ -555,6 +615,13 @@ def find_user_by_email(email: str):
     if not email:
         return None
     target = email.strip().lower()
+    if is_database_configured():
+        with get_db_session() as session:
+            user = session.query(User).filter(func.lower(User.email) == target).first()
+            if user:
+                return user.id, user.to_dict()
+            return None
+
     users = load_users()
     for uname, udata in users.items():
         if isinstance(udata, dict) and str(udata.get("email") or "").strip().lower() == target:
@@ -576,6 +643,18 @@ def find_university_student_by_credentials(email: str, student_code: str, passwo
     from werkzeug.security import check_password_hash
     target_email = email.strip().lower()
     target_code = student_code.strip().upper()
+
+    if is_database_configured():
+        with get_db_session() as session:
+            user = session.query(User).filter(
+                func.lower(User.email) == target_email,
+                func.upper(User.student_code) == target_code,
+                User.user_type == "UNIVERSITY"
+            ).first()
+            if user and user.pw_hash and check_password_hash(user.pw_hash, password):
+                return user.id, user.to_dict()
+            return None
+
     users = load_users()
     for uname, udata in users.items():
         if not isinstance(udata, dict):
@@ -606,9 +685,18 @@ def _load_questions_from_disk():
 
 def load_questions():
     """
-    Public API: returns cached questions list, loading/migrating once on first call.
-    Use reload_questions_from_disk() to force a refresh.
+    Public API: returns questions list.
+    From PostgreSQL (ordered by created_at DESC, id DESC) if configured,
+    or cached/migrated list from questions.json if offline.
     """
+    if is_database_configured():
+        with get_db_session() as session:
+            qs = session.query(Question).order_by(
+                Question.created_at.desc(),
+                Question.id.desc()
+            ).all()
+            return [q.to_dict() for q in qs]
+
     global _QUESTIONS_CACHE
     if _QUESTIONS_CACHE is not None:
         return _QUESTIONS_CACHE
@@ -616,8 +704,10 @@ def load_questions():
 
 def reload_questions_from_disk():
     """
-    Force reload of questions from disk and update cache.
+    Force reload of questions from disk or database and update cache.
     """
+    if is_database_configured():
+        return load_questions()
     return _load_questions_from_disk()
 
 # =========================================================
@@ -626,7 +716,15 @@ def reload_questions_from_disk():
 from datetime import datetime
 
 def load_course_exams() -> List[Dict[str, Any]]:
-    """Load all configured course examinations from course_exams.json."""
+    """Load all configured course examinations from PostgreSQL (if configured) or course_exams.json."""
+    if is_database_configured():
+        with get_db_session() as session:
+            exams = session.query(CourseExam).options(
+                selectinload(CourseExam.question_associations),
+                selectinload(CourseExam.targeted_students)
+            ).order_by(CourseExam.created_at.desc(), CourseExam.id.asc()).all()
+            return [e.to_dict() for e in exams]
+
     data = load_json(COURSE_EXAMS_FILE)
     if isinstance(data, list):
         return data
@@ -640,8 +738,17 @@ def get_course_exam_by_id(exam_id: str) -> Dict[str, Any] | None:
     """Retrieve a single course exam by unique ID."""
     if not exam_id:
         return None
+    eid = str(exam_id).strip()
+    if is_database_configured():
+        with get_db_session() as session:
+            exam = session.query(CourseExam).options(
+                selectinload(CourseExam.question_associations),
+                selectinload(CourseExam.targeted_students)
+            ).filter(CourseExam.id == eid).first()
+            return exam.to_dict() if exam else None
+
     for exam in load_course_exams():
-        if str(exam.get("id")) == str(exam_id):
+        if str(exam.get("id")) == eid:
             return exam
     return None
 
@@ -1005,6 +1112,42 @@ def get_all_students_for_eligibility() -> List[Dict[str, Any]]:
     Returns list of university student profiles for eligibility checking and specific student targeting.
     Filters out administrator accounts and external/practice accounts.
     """
+    if is_database_configured():
+        with get_db_session() as session:
+            users = session.query(User).filter(
+                User.user_type == "UNIVERSITY",
+                User.is_admin == False,
+                func.lower(User.id).notin_(["admin", "adminc"])
+            ).all()
+            students = []
+            for u in users:
+                sc = (u.student_code or "").strip()
+                p_code = (u.program_code or "").strip().upper()
+                p_name = (u.program_name or get_program_name(p_code)).strip()
+                adm_yr = u.admission_year or ""
+                acad_yr = u.academic_year or calculate_academic_year(adm_yr)
+                email = (u.email or "").strip()
+                disp_name = str(u.name or u.username or u.id)
+                user_id = str(u.id)
+
+                students.append({
+                    "id": user_id,
+                    "username": disp_name,
+                    "name": disp_name,
+                    "email": email,
+                    "user_type": "UNIVERSITY",
+                    "student_code": sc,
+                    "program_code": p_code,
+                    "program_name": p_name,
+                    "admission_year": adm_yr,
+                    "academic_year": acad_yr,
+                    "roll_number": str(u.roll_number or "").strip(),
+                    "display_text": f"{sc} — {disp_name} ({p_name})" if sc else f"{disp_name} ({email})"
+                })
+
+            students.sort(key=lambda s: (s["program_code"], str(s["admission_year"]), s["student_code"], s["username"]))
+            return students
+
     users = load_users()
     students = []
     for u, rec in users.items():
@@ -1072,14 +1215,78 @@ def count_eligible_students(program_code: str, admission_year: Any, academic_yea
 
 def get_student_identity_from_session_or_db(session_obj) -> Dict[str, Any]:
     """
-    Securely resolves the authenticated student's academic identity from session or users.json.
+    Securely resolves the authenticated student's academic identity from session or users table / users.json.
     Never trusts client parameters; guarantees that session holds valid student academic data.
     """
     user_key = session_obj.get("student_id") or session_obj.get("user_id") or session_obj.get("username") or ""
+    s_email = str(session_obj.get("email") or "").strip().lower()
+
+    if is_database_configured():
+        rec = None
+        with get_db_session() as session:
+            user = None
+            if user_key:
+                user = session.query(User).filter(
+                    (User.id == str(user_key)) |
+                    (func.lower(User.username) == str(user_key).lower())
+                ).first()
+            if not user and s_email:
+                user = session.query(User).filter(func.lower(User.email) == s_email).first()
+
+            if user:
+                rec = user.to_dict()
+
+        if not rec:
+            rec = {}
+
+        display_name = rec.get("username") or rec.get("name") or session_obj.get("username") or user_key
+        user_id = str(rec.get("id") or user_key)
+        user_type = rec.get("user_type") or session_obj.get("user_type") or "EXTERNAL"
+        sc = rec.get("student_code") or session_obj.get("student_code") or ""
+        p_code = rec.get("program_code") or session_obj.get("program_code") or ""
+        p_name = rec.get("program_name") or get_program_name(p_code) or session_obj.get("program_name") or ""
+        dept_name = rec.get("department_name") or session_obj.get("department_name") or ""
+        adm_yr = rec.get("admission_year") or session_obj.get("admission_year") or ""
+        acad_yr = rec.get("academic_year") or calculate_academic_year(adm_yr) or session_obj.get("academic_year") or ""
+        roll = rec.get("roll_number") or session_obj.get("roll_number") or ""
+        email = rec.get("email") or session_obj.get("email", "")
+        is_admin_flag = bool(rec.get("is_admin", False))
+
+        if user_key or user_id:
+            session_obj["username"] = display_name
+            session_obj["name"] = display_name
+            session_obj["student_id"] = user_id
+            session_obj["user_id"] = user_id
+            session_obj["user_type"] = user_type
+            session_obj["email"] = email
+            session_obj["student_code"] = sc
+            session_obj["program_code"] = p_code
+            session_obj["program_name"] = p_name
+            session_obj["department_name"] = dept_name
+            session_obj["admission_year"] = adm_yr
+            session_obj["academic_year"] = acad_yr
+            session_obj["roll_number"] = roll
+            session_obj["is_admin"] = is_admin_flag
+
+        return {
+            "id": user_id,
+            "username": display_name,
+            "name": display_name,
+            "email": email,
+            "user_type": user_type,
+            "student_code": sc,
+            "program_code": p_code,
+            "program_name": p_name,
+            "department_name": dept_name,
+            "admission_year": adm_yr,
+            "academic_year": acad_yr,
+            "roll_number": roll,
+            "is_admin": is_admin_flag
+        }
+
     users = load_users()
     rec = users.get(user_key, {})
     if not rec:
-        s_email = str(session_obj.get("email") or "").strip().lower()
         if s_email:
             for k, udata in users.items():
                 if str(udata.get("email") or "").strip().lower() == s_email:
@@ -1093,11 +1300,13 @@ def get_student_identity_from_session_or_db(session_obj) -> Dict[str, Any]:
     sc = rec.get("student_code") or session_obj.get("student_code") or ""
     p_code = rec.get("program_code") or session_obj.get("program_code") or ""
     p_name = rec.get("program_name") or get_program_name(p_code) or session_obj.get("program_name") or ""
+    dept_name = rec.get("department_name") or session_obj.get("department_name") or ""
     adm_yr = rec.get("admission_year") or session_obj.get("admission_year") or ""
     acad_yr = rec.get("academic_year") or calculate_academic_year(adm_yr) or session_obj.get("academic_year") or ""
+    roll = rec.get("roll_number") or session_obj.get("roll_number") or ""
     email = rec.get("email") or session_obj.get("email", "")
+    is_admin_flag = bool(rec.get("is_admin", False))
 
-    # Always keep session synchronized with authoritative DB record
     if user_key:
         session_obj["username"] = display_name
         session_obj["name"] = display_name
@@ -1108,8 +1317,11 @@ def get_student_identity_from_session_or_db(session_obj) -> Dict[str, Any]:
         session_obj["student_code"] = sc
         session_obj["program_code"] = p_code
         session_obj["program_name"] = p_name
+        session_obj["department_name"] = dept_name
         session_obj["admission_year"] = adm_yr
         session_obj["academic_year"] = acad_yr
+        session_obj["roll_number"] = roll
+        session_obj["is_admin"] = is_admin_flag
 
     return {
         "id": user_id,
@@ -1120,8 +1332,11 @@ def get_student_identity_from_session_or_db(session_obj) -> Dict[str, Any]:
         "student_code": sc,
         "program_code": p_code,
         "program_name": p_name,
+        "department_name": dept_name,
         "admission_year": adm_yr,
-        "academic_year": acad_yr
+        "academic_year": acad_yr,
+        "roll_number": roll,
+        "is_admin": is_admin_flag
     }
 
 
@@ -1184,6 +1399,50 @@ def get_student_exam_result(username: str, exam: Dict[str, Any]) -> Optional[Dic
     """
     if not username or not exam:
         return None
+
+    if is_database_configured():
+        exam_id = str(exam.get("id") or "").strip()
+        exam_title = str(exam.get("title") or "").strip()
+
+        with get_db_session() as session:
+            u_target = str(username).strip()
+            user = session.query(User).filter(
+                (User.id == u_target) |
+                (func.lower(User.username) == u_target.lower()) |
+                (func.lower(User.email) == u_target.lower())
+            ).first()
+
+            possible_user_ids = {u_target}
+            if user:
+                possible_user_ids.add(user.id)
+                if user.username:
+                    possible_user_ids.add(user.username)
+
+            query = session.query(ExamResult).filter(
+                (ExamResult.user_id.in_(list(possible_user_ids))) |
+                (ExamResult.user_key.in_(list(possible_user_ids))) |
+                (func.lower(ExamResult.user_key) == u_target.lower())
+            )
+
+            if exam_id and exam_title:
+                query = query.filter(
+                    (ExamResult.course_exam_id == exam_id) |
+                    (func.lower(ExamResult.exam_title) == exam_title.lower())
+                )
+            elif exam_id:
+                query = query.filter(ExamResult.course_exam_id == exam_id)
+            elif exam_title:
+                query = query.filter(func.lower(ExamResult.exam_title) == exam_title.lower())
+            else:
+                return None
+
+            res = query.order_by(
+                ExamResult.submitted_at.desc().nullslast(),
+                ExamResult.id.desc()
+            ).first()
+
+            return res.to_history_dict() if res else None
+
     results = load_results()
     user_data = results.get(username)
     if not user_data:

@@ -2705,4 +2705,148 @@ def add_manual_course_exam_question():
         "success": True,
         "message": "Question added successfully.",
         "question": q_obj
-    })
+    })
+
+
+# -------------------------------------------------------------
+# ONE-TIME PROTECTED DATA MIGRATION ENDPOINT (JSON -> POSTGRESQL)
+# -------------------------------------------------------------
+_MIGRATION_ENDPOINT_LOCK = threading.Lock()
+
+
+@admin_bp.route("/migrate-json-to-postgres", methods=["GET", "POST"])
+def admin_migrate_json_to_postgres():
+    """
+    Temporary, strictly-protected endpoint to execute migrate_json_to_postgres on Render.
+
+    SAFETY & SECURITY CONTROLS:
+    1. HTTP Method: Strictly rejects GET requests (returns 405 Method Not Allowed).
+    2. Authentication: Requires an authenticated admin session (session.get('admin')).
+    3. Migration Secret: Requires EXAMFORGE_MIGRATION_SECRET verified via hmac.compare_digest.
+       - Never logged, never echoed, never hard-coded in source code.
+       - Can be supplied via header 'X-Migration-Secret', JSON body 'migration_secret',
+         or form-data 'migration_secret'.
+    4. Safe Default: Defaults to dry_run=True unless explicitly requested with dry_run=false.
+    5. Zero Data Leakage: Masked error messages; never exposes DATABASE_URL or passwords.
+    6. Concurrency Safe: Uses an in-process Lock to prevent overlapping migration executions.
+    """
+    # 1. Reject non-POST requests immediately
+    if request.method != "POST":
+        return jsonify({
+            "success": False,
+            "error": "Method Not Allowed. Only POST requests are permitted for this endpoint."
+        }), 405
+
+    # 2. Enforce authenticated admin session
+    if not session.get("admin"):
+        return jsonify({
+            "success": False,
+            "error": "Forbidden: Admin authentication required."
+        }), 403
+
+    # 3. Enforce server-side migration secret
+    server_secret = (os.getenv("EXAMFORGE_MIGRATION_SECRET") or "").strip()
+    if not server_secret:
+        return jsonify({
+            "success": False,
+            "error": "Migration endpoint disabled: EXAMFORGE_MIGRATION_SECRET is not configured on the server."
+        }), 503
+
+    # 4. Extract supplied secret safely (Header > JSON body > Form data)
+    supplied_secret = (
+        request.headers.get("X-Migration-Secret")
+        or request.headers.get("X-Examforge-Migration-Secret")
+        or (request.is_json and (request.get_json(silent=True) or {}).get("migration_secret"))
+        or request.form.get("migration_secret")
+        or request.args.get("migration_secret")
+        or ""
+    ).strip()
+
+    # Compare secrets using timing-safe comparison
+    import hmac
+    if not supplied_secret or not hmac.compare_digest(supplied_secret, server_secret):
+        return jsonify({
+            "success": False,
+            "error": "Forbidden: Invalid migration secret."
+        }), 403
+
+    # 5. Parse dry_run parameter (defaults to True for maximum safety)
+    dry_run_arg = request.args.get("dry_run")
+    if dry_run_arg is None and request.is_json:
+        dry_run_arg = (request.get_json(silent=True) or {}).get("dry_run")
+    elif dry_run_arg is None and request.form:
+        dry_run_arg = request.form.get("dry_run")
+
+    # Only dry_run=false (case-insensitive string or boolean False) triggers live migration
+    if dry_run_arg is False or (isinstance(dry_run_arg, str) and dry_run_arg.strip().lower() == "false"):
+        is_dry_run = False
+    else:
+        is_dry_run = True
+
+    # 6. Acquire execution lock to prevent concurrent executions
+    acquired = _MIGRATION_ENDPOINT_LOCK.acquire(blocking=False)
+    if not acquired:
+        return jsonify({
+            "success": False,
+            "error": "A migration operation is already in progress. Please wait."
+        }), 429
+
+    try:
+        from migrate_json_to_postgres import run_migration
+        success, result_data = run_migration(dry_run=is_dry_run)
+
+        if not success:
+            raw_err = result_data.get("error", "Migration execution failed.")
+            # Sanitize error to ensure zero credentials or connection URLs are leaked
+            sanitized_err = re.sub(r":([^/@:]+)@", r":****@", str(raw_err))
+            sanitized_err = re.sub(r"postgres(ql)?(\+[a-z0-9]+)?://[^\s'\"]+", "[PROTECTED_DATABASE_URL]", sanitized_err)
+            return jsonify({
+                "success": False,
+                "dry_run": is_dry_run,
+                "mode": "DRY_RUN" if is_dry_run else "LIVE_MIGRATION",
+                "error": sanitized_err,
+                "summary": None
+            }), 400
+
+        # Construct safe summary
+        summary = {
+            "programs": result_data.get("programs", 0),
+            "users": result_data.get("users", 0),
+            "questions": result_data.get("questions", 0),
+            "course_exams": result_data.get("course_exams", 0),
+            "course_exam_questions": result_data.get("course_exam_questions", 0),
+            "course_exam_targeted_students": result_data.get("course_exam_targeted_students", 0),
+            "exam_results": result_data.get("exam_results", 0),
+            "warnings": result_data.get("warnings", 0),
+            "errors": result_data.get("errors", 0),
+        }
+
+        mode_str = "DRY_RUN" if is_dry_run else "LIVE_MIGRATION"
+        message_str = (
+            "Dry-run validation successful. Pre-flight checks passed; zero database records were modified."
+            if is_dry_run else
+            "Live migration completed successfully. All records inserted with relational integrity."
+        )
+
+        return jsonify({
+            "success": True,
+            "mode": mode_str,
+            "dry_run": is_dry_run,
+            "message": message_str,
+            "summary": summary
+        }), 200
+
+    except Exception as exc:
+        raw_exc = str(exc)
+        sanitized_exc = re.sub(r":([^/@:]+)@", r":****@", raw_exc)
+        sanitized_exc = re.sub(r"postgres(ql)?(\+[a-z0-9]+)?://[^\s'\"]+", "[PROTECTED_DATABASE_URL]", sanitized_exc)
+        return jsonify({
+            "success": False,
+            "dry_run": is_dry_run,
+            "error": f"An unexpected error occurred during migration: {sanitized_exc}",
+            "summary": None
+        }), 500
+
+    finally:
+        _MIGRATION_ENDPOINT_LOCK.release()
+

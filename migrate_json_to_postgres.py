@@ -114,7 +114,7 @@ def run_migration(dry_run: bool = False):
             err = f"Missing file: {name}"
             print(f"   [FAIL] {err}")
             errors_list.append(err)
-            return False
+            return False, {"error": err, "errors": errors_list}
         try:
             with open(path, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -125,7 +125,7 @@ def run_migration(dry_run: bool = False):
             err = f"Could not parse {name}: {e}"
             print(f"   [FAIL] {err}")
             errors_list.append(err)
-            return False
+            return False, {"error": err, "errors": errors_list}
 
     raw_programs, prog_count = json_status["programs.json"]
     raw_users, user_count = json_status["users.json"]
@@ -260,7 +260,18 @@ def run_migration(dry_run: bool = False):
         print(f" - exam_results:                  {expected_results} records")
         print(f"\nAudit Totals: Warnings: {len(warnings_list)}, Errors: {len(errors_list)}")
         print("Conclusion: All source JSON records validated safely. Ready for live migration when requested.")
-        return True
+        summary = {
+            "programs": expected_programs,
+            "users": expected_users,
+            "questions": expected_questions,
+            "course_exams": expected_exams,
+            "course_exam_questions": expected_exam_q_links,
+            "course_exam_targeted_students": expected_targeted_links,
+            "exam_results": expected_results,
+            "warnings": len(warnings_list),
+            "errors": len(errors_list)
+        }
+        return True, summary
 
     # -------------------------------------------------------------
     # LIVE MIGRATION EXECUTION
@@ -268,12 +279,12 @@ def run_migration(dry_run: bool = False):
     if not is_database_configured():
         print("\n[ERROR] DATABASE_URL environment variable is not set!")
         print("Please configure DATABASE_URL in Render or local .env before running.")
-        return False
+        return False, {"error": "DATABASE_URL environment variable is not set."}
 
     engine = get_engine()
     if engine is None:
         print("\n[ERROR] Could not initialize database engine.")
-        return False
+        return False, {"error": "Could not initialize database engine."}
 
     print("\n3. Initializing database schema (CREATE TABLE IF NOT EXISTS)...")
     create_all_tables()
@@ -690,15 +701,30 @@ def run_migration(dry_run: bool = False):
         print(f" - warnings:                      {len(warnings_list)}")
         print(f" - errors:                        {len(errors_list)}")
         print("\nAll records migrated with complete foreign-key integrity.")
-        return True
+        summary = {
+            "programs": inserted_programs,
+            "users": inserted_users,
+            "questions": inserted_questions,
+            "course_exams": inserted_exams,
+            "course_exam_questions": inserted_exam_questions,
+            "course_exam_targeted_students": inserted_targeted,
+            "exam_results": inserted_results,
+            "warnings": len(warnings_list),
+            "errors": len(errors_list)
+        }
+        return True, summary
 
     except Exception as exc:
         print("\n[FATAL ERROR] Migration failed during execution:")
         print(f"Error: {exc}")
         print("[ROLLBACK] Transaction rolled back automatically. No changes were committed.")
-        return False
+        import re
+        sanitized_err = re.sub(r":([^/@:]+)@", r":****@", str(exc))
+        sanitized_err = re.sub(r"postgres(ql)?(\+[a-z0-9]+)?://[^\s'\"]+", "[PROTECTED_DATABASE_URL]", sanitized_err)
+        return False, {"error": f"Migration failed: {sanitized_err}"}
 
 
 if __name__ == "__main__":
     is_dry = "--dry-run" in sys.argv
-    run_migration(dry_run=is_dry)
+    success, summary = run_migration(dry_run=is_dry)
+    sys.exit(0 if success else 1)

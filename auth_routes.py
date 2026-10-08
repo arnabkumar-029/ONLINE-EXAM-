@@ -184,6 +184,7 @@ def login():
     session["academic_year"] = user_record.get("academic_year") or "N/A"
 
     session["questions"] = []   # keep empty
+    session["exam_question_ids"] = []
     session["index"] = 0
     session["answers"] = {}
     session["start_time"] = int(time.time())

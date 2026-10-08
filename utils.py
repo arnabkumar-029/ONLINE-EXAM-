@@ -899,6 +899,36 @@ def reload_questions_from_disk():
         return load_questions()
     return _load_questions_from_disk()
 
+def get_questions_by_ids(question_ids: List[str]) -> List[Dict[str, Any]]:
+    """
+    Retrieve questions by a list of question IDs, strictly preserving the
+    order of question_ids passed in.
+    Fetches from PostgreSQL (if configured) or cached/offline questions.json.
+    """
+    if not question_ids:
+        return []
+
+    clean_ids = [str(qid).strip() for qid in question_ids if qid]
+    if not clean_ids:
+        return []
+
+    if is_database_configured():
+        with get_db_session() as session:
+            qs = session.query(Question).filter(Question.id.in_(clean_ids)).all()
+            q_map = {q.id: q.to_dict() for q in qs}
+            return [q_map[qid] for qid in clean_ids if qid in q_map]
+
+    all_qs = load_questions()
+    q_map = {str(q.get("id")): q for q in all_qs if q.get("id")}
+    return [q_map[qid] for qid in clean_ids if qid in q_map]
+
+def get_question_by_id(question_id: str) -> Optional[Dict[str, Any]]:
+    """Retrieve a single question by ID."""
+    if not question_id:
+        return None
+    res = get_questions_by_ids([question_id])
+    return res[0] if res else None
+
 # =========================================================
 #  Course Exam Management Helpers
 # =========================================================

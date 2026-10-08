@@ -1,6 +1,12 @@
 # exam_routes.py
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash
-from utils import load_results, descriptive_similarity, load_questions, create_exam_result_db
+from utils import (
+    load_results,
+    descriptive_similarity,
+    load_questions,
+    create_exam_result_db,
+    get_questions_by_ids,
+)
 import time, sys, pprint
 
 exam_bp = Blueprint("exam", __name__, url_prefix="")
@@ -22,7 +28,12 @@ def exam():
     if "username" not in session:
         return redirect(url_for("auth.auth_page"))
 
-    questions = session.get("questions", [])
+    exam_qids = session.get("exam_question_ids")
+    if exam_qids:
+        questions = get_questions_by_ids(exam_qids)
+    else:
+        questions = session.get("questions", [])
+
     if not questions:
         flash("No questions available!", "error")
         return redirect(url_for("auth.auth_page"))
@@ -98,7 +109,11 @@ def result():
     if "username" not in session:
         return redirect(url_for("auth.auth_page"))
 
-    questions = session.get("questions", [])
+    exam_qids = session.get("exam_question_ids")
+    if exam_qids:
+        questions = get_questions_by_ids(exam_qids)
+    else:
+        questions = session.get("questions", [])
     answers = session.get("answers", {}) or {}
 
     total = 0.0
@@ -314,12 +329,13 @@ def start_exam():
 
     total_seconds = max(60, total_seconds)
 
-    # ✅ SAVE TO SESSION
-    session["questions"] = selected_qs
+    # ✅ SAVE TO SESSION (compact question IDs to prevent oversized cookies)
+    session["exam_question_ids"] = [q["id"] for q in selected_qs]
     session["index"] = 0
     session["answers"] = {}
     session["start_time"] = int(time.time())
     session["total_time"] = total_seconds
+    session.pop("questions", None)
     session.pop("course_exam_id", None)
     session.pop("course_exam_title", None)
     session.pop("course_code", None)
@@ -676,7 +692,7 @@ def start_course_exam(exam_id):
     duration_minutes = int(exam.get("duration") or 60)
     total_seconds = max(60, duration_minutes * 60)
 
-    session["questions"] = selected_qs
+    session["exam_question_ids"] = [q["id"] for q in selected_qs]
     session["index"] = 0
     session["answers"] = {}
     session["start_time"] = int(time.time())
@@ -686,5 +702,6 @@ def start_course_exam(exam_id):
     session["course_code"] = course_code
     session["subject"] = subject
     session["exam_type"] = exam.get("exam_type", "Mixed")
+    session.pop("questions", None)
 
     return redirect(url_for("exam.exam"))

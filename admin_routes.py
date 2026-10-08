@@ -26,6 +26,23 @@ from utils import (
     is_email_taken,
     is_student_code_taken,
     group_questions_by_course_subject,
+    create_user_db,
+    update_user_db,
+    delete_user_db,
+    create_program_db,
+    update_program_db,
+    delete_program_db,
+    create_question_db,
+    create_questions_bulk_db,
+    update_question_db,
+    delete_question_db,
+    delete_questions_bulk_db,
+    create_course_exam_db,
+    update_course_exam_db,
+    update_course_exam_status_db,
+    delete_course_exam_db,
+    set_course_exam_questions_db,
+    create_exam_result_db,
 )
 import re
 import json
@@ -411,28 +428,29 @@ def add_student():
         flash("Student Code already exists.", "error")
         return redirect(url_for("admin.students_page"))
 
-    users = load_users()
     internal_id = f"user_{uuid.uuid4().hex[:10]}"
-
     pw_hash = generate_password_hash(password)
-    users[internal_id] = {
-        "id": internal_id,
-        "name": name,
-        "username": name,  # Represents the student's name, NOT UNIQUE
-        "email": email,
-        "pw_hash": pw_hash,
-        "password": pw_hash,
-        "user_type": "UNIVERSITY",
-        "student_code": student_code,
-        "university_code": university_code,
-        "program_code": program_code,
-        "program_name": program_name,
-        "department_name": dept_name,
-        "admission_year": admission_year,
-        "academic_year": academic_year,
-        "roll_number": roll_number
-    }
-    save_users(users)
+    try:
+        create_user_db({
+            "id": internal_id,
+            "name": name,
+            "username": name,  # Represents the student's name, NOT UNIQUE
+            "email": email,
+            "pw_hash": pw_hash,
+            "password": pw_hash,
+            "user_type": "UNIVERSITY",
+            "student_code": student_code,
+            "university_code": university_code,
+            "program_code": program_code,
+            "program_name": program_name,
+            "department_name": dept_name,
+            "admission_year": admission_year,
+            "academic_year": academic_year,
+            "roll_number": roll_number
+        })
+    except ValueError as e:
+        flash(str(e), "error")
+        return redirect(url_for("admin.students_page"))
 
     flash(f"University Student '{name}' ({student_code}) added successfully!", "success")
     return redirect(url_for("admin.students_page"))
@@ -529,26 +547,33 @@ def edit_student():
                 flash("Student Code already exists.", "error")
                 return redirect(url_for("admin.students_page"))
 
-    user_record["name"] = name
-    user_record["username"] = name
-    user_record["email"] = email
-    user_record["program_code"] = program_code
-    user_record["program_name"] = program_name
-    user_record["department_name"] = dept_name
-    user_record["admission_year"] = admission_year
-    user_record["academic_year"] = academic_year
-    user_record["roll_number"] = roll_clean
-    user_record["student_code"] = new_student_code
+    updates = {
+        "name": name,
+        "username": name,
+        "email": email,
+        "program_code": program_code,
+        "program_name": program_name,
+        "department_name": dept_name,
+        "admission_year": admission_year,
+        "academic_year": academic_year,
+        "roll_number": roll_clean,
+        "student_code": new_student_code
+    }
 
     if new_password:
         if " " in new_password:
             flash("Password cannot contain spaces!", "error")
             return redirect(url_for("admin.students_page"))
         pw_h = generate_password_hash(new_password)
-        user_record["pw_hash"] = pw_h
-        user_record["password"] = pw_h
+        updates["pw_hash"] = pw_h
+        updates["password"] = pw_h
 
-    save_users(users)
+    try:
+        update_user_db(target_key, updates)
+    except ValueError as e:
+        flash(str(e), "error")
+        return redirect(url_for("admin.students_page"))
+
     flash(f"University Student '{name}' ({new_student_code}) updated successfully!", "success")
     return redirect(url_for("admin.students_page"))
 
@@ -618,8 +643,12 @@ def add_program():
             flash("Program Name already exists.", "error")
             return redirect(url_for("admin.programs_page"))
 
-    programs.append({"name": name, "code": code})
-    save_programs(programs)
+    try:
+        create_program_db(code, name)
+    except ValueError as e:
+        flash(str(e), "error")
+        return redirect(url_for("admin.programs_page"))
+
     flash(f"Program '{name}' ({code}) added successfully.", "success")
     return redirect(url_for("admin.programs_page"))
 
@@ -685,23 +714,15 @@ def edit_program():
             )
             return redirect(url_for("admin.programs_page"))
 
-        # Controlled update for students
-        users = load_users()
-        for u, rec in users.items():
-            if isinstance(rec, dict) and rec.get("user_type") == "UNIVERSITY" and str(rec.get("program_code") or "").strip().upper() == old_code:
-                rec["program_code"] = new_code
-                rec["program_name"] = new_name
-                adm_yr = str(rec.get("admission_year") or "24")[-2:]
-                roll = str(rec.get("roll_number") or "001")
-                univ = str(rec.get("university_code") or "BWU")
-                rec["student_code"] = f"{univ}/{new_code}/{adm_yr}/{roll}"
-        save_users(users)
+    try:
+        res = update_program_db(old_code, new_code, new_name, update_students=confirm_update_students)
+        updated_students_count = res.get("students_updated", 0)
+    except ValueError as e:
+        flash(str(e), "error")
+        return redirect(url_for("admin.programs_page"))
 
-    programs[prog_idx] = {"name": new_name, "code": new_code}
-    save_programs(programs)
-
-    if new_code != old_code and student_count > 0:
-        flash(f"Program updated to '{new_name}' ({new_code}) and {student_count} student record(s) updated.", "success")
+    if new_code != old_code and updated_students_count > 0:
+        flash(f"Program updated to '{new_name}' ({new_code}) and {updated_students_count} student record(s) updated.", "success")
     else:
         flash(f"Program '{new_name}' ({new_code}) updated successfully.", "success")
 
@@ -728,15 +749,11 @@ def delete_program(code):
         flash(f"Program with code '{c}' not found.", "error")
         return redirect(url_for("admin.programs_page"))
 
-    # Requirement 13: "If a Program is currently assigned to students: Do NOT blindly delete it. Show: 'This program is currently assigned to students and cannot be deleted.'"
-    students_count = count_students_in_program(c)
-    if students_count > 0:
-        flash("This program is currently assigned to students and cannot be deleted.", "error")
-        return redirect(url_for("admin.programs_page"))
-
-    programs = [p for p in programs if str(p.get("code") or "").strip().upper() != c]
-    save_programs(programs)
-    flash(f"Program '{prog_to_delete.get('name')}' ({c}) deleted successfully.", "success")
+    try:
+        delete_program_db(c)
+        flash(f"Program '{prog_to_delete.get('name')}' ({c}) deleted successfully.", "success")
+    except ValueError as e:
+        flash(str(e), "error")
     return redirect(url_for("admin.programs_page"))
 
 
@@ -777,8 +794,8 @@ def reset_student_password():
         flash("Student not found!", "error")
         return redirect(url_for("admin.students_page"))
 
-    users[target_key]["pw_hash"] = generate_password_hash(new_password)
-    save_users(users)
+    pw_h = generate_password_hash(new_password)
+    update_user_db(target_key, {"pw_hash": pw_h, "password": pw_h})
     disp_name = users[target_key].get("name") or users[target_key].get("username") or identifier
     flash(f"Password for student '{disp_name}' updated successfully!", "success")
     return redirect(url_for("admin.students_page"))
@@ -790,29 +807,8 @@ def delete_student(username):
     if not session.get("admin"):
         return redirect(url_for("admin.admin_login"))
 
-    users = load_users()
-    deleted = False
-    deleted_name = username
-
-    if username in users:
-        deleted_name = users[username].get("name") or users[username].get("username") or username
-        del users[username]
-        deleted = True
-    else:
-        target_key = None
-        for k, v in users.items():
-            if isinstance(v, dict):
-                if v.get("id") == username or (v.get("email") and v.get("email").lower() == username.lower()) or v.get("student_code") == username or v.get("username") == username:
-                    target_key = k
-                    deleted_name = v.get("name") or v.get("username") or username
-                    break
-        if target_key:
-            del users[target_key]
-            deleted = True
-
-    if deleted:
-        save_users(users)
-        flash(f"Student '{deleted_name}' deleted successfully!", "success")
+    if delete_user_db(username):
+        flash(f"Student '{username}' deleted successfully!", "success")
     else:
         flash("Student not found!", "error")
     return redirect(url_for("admin.students_page"))
@@ -982,8 +978,7 @@ def add_question():
             "source": "MANUAL",
         }
 
-    questions.append(new_q)
-    save_json("questions.json", questions)
+    create_question_db(new_q)
     flash("Question added successfully!", "success")
     return redirect(url_for("admin.add_question_page"))
 
@@ -995,9 +990,11 @@ def delete_question(index):
 
     questions = load_questions()
     if 0 <= index < len(questions):
-        questions.pop(index)
-        save_json("questions.json", questions)
-        flash("Question deleted!", "success")
+        qid = questions[index].get("id")
+        if qid and delete_question_db(qid):
+            flash("Question deleted!", "success")
+        else:
+            flash("Failed to delete question!", "error")
     else:
         flash("Invalid question index!", "error")
 
@@ -1012,16 +1009,18 @@ def edit_question(index):
     questions = load_questions()
 
     if 0 <= index < len(questions):
-        questions[index]["level"] = request.form.get("level")
+        qid = questions[index].get("id")
+        updates = {"level": request.form.get("level")}
 
         if questions[index].get("type") == "DESCRIPTIVE":
             try:
-                questions[index]["max_marks"] = int(request.form.get("max_marks", 5))
+                updates["max_marks"] = int(request.form.get("max_marks", 5))
             except Exception:
-                questions[index]["max_marks"] = 5
+                updates["max_marks"] = 5
 
-        save_json("questions.json", questions)
-        flash("Updated!", "success")
+        if qid:
+            update_question_db(qid, updates)
+            flash("Updated!", "success")
 
     return redirect(url_for("admin.all_questions"))
 
@@ -1038,14 +1037,16 @@ def delete_selected():
         return redirect(url_for("admin.all_questions"))
 
     questions = load_questions()
-    selected = sorted([int(i) for i in selected], reverse=True)
-
-    for index in selected:
+    selected_indices = sorted([int(i) for i in selected if str(i).isdigit()])
+    qids_to_delete = []
+    for index in selected_indices:
         if 0 <= index < len(questions):
-            questions.pop(index)
+            qid = questions[index].get("id")
+            if qid:
+                qids_to_delete.append(qid)
 
-    save_json("questions.json", questions)
-    flash(f"{len(selected)} question(s) deleted successfully!", "success")
+    deleted_count = delete_questions_bulk_db(qids_to_delete)
+    flash(f"{deleted_count} question(s) deleted successfully!", "success")
     return redirect(url_for("admin.all_questions"))
 
 
@@ -1997,16 +1998,13 @@ def api_save_generated():
         return jsonify({"success": False, "error": "No valid questions were processed."}), 400
 
     print(f"[api_save_generated] Saving {len(validated_questions)} questions")
-    # Append to existing questions
-    existing_questions = load_questions()
-    existing_questions.extend(validated_questions)
-    save_json("questions.json", existing_questions)
-    print(f"[api_save_generated] {len(validated_questions)} questions saved successfully")
+    saved_count = create_questions_bulk_db(validated_questions)
+    print(f"[api_save_generated] {saved_count} questions saved successfully")
 
     return jsonify({
         "success": True,
-        "saved_count": len(validated_questions),
-        "message": f"{len(validated_questions)} questions saved successfully."
+        "saved_count": saved_count,
+        "message": f"{saved_count} questions saved successfully."
     })
 
 
@@ -2218,9 +2216,7 @@ def create_course_exam():
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
-    exams = load_course_exams()
-    exams.append(new_exam)
-    save_course_exams(exams)
+    create_course_exam_db(new_exam)
     session.pop("draft_course_exam", None)
 
     matching_qs = get_matching_questions(
@@ -2350,7 +2346,7 @@ def edit_course_exam(exam_id):
         except Exception:
             pass
 
-    save_course_exams(exams)
+    update_course_exam_db(exam_id, exam)
     session.pop("draft_course_exam", None)
     flash(f"Course Examination '{title}' updated successfully!", "success")
     return redirect(url_for("admin.course_exams_manage"))
@@ -2361,26 +2357,23 @@ def publish_course_exam(exam_id):
     if not session.get("admin"):
         return redirect(url_for("admin.admin_login"))
 
-    exams = load_course_exams()
-    for e in exams:
-        if str(e.get("id")) == str(exam_id):
-            e["status"] = "Published"
-            save_course_exams(exams)
-            matching_qs = get_matching_questions(
-                course_code=e.get("course_code"),
-                subject=e.get("subject"),
-                qtype=e.get("exam_type", "ALL"),
-                difficulty=e.get("difficulty", "ALL"),
-                program_code=e.get("program_code"),
-                admission_year=e.get("admission_year"),
-                academic_year=e.get("academic_year")
-            )
-            req_q = int(e.get("num_questions") or 10)
-            if len(matching_qs) < req_q:
-                flash(f"Exam '{e.get('title')}' is now Published! Warning: Only {len(matching_qs)} matching questions are available for this exam (required: {req_q}).", "warning")
-            else:
-                flash(f"Exam '{e.get('title')}' is now Published! ({len(matching_qs)} matching questions ready)", "success")
-            break
+    exam = get_course_exam_by_id(exam_id)
+    if exam:
+        update_course_exam_status_db(exam_id, "Published")
+        matching_qs = get_matching_questions(
+            course_code=exam.get("course_code"),
+            subject=exam.get("subject"),
+            qtype=exam.get("exam_type", "ALL"),
+            difficulty=exam.get("difficulty", "ALL"),
+            program_code=exam.get("program_code"),
+            admission_year=exam.get("admission_year"),
+            academic_year=exam.get("academic_year")
+        )
+        req_q = int(exam.get("num_questions") or 10)
+        if len(matching_qs) < req_q:
+            flash(f"Exam '{exam.get('title')}' is now Published! Warning: Only {len(matching_qs)} matching questions are available for this exam (required: {req_q}).", "warning")
+        else:
+            flash(f"Exam '{exam.get('title')}' is now Published! ({len(matching_qs)} matching questions ready)", "success")
     else:
         flash("Examination not found!", "error")
 
@@ -2392,13 +2385,10 @@ def unpublish_course_exam(exam_id):
     if not session.get("admin"):
         return redirect(url_for("admin.admin_login"))
 
-    exams = load_course_exams()
-    for e in exams:
-        if str(e.get("id")) == str(exam_id):
-            e["status"] = "Draft"
-            save_course_exams(exams)
-            flash(f"Exam '{e.get('title')}' moved to Draft (Unpublished).", "info")
-            break
+    exam = get_course_exam_by_id(exam_id)
+    if exam:
+        update_course_exam_status_db(exam_id, "Draft")
+        flash(f"Exam '{exam.get('title')}' moved to Draft (Unpublished).", "info")
     else:
         flash("Examination not found!", "error")
 
@@ -2410,13 +2400,10 @@ def close_course_exam(exam_id):
     if not session.get("admin"):
         return redirect(url_for("admin.admin_login"))
 
-    exams = load_course_exams()
-    for e in exams:
-        if str(e.get("id")) == str(exam_id):
-            e["status"] = "Closed"
-            save_course_exams(exams)
-            flash(f"Exam '{e.get('title')}' is now Closed.", "info")
-            break
+    exam = get_course_exam_by_id(exam_id)
+    if exam:
+        update_course_exam_status_db(exam_id, "Closed")
+        flash(f"Exam '{exam.get('title')}' is now Closed.", "info")
     else:
         flash("Examination not found!", "error")
 
@@ -2428,10 +2415,7 @@ def delete_course_exam(exam_id):
     if not session.get("admin"):
         return redirect(url_for("admin.admin_login"))
 
-    exams = load_course_exams()
-    filtered = [e for e in exams if str(e.get("id")) != str(exam_id)]
-    if len(filtered) < len(exams):
-        save_course_exams(filtered)
+    if delete_course_exam_db(exam_id):
         flash("Examination deleted successfully!", "success")
     else:
         flash("Examination not found!", "error")
@@ -2577,15 +2561,7 @@ def save_course_exam_selection(exam_id):
             session["draft_course_exam"]["question_ids"] = unique_qids
         session["auto_open_exam"] = "new"
     else:
-        exams = load_course_exams()
-        found = False
-        for e in exams:
-            if str(e.get("id")) == str(exam_id):
-                e["question_ids"] = unique_qids
-                found = True
-                break
-        if found:
-            save_course_exams(exams)
+        set_course_exam_questions_db(exam_id, unique_qids)
         if "draft_course_exam" in session and str(session["draft_course_exam"].get("exam_id")) == str(exam_id):
             session["draft_course_exam"]["question_ids"] = unique_qids
         session["auto_open_exam"] = exam_id
@@ -2697,9 +2673,7 @@ def add_manual_course_exam_question():
             "source": "MANUAL"
         }
 
-    # Prepend new question and save
-    questions.insert(0, q_obj)
-    save_json("questions.json", questions)
+    create_question_db(q_obj)
 
     return jsonify({
         "success": True,

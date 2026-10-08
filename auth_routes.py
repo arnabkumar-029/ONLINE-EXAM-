@@ -4,7 +4,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from utils import (
     is_valid_username, password_has_spaces, load_users, save_users,
     parse_student_code, is_student_code_taken, is_email_taken, get_program_name, calculate_academic_year,
-    get_student_identity_from_session_or_db, find_university_student_by_credentials, find_user_by_email
+    get_student_identity_from_session_or_db, find_university_student_by_credentials, find_user_by_email,
+    create_user_db
 )
 import random, time, os, uuid
 import sys
@@ -56,16 +57,19 @@ def signup():
         return redirect(url_for('auth.auth_page') + "#register")
 
     internal_id = f"user_{uuid.uuid4().hex[:10]}"
-    users = load_users()
-    users[internal_id] = {
-        "id": internal_id,
-        "username": name,
-        "name": name,
-        "email": email,
-        "pw_hash": generate_password_hash(password_raw),
-        "user_type": "EXTERNAL"
-    }
-    save_users(users)
+    try:
+        create_user_db({
+            "id": internal_id,
+            "username": name,
+            "name": name,
+            "email": email,
+            "pw_hash": generate_password_hash(password_raw),
+            "user_type": "EXTERNAL"
+        })
+    except ValueError as e:
+        flash(str(e), "error")
+        return redirect(url_for('auth.auth_page') + "#register")
+
     flash("Practice account created successfully! Please login.", "success")
     return redirect(url_for('auth.auth_page') + "#practice")
 

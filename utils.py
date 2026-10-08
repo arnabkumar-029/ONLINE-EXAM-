@@ -99,7 +99,24 @@ def load_programs() -> List[Dict[str, str]]:
         return list(DEFAULT_PROGRAMS)
 
 def save_programs(programs: List[Dict[str, str]]) -> None:
-    """Saves program definitions to programs.json."""
+    """Saves program definitions to PostgreSQL (if configured) or programs.json."""
+    if is_database_configured():
+        with get_db_session() as session:
+            existing = {p.code.upper(): p for p in session.query(Program).all()}
+            for item in programs:
+                c = str(item.get("code") or "").strip().upper()
+                n = str(item.get("name") or "").strip()
+                if not c or not n:
+                    continue
+                if c in existing:
+                    existing[c].name = n
+                else:
+                    new_prog = Program(code=c, name=n)
+                    session.add(new_prog)
+                    existing[c] = new_prog
+            session.commit()
+        return
+
     with open(PROGRAMS_FILE, "w", encoding="utf-8") as f:
         json.dump(programs, f, indent=2, ensure_ascii=False)
 
@@ -533,12 +550,94 @@ def load_json(file):
         return [] if file == QUESTIONS_FILE else {}
 
 def save_json(file, data):
+    """
+    Saves JSON data. If database is configured and file corresponds to a database table,
+    writes to PostgreSQL without modifying pristine JSON files on disk.
+    """
+    if is_database_configured():
+        basename = os.path.basename(file)
+        if basename == QUESTIONS_FILE or basename == "questions.json":
+            if isinstance(data, list):
+                with get_db_session() as session:
+                    existing_qs = {q.id: q for q in session.query(Question).all()}
+                    seen_ids = set()
+                    for raw in data:
+                        fixed = _migrate_one_question(raw)
+                        if not fixed:
+                            continue
+                        qid = fixed["id"]
+                        seen_ids.add(qid)
+                        if qid in existing_qs:
+                            q = existing_qs[qid]
+                            q.course_code = fixed["course_code"]
+                            q.course_name = fixed["course_name"]
+                            q.subject = fixed["subject"]
+                            q.program_code = fixed.get("program_code") or "ALL"
+                            q.program_name = fixed.get("program_name") or ""
+                            q.admission_year = str(fixed.get("admission_year") or "ALL")
+                            q.academic_year = str(fixed.get("academic_year") or "ALL")
+                            q.unit = fixed.get("unit") or ""
+                            q.topic = fixed.get("topic") or ""
+                            q.type = fixed.get("type", "MCQ")
+                            q.level = fixed.get("level", "Easy")
+                            q.question_text = fixed.get("question") or fixed.get("q") or ""
+                            q.options = fixed.get("options") if fixed.get("type") == "MCQ" else None
+                            q.correct = fixed.get("correct") if fixed.get("type") == "MCQ" else None
+                            q.answer_key = fixed.get("answer_key") if fixed.get("type") == "DESCRIPTIVE" else None
+                            q.max_marks = float(fixed.get("max_marks", 5.0))
+                            q.source = fixed.get("source", "MANUAL")
+                        else:
+                            new_q = Question(
+                                id=qid,
+                                course_code=fixed["course_code"],
+                                course_name=fixed["course_name"],
+                                subject=fixed["subject"],
+                                program_code=fixed.get("program_code") or "ALL",
+                                program_name=fixed.get("program_name") or "",
+                                admission_year=str(fixed.get("admission_year") or "ALL"),
+                                academic_year=str(fixed.get("academic_year") or "ALL"),
+                                unit=fixed.get("unit") or "",
+                                topic=fixed.get("topic") or "",
+                                type=fixed.get("type", "MCQ"),
+                                level=fixed.get("level", "Easy"),
+                                question_text=fixed.get("question") or fixed.get("q") or "",
+                                options=fixed.get("options") if fixed.get("type") == "MCQ" else None,
+                                correct=fixed.get("correct") if fixed.get("type") == "MCQ" else None,
+                                answer_key=fixed.get("answer_key") if fixed.get("type") == "DESCRIPTIVE" else None,
+                                max_marks=float(fixed.get("max_marks", 5.0)),
+                                source=fixed.get("source", "MANUAL")
+                            )
+                            session.add(new_q)
+                            existing_qs[qid] = new_q
+
+                    to_delete = [qid for qid in existing_qs if qid not in seen_ids]
+                    if to_delete:
+                        session.query(CourseExamQuestion).filter(CourseExamQuestion.question_id.in_(to_delete)).delete(synchronize_session=False)
+                        session.query(Question).filter(Question.id.in_(to_delete)).delete(synchronize_session=False)
+
+                    session.commit()
+                global _QUESTIONS_CACHE, _QUESTIONS_CACHE_ATIME
+                _QUESTIONS_CACHE = None
+                _QUESTIONS_CACHE_ATIME = time.time()
+            return
+        elif basename == USERS_FILE or basename == "users.json":
+            save_users(data)
+            return
+        elif basename == COURSE_EXAMS_FILE or basename == "course_exams.json":
+            save_course_exams(data)
+            return
+        elif basename == RESULTS_FILE or basename == "results.json":
+            save_results(data)
+            return
+        elif basename == "programs.json":
+            save_programs(data)
+            return
+
     with open(file, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 
     # Refresh cached questions whenever questions.json is updated
-    if file == QUESTIONS_FILE:
-        global _QUESTIONS_CACHE, _QUESTIONS_CACHE_ATIME
+    if file == QUESTIONS_FILE or file == "questions.json":
         _QUESTIONS_CACHE = data
         _QUESTIONS_CACHE_ATIME = time.time()
 # ---- Public simple helpers ----
@@ -592,7 +691,77 @@ def load_users() -> Dict[str, Dict[str, Any]]:
         normalized[u] = normalize_user_record(u, data)
     return normalized
 
-def save_users(x): save_json(USERS_FILE, x)
+def save_users(users: Dict[str, Dict[str, Any]]):
+    """Saves user records to PostgreSQL (if configured) or users.json."""
+    if is_database_configured():
+        with get_db_session() as session:
+            existing = {u.id: u for u in session.query(User).all()}
+            for k, udata in users.items():
+                if not isinstance(udata, dict):
+                    continue
+                uid = str(udata.get("id") or k)
+                username = str(udata.get("username") or udata.get("name") or uid).strip()
+                name = str(udata.get("name") or username).strip()
+                email = str(udata.get("email") or f"{uid.lower()}@examforge.local").strip().lower()
+                pw_h = str(udata.get("pw_hash") or udata.get("password") or "")
+                utype = str(udata.get("user_type") or "EXTERNAL").strip().upper()
+                scode = str(udata.get("student_code") or "").strip().upper() or None
+                ucode = str(udata.get("university_code") or "").strip().upper() or None
+                pcode = str(udata.get("program_code") or "").strip().upper() or None
+                pname = udata.get("program_name") or (get_program_name(pcode) if pcode else None)
+                dname = str(udata.get("department_name") or "").strip() or None
+                adm_yr = udata.get("admission_year")
+                adm_yr_int = int(adm_yr) if adm_yr not in (None, "") and str(adm_yr).isdigit() else None
+                acad_yr = str(udata.get("academic_year") or "").strip() or None
+                roll = str(udata.get("roll_number") or "").strip() or None
+                is_admin = bool(udata.get("is_admin", False))
+
+                if pcode:
+                    if not session.query(Program).filter(func.upper(Program.code) == pcode).first():
+                        session.add(Program(code=pcode, name=pname or pcode))
+                        session.flush()
+
+                if uid in existing:
+                    u = existing[uid]
+                    u.username = username
+                    u.name = name
+                    u.email = email
+                    u.pw_hash = pw_h
+                    u.user_type = utype
+                    u.student_code = scode
+                    u.university_code = ucode
+                    u.program_code = pcode
+                    u.program_name = pname
+                    u.department_name = dname
+                    u.admission_year = adm_yr_int
+                    u.academic_year = acad_yr
+                    u.roll_number = roll
+                    u.is_admin = is_admin
+                else:
+                    u = User(
+                        id=uid,
+                        username=username,
+                        name=name,
+                        email=email,
+                        pw_hash=pw_h,
+                        user_type=utype,
+                        student_code=scode,
+                        university_code=ucode,
+                        program_code=pcode,
+                        program_name=pname,
+                        department_name=dname,
+                        admission_year=adm_yr_int,
+                        academic_year=acad_yr,
+                        roll_number=roll,
+                        is_admin=is_admin
+                    )
+                    session.add(u)
+                    existing[uid] = u
+            session.commit()
+        return
+
+    with open(USERS_FILE, "w", encoding="utf-8") as f:
+        json.dump(users, f, indent=2, ensure_ascii=False)
 
 def load_results():
     if is_database_configured():
@@ -608,7 +777,17 @@ def load_results():
 
     return load_json(RESULTS_FILE)
 
-def save_results(x): save_json(RESULTS_FILE, x)
+def save_results(results: Dict[str, Any]):
+    """Saves results dictionary to PostgreSQL (if configured) or results.json."""
+    if is_database_configured():
+        for ukey, udata in results.items():
+            if isinstance(udata, dict) and "history" in udata:
+                for entry in udata["history"]:
+                    create_exam_result_db({**entry, "user_key": ukey, "user_id": ukey})
+        return
+
+    with open(RESULTS_FILE, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2, ensure_ascii=False)
 
 def find_user_by_email(email: str):
     """Returns (username, user_record) matching the given email (case-insensitive), or None."""
@@ -731,8 +910,18 @@ def load_course_exams() -> List[Dict[str, Any]]:
     return []
 
 def save_course_exams(exams: List[Dict[str, Any]]):
-    """Save course examinations list to course_exams.json."""
-    save_json(COURSE_EXAMS_FILE, exams)
+    """Save course examinations list to PostgreSQL (if configured) or course_exams.json."""
+    if is_database_configured():
+        for e in exams:
+            eid = str(e.get("id") or "")
+            if eid and get_course_exam_by_id(eid):
+                update_course_exam_db(eid, e)
+            else:
+                create_course_exam_db(e)
+        return
+
+    with open(COURSE_EXAMS_FILE, "w", encoding="utf-8") as f:
+        json.dump(exams, f, indent=2, ensure_ascii=False)
 
 def get_course_exam_by_id(exam_id: str) -> Dict[str, Any] | None:
     """Retrieve a single course exam by unique ID."""
@@ -1472,5 +1661,898 @@ def get_student_exam_result(username: str, exam: Dict[str, Any]) -> Optional[Dic
     return None
 
 
+# ==============================================================
+#  POSTGRESQL WRITE ADAPTER LAYER (TASK 8B)
+# ==============================================================
+
+def create_user_db(user_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Creates a new user account in PostgreSQL (if configured) or users.json.
+    Enforces uniqueness of email and student_code.
+    """
+    uid = str(user_data.get("id") or f"user_{uuid.uuid4().hex[:10]}")
+    username = str(user_data.get("username") or user_data.get("name") or uid).strip()
+    name = str(user_data.get("name") or username).strip()
+    email = str(user_data.get("email") or "").strip().lower()
+    pw_h = str(user_data.get("pw_hash") or user_data.get("password") or "")
+    user_type = str(user_data.get("user_type") or "EXTERNAL").strip().upper()
+
+    student_code = str(user_data.get("student_code") or "").strip().upper() or None
+    univ_code = str(user_data.get("university_code") or "").strip().upper() or None
+    prog_code = str(user_data.get("program_code") or "").strip().upper() or None
+    prog_name = user_data.get("program_name") or (get_program_name(prog_code) if prog_code else None)
+    dept_name = str(user_data.get("department_name") or "").strip() or None
+
+    adm_yr = user_data.get("admission_year")
+    admission_year = int(adm_yr) if adm_yr not in (None, "") and str(adm_yr).isdigit() else None
+    academic_year = str(user_data.get("academic_year") or "").strip() or None
+    roll_number = str(user_data.get("roll_number") or "").strip() or None
+    is_admin = bool(user_data.get("is_admin", False))
+
+    if is_database_configured():
+        with get_db_session() as session:
+            if email:
+                existing_email = session.query(User).filter(func.lower(User.email) == email).first()
+                if existing_email:
+                    raise ValueError("Email already exists.")
+
+            if student_code:
+                existing_sc = session.query(User).filter(func.upper(User.student_code) == student_code).first()
+                if existing_sc:
+                    raise ValueError("Student Code already exists.")
+
+            if prog_code:
+                existing_p = session.query(Program).filter(func.upper(Program.code) == prog_code).first()
+                if not existing_p:
+                    session.add(Program(code=prog_code, name=prog_name or prog_code))
+                    session.flush()
+
+            user = User(
+                id=uid,
+                username=username,
+                name=name,
+                email=email,
+                pw_hash=pw_h,
+                user_type=user_type,
+                student_code=student_code,
+                university_code=univ_code,
+                program_code=prog_code,
+                program_name=prog_name,
+                department_name=dept_name,
+                admission_year=admission_year,
+                academic_year=academic_year,
+                roll_number=roll_number,
+                is_admin=is_admin
+            )
+            session.add(user)
+            session.commit()
+            return user.to_dict()
+
+    users = load_users()
+    rec = normalize_user_record(uid, user_data)
+    users[uid] = rec
+    save_users(users)
+    return rec
 
 
+def update_user_db(user_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    Updates an existing user in PostgreSQL (if configured) or users.json.
+    """
+    target = str(user_id).strip()
+    if is_database_configured():
+        with get_db_session() as session:
+            user = session.query(User).filter(
+                (User.id == target) |
+                (func.lower(User.username) == target.lower()) |
+                (func.lower(User.email) == target.lower())
+            ).first()
+            if not user:
+                return None
+
+            if "email" in updates:
+                new_email = str(updates["email"]).strip().lower()
+                if new_email and new_email != (user.email or "").lower():
+                    dup = session.query(User).filter(func.lower(User.email) == new_email, User.id != user.id).first()
+                    if dup:
+                        raise ValueError("Email already exists.")
+                    user.email = new_email
+
+            if "student_code" in updates:
+                new_sc = str(updates["student_code"] or "").strip().upper() or None
+                if new_sc and new_sc != (user.student_code or "").upper():
+                    dup = session.query(User).filter(func.upper(User.student_code) == new_sc, User.id != user.id).first()
+                    if dup:
+                        raise ValueError("Student Code already exists.")
+                    user.student_code = new_sc
+                elif updates["student_code"] is None:
+                    user.student_code = None
+
+            if "name" in updates or "username" in updates:
+                name_val = str(updates.get("name") or updates.get("username") or user.name).strip()
+                user.name = name_val
+                user.username = name_val
+
+            if "pw_hash" in updates or "password" in updates:
+                pw_val = str(updates.get("pw_hash") or updates.get("password") or user.pw_hash)
+                user.pw_hash = pw_val
+
+            if "user_type" in updates:
+                user.user_type = str(updates["user_type"]).strip().upper()
+
+            if "university_code" in updates:
+                user.university_code = str(updates["university_code"] or "").strip().upper() or None
+
+            if "program_code" in updates:
+                p_c = str(updates["program_code"] or "").strip().upper() or None
+                if p_c:
+                    existing_p = session.query(Program).filter(func.upper(Program.code) == p_c).first()
+                    if not existing_p:
+                        session.add(Program(code=p_c, name=updates.get("program_name") or get_program_name(p_c)))
+                        session.flush()
+                user.program_code = p_c
+                if p_c and "program_name" not in updates:
+                    user.program_name = get_program_name(p_c)
+
+            if "program_name" in updates:
+                user.program_name = updates["program_name"]
+
+            if "department_name" in updates:
+                user.department_name = str(updates["department_name"] or "").strip() or None
+
+            if "admission_year" in updates:
+                adm_yr = updates["admission_year"]
+                user.admission_year = int(adm_yr) if adm_yr not in (None, "") and str(adm_yr).isdigit() else None
+
+            if "academic_year" in updates:
+                user.academic_year = str(updates["academic_year"] or "").strip() or None
+
+            if "roll_number" in updates:
+                user.roll_number = str(updates["roll_number"] or "").strip() or None
+
+            if "is_admin" in updates:
+                user.is_admin = bool(updates["is_admin"])
+
+            session.commit()
+            return user.to_dict()
+
+    users = load_users()
+    target_key = None
+    for k, v in users.items():
+        if k == user_id or str(v.get("id")) == user_id or str(v.get("username")).lower() == user_id.lower():
+            target_key = k
+            break
+    if not target_key:
+        return None
+    users[target_key].update(updates)
+    save_users(users)
+    return users[target_key]
+
+
+def delete_user_db(user_id: str) -> bool:
+    """
+    Deletes user by ID in PostgreSQL (if configured) or users.json.
+    """
+    target = str(user_id).strip()
+    if is_database_configured():
+        with get_db_session() as session:
+            user = session.query(User).filter(
+                (User.id == target) |
+                (func.lower(User.username) == target.lower()) |
+                (func.lower(User.email) == target.lower()) |
+                (func.upper(User.student_code) == target.upper())
+            ).first()
+            if not user:
+                return False
+            session.delete(user)
+            session.commit()
+            return True
+
+    users = load_users()
+    target_key = None
+    for k, v in users.items():
+        if k == user_id or str(v.get("id")) == user_id or str(v.get("username")).lower() == user_id.lower() or str(v.get("email")).lower() == user_id.lower():
+            target_key = k
+            break
+    if target_key:
+        del users[target_key]
+        save_users(users)
+        return True
+    return False
+
+
+def create_program_db(code: str, name: str) -> Dict[str, str]:
+    """
+    Creates an academic program in PostgreSQL (if configured) or programs.json.
+    """
+    c = str(code).strip().upper()
+    n = str(name).strip()
+    if not c or not n:
+        raise ValueError("Program code and name are required.")
+
+    if is_database_configured():
+        with get_db_session() as session:
+            if session.query(Program).filter(func.upper(Program.code) == c).first():
+                raise ValueError("Program Code already exists.")
+            if session.query(Program).filter(func.lower(Program.name) == n.lower()).first():
+                raise ValueError("Program Name already exists.")
+            prog = Program(code=c, name=n)
+            session.add(prog)
+            session.commit()
+            return prog.to_dict()
+
+    programs = load_programs()
+    for p in programs:
+        if str(p.get("code") or "").strip().upper() == c:
+            raise ValueError("Program Code already exists.")
+        if str(p.get("name") or "").strip().lower() == n.lower():
+            raise ValueError("Program Name already exists.")
+    programs.append({"name": n, "code": c})
+    save_programs(programs)
+    return {"name": n, "code": c}
+
+
+def update_program_db(old_code: str, new_code: str, new_name: str, update_students: bool = False) -> Dict[str, Any]:
+    """
+    Updates an academic program in PostgreSQL (if configured) or programs.json.
+    """
+    old_c = str(old_code).strip().upper()
+    new_c = str(new_code).strip().upper()
+    n = str(new_name).strip()
+    if not old_c or not new_c or not n:
+        raise ValueError("Original code, new code, and new name are required.")
+
+    if is_database_configured():
+        with get_db_session() as session:
+            prog = session.query(Program).filter(func.upper(Program.code) == old_c).first()
+            if not prog:
+                raise ValueError(f"Program with code '{old_c}' not found.")
+
+            if new_c != old_c:
+                dup = session.query(Program).filter(func.upper(Program.code) == new_c, Program.id != prog.id).first()
+                if dup:
+                    raise ValueError("Program Code already exists.")
+
+            dup_n = session.query(Program).filter(func.lower(Program.name) == n.lower(), Program.id != prog.id).first()
+            if dup_n:
+                raise ValueError("Program Name already exists.")
+
+            student_count = session.query(User).filter(func.upper(User.program_code) == old_c).count()
+            if new_c != old_c and student_count > 0:
+                if not update_students:
+                    raise ValueError(f"Warning: {student_count} student(s) currently use '{old_c}'. Controlled update confirmation required.")
+                students = session.query(User).filter(func.upper(User.program_code) == old_c).all()
+                for s in students:
+                    s.program_code = new_c
+                    s.program_name = n
+                    adm_yr = str(s.admission_year or "24")[-2:]
+                    roll = str(s.roll_number or "001")
+                    univ = str(s.university_code or "BWU")
+                    s.student_code = f"{univ}/{new_c}/{adm_yr}/{roll}"
+
+            prog.code = new_c
+            prog.name = n
+            session.commit()
+            return {
+                "program": prog.to_dict(),
+                "students_updated": student_count if (new_c != old_c and update_students) else 0
+            }
+
+    programs = load_programs()
+    prog_idx = -1
+    for i, p in enumerate(programs):
+        if str(p.get("code") or "").strip().upper() == old_c:
+            prog_idx = i
+            break
+    if prog_idx == -1:
+        raise ValueError(f"Program with code '{old_c}' not found.")
+
+    if new_c != old_c:
+        for i, p in enumerate(programs):
+            if i != prog_idx and str(p.get("code") or "").strip().upper() == new_c:
+                raise ValueError("Program Code already exists.")
+    for i, p in enumerate(programs):
+        if i != prog_idx and str(p.get("name") or "").strip().lower() == n.lower():
+            raise ValueError("Program Name already exists.")
+
+    student_count = count_students_in_program(old_c)
+    if new_c != old_c and student_count > 0:
+        if not update_students:
+            raise ValueError(f"Warning: {student_count} student(s) currently use '{old_c}'.")
+        users = load_users()
+        for u, rec in users.items():
+            if isinstance(rec, dict) and rec.get("user_type") == "UNIVERSITY" and str(rec.get("program_code") or "").strip().upper() == old_c:
+                rec["program_code"] = new_code
+                rec["program_name"] = new_name
+                adm_yr = str(rec.get("admission_year") or "24")[-2:]
+                roll = str(rec.get("roll_number") or "001")
+                univ = str(rec.get("university_code") or "BWU")
+                rec["student_code"] = f"{univ}/{new_code}/{adm_yr}/{roll}"
+        save_users(users)
+
+    programs[prog_idx] = {"name": n, "code": new_c}
+    save_programs(programs)
+    return {
+        "program": {"name": n, "code": new_c},
+        "students_updated": student_count if (new_c != old_c and update_students) else 0
+    }
+
+
+def delete_program_db(code: str) -> bool:
+    """
+    Deletes an academic program if no students are assigned.
+    """
+    c = str(code).strip().upper()
+    if not c:
+        return False
+
+    if is_database_configured():
+        with get_db_session() as session:
+            prog = session.query(Program).filter(func.upper(Program.code) == c).first()
+            if not prog:
+                return False
+            enrolled = session.query(User).filter(func.upper(User.program_code) == c).count()
+            if enrolled > 0:
+                raise ValueError("This program is currently assigned to students and cannot be deleted.")
+            session.delete(prog)
+            session.commit()
+            return True
+
+    programs = load_programs()
+    prog_to_delete = None
+    for p in programs:
+        if str(p.get("code") or "").strip().upper() == c:
+            prog_to_delete = p
+            break
+    if not prog_to_delete:
+        return False
+
+    if count_students_in_program(c) > 0:
+        raise ValueError("This program is currently assigned to students and cannot be deleted.")
+
+    programs = [p for p in programs if str(p.get("code") or "").strip().upper() != c]
+    save_programs(programs)
+    return True
+
+
+def create_question_db(q_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Creates a single question in PostgreSQL (if configured) or questions.json.
+    """
+    fixed = _migrate_one_question(q_data)
+    if not fixed:
+        raise ValueError("Invalid question data.")
+
+    if is_database_configured():
+        with get_db_session() as session:
+            qid = str(fixed.get("id") or f"Q-{uuid.uuid4().hex[:8].upper()}")
+            if session.query(Question).filter(Question.id == qid).first():
+                qid = f"Q-{uuid.uuid4().hex[:8].upper()}"
+                fixed["id"] = qid
+
+            q = Question(
+                id=qid,
+                course_code=fixed["course_code"],
+                course_name=fixed["course_name"],
+                subject=fixed["subject"],
+                program_code=fixed.get("program_code") or "ALL",
+                program_name=fixed.get("program_name") or "",
+                admission_year=str(fixed.get("admission_year") or "ALL"),
+                academic_year=str(fixed.get("academic_year") or "ALL"),
+                unit=fixed.get("unit") or "",
+                topic=fixed.get("topic") or "",
+                type=fixed.get("type", "MCQ"),
+                level=fixed.get("level", "Easy"),
+                question_text=fixed.get("question") or fixed.get("q") or "",
+                options=fixed.get("options") if fixed.get("type") == "MCQ" else None,
+                correct=fixed.get("correct") if fixed.get("type") == "MCQ" else None,
+                answer_key=fixed.get("answer_key") if fixed.get("type") == "DESCRIPTIVE" else None,
+                max_marks=float(fixed.get("max_marks", 5.0)),
+                source=fixed.get("source", "MANUAL")
+            )
+            session.add(q)
+            session.commit()
+            global _QUESTIONS_CACHE
+            _QUESTIONS_CACHE = None
+            return q.to_dict()
+
+    questions = load_questions()
+    questions.insert(0, fixed)
+    save_json(QUESTIONS_FILE, questions)
+    return fixed
+
+
+def create_questions_bulk_db(q_list: List[Dict[str, Any]]) -> int:
+    """
+    Bulk inserts questions into PostgreSQL (if configured) or questions.json.
+    """
+    migrated_list = []
+    for item in q_list:
+        fixed = _migrate_one_question(item)
+        if fixed:
+            migrated_list.append(fixed)
+
+    if not migrated_list:
+        return 0
+
+    if is_database_configured():
+        with get_db_session() as session:
+            existing_ids = {q.id for q in session.query(Question.id).all()}
+            count = 0
+            for fixed in migrated_list:
+                qid = str(fixed.get("id") or "")
+                if not qid or qid in existing_ids:
+                    qid = f"Q-{uuid.uuid4().hex[:8].upper()}"
+                    fixed["id"] = qid
+                existing_ids.add(qid)
+
+                q = Question(
+                    id=qid,
+                    course_code=fixed["course_code"],
+                    course_name=fixed["course_name"],
+                    subject=fixed["subject"],
+                    program_code=fixed.get("program_code") or "ALL",
+                    program_name=fixed.get("program_name") or "",
+                    admission_year=str(fixed.get("admission_year") or "ALL"),
+                    academic_year=str(fixed.get("academic_year") or "ALL"),
+                    unit=fixed.get("unit") or "",
+                    topic=fixed.get("topic") or "",
+                    type=fixed.get("type", "MCQ"),
+                    level=fixed.get("level", "Easy"),
+                    question_text=fixed.get("question") or fixed.get("q") or "",
+                    options=fixed.get("options") if fixed.get("type") == "MCQ" else None,
+                    correct=fixed.get("correct") if fixed.get("type") == "MCQ" else None,
+                    answer_key=fixed.get("answer_key") if fixed.get("type") == "DESCRIPTIVE" else None,
+                    max_marks=float(fixed.get("max_marks", 5.0)),
+                    source=fixed.get("source", "MANUAL")
+                )
+                session.add(q)
+                count += 1
+            session.commit()
+            global _QUESTIONS_CACHE
+            _QUESTIONS_CACHE = None
+            return count
+
+    questions = load_questions()
+    questions.extend(migrated_list)
+    save_json(QUESTIONS_FILE, questions)
+    return len(migrated_list)
+
+
+def update_question_db(question_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    Updates an existing question in PostgreSQL (if configured) or questions.json.
+    """
+    qid = str(question_id).strip()
+    if is_database_configured():
+        with get_db_session() as session:
+            q = session.query(Question).filter(Question.id == qid).first()
+            if not q:
+                return None
+
+            if "level" in updates:
+                q.level = updates["level"]
+            if "max_marks" in updates:
+                try:
+                    q.max_marks = float(updates["max_marks"])
+                except Exception:
+                    q.max_marks = 5.0
+            if "question" in updates or "q" in updates:
+                q.question_text = updates.get("question") or updates.get("q") or q.question_text
+            if "options" in updates:
+                q.options = updates["options"]
+            if "correct" in updates:
+                q.correct = updates["correct"]
+            if "answer_key" in updates:
+                q.answer_key = updates["answer_key"]
+            if "course_code" in updates:
+                q.course_code = updates["course_code"]
+            if "course_name" in updates:
+                q.course_name = updates["course_name"]
+            if "subject" in updates:
+                q.subject = updates["subject"]
+
+            session.commit()
+            global _QUESTIONS_CACHE
+            _QUESTIONS_CACHE = None
+            return q.to_dict()
+
+    questions = load_questions()
+    for q in questions:
+        if str(q.get("id")) == qid:
+            q.update(updates)
+            save_json(QUESTIONS_FILE, questions)
+            return q
+    return None
+
+
+def delete_question_db(question_id: str) -> bool:
+    """
+    Deletes a question by ID in PostgreSQL (if configured) or questions.json.
+    """
+    qid = str(question_id).strip()
+    if is_database_configured():
+        with get_db_session() as session:
+            q = session.query(Question).filter(Question.id == qid).first()
+            if not q:
+                return False
+            session.query(CourseExamQuestion).filter(CourseExamQuestion.question_id == qid).delete(synchronize_session=False)
+            session.delete(q)
+            session.commit()
+            global _QUESTIONS_CACHE
+            _QUESTIONS_CACHE = None
+            return True
+
+    questions = load_questions()
+    for i, q in enumerate(questions):
+        if str(q.get("id")) == qid:
+            questions.pop(i)
+            save_json(QUESTIONS_FILE, questions)
+            return True
+    return False
+
+
+def delete_questions_bulk_db(question_ids: List[str]) -> int:
+    """
+    Bulk deletes questions by IDs in PostgreSQL (if configured) or questions.json.
+    """
+    if not question_ids:
+        return 0
+    clean_ids = [str(qid).strip() for qid in question_ids if qid]
+    if not clean_ids:
+        return 0
+
+    if is_database_configured():
+        with get_db_session() as session:
+            session.query(CourseExamQuestion).filter(CourseExamQuestion.question_id.in_(clean_ids)).delete(synchronize_session=False)
+            count = session.query(Question).filter(Question.id.in_(clean_ids)).delete(synchronize_session=False)
+            session.commit()
+            global _QUESTIONS_CACHE
+            _QUESTIONS_CACHE = None
+            return count
+
+    questions = load_questions()
+    del_set = set(clean_ids)
+    remaining = [q for q in questions if str(q.get("id")) not in del_set]
+    count = len(questions) - len(remaining)
+    save_json(QUESTIONS_FILE, remaining)
+    return count
+
+
+def create_course_exam_db(exam_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Creates a new course exam in PostgreSQL (if configured) or course_exams.json.
+    """
+    eid = str(exam_data.get("id") or "").strip()
+    if not eid:
+        course_c = str(exam_data.get("course_code") or "EXAM").strip().upper()
+        eid = f"EXAM-{course_c}-{uuid.uuid4().hex[:6].upper()}"
+        exam_data["id"] = eid
+
+    if is_database_configured():
+        exam_date_val = None
+        raw_date = exam_data.get("exam_date")
+        if raw_date:
+            if isinstance(raw_date, str) and raw_date.strip():
+                try:
+                    exam_date_val = datetime.strptime(raw_date.strip(), "%Y-%m-%d").date()
+                except Exception:
+                    pass
+            elif hasattr(raw_date, "strftime"):
+                exam_date_val = raw_date
+
+        created_at_val = datetime.now()
+        raw_created = exam_data.get("created_at")
+        if raw_created and isinstance(raw_created, str):
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
+                try:
+                    created_at_val = datetime.strptime(raw_created.strip(), fmt)
+                    break
+                except Exception:
+                    pass
+
+        with get_db_session() as session:
+            exam = CourseExam(
+                id=eid,
+                title=str(exam_data.get("title") or "").strip(),
+                course_code=str(exam_data.get("course_code") or "").strip().upper(),
+                course_name=str(exam_data.get("course_name") or exam_data.get("course_code") or "").strip(),
+                subject=str(exam_data.get("subject") or "").strip(),
+                description=str(exam_data.get("description") or "").strip(),
+                exam_type=str(exam_data.get("exam_type") or "MCQ").strip(),
+                exam_date=exam_date_val,
+                start_time=str(exam_data.get("start_time") or "").strip(),
+                end_time=str(exam_data.get("end_time") or "").strip(),
+                duration=int(exam_data.get("duration") or 60),
+                num_questions=int(exam_data.get("num_questions") or 10),
+                difficulty=str(exam_data.get("difficulty") or "All").strip(),
+                status=str(exam_data.get("status") or "Draft").strip(),
+                target_mode=str(exam_data.get("target_mode") or "PROGRAM_BATCH_YEAR").strip().upper(),
+                program_code=str(exam_data.get("program_code") or "").strip().upper() or None,
+                program_name=exam_data.get("program_name") or (get_program_name(exam_data.get("program_code")) if exam_data.get("program_code") else None),
+                admission_year=str(exam_data.get("admission_year") or "").strip() or None,
+                academic_year=str(exam_data.get("academic_year") or "").strip() or None,
+                all_in_batch=bool(exam_data.get("all_in_batch", True)),
+                created_at=created_at_val,
+                updated_at=created_at_val
+            )
+            session.add(exam)
+            session.flush()
+
+            qids = exam_data.get("question_ids") or []
+            if isinstance(qids, list):
+                for sort_idx, qid in enumerate(dict.fromkeys(qids)):
+                    if session.query(Question).filter(Question.id == str(qid)).first():
+                        session.add(CourseExamQuestion(
+                            exam_id=exam.id,
+                            question_id=str(qid),
+                            sort_order=sort_idx
+                        ))
+
+            scodes = exam_data.get("student_codes") or []
+            if isinstance(scodes, list):
+                for sc in dict.fromkeys(scodes):
+                    if sc:
+                        session.add(CourseExamTargetedStudent(
+                            exam_id=exam.id,
+                            student_code=str(sc).strip().upper()
+                        ))
+
+            session.commit()
+            return exam.to_dict()
+
+    exams = load_course_exams()
+    exams.append(exam_data)
+    save_course_exams(exams)
+    return exam_data
+
+
+def update_course_exam_db(exam_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """
+    Updates a course exam in PostgreSQL (if configured) or course_exams.json.
+    """
+    eid = str(exam_id).strip()
+    if is_database_configured():
+        with get_db_session() as session:
+            exam = session.query(CourseExam).options(
+                selectinload(CourseExam.question_associations),
+                selectinload(CourseExam.targeted_students)
+            ).filter(CourseExam.id == eid).first()
+            if not exam:
+                return None
+
+            if "title" in updates: exam.title = updates["title"]
+            if "course_code" in updates: exam.course_code = updates["course_code"].strip().upper()
+            if "course_name" in updates: exam.course_name = updates["course_name"].strip()
+            if "subject" in updates: exam.subject = updates["subject"].strip()
+            if "description" in updates: exam.description = updates["description"].strip()
+            if "exam_type" in updates: exam.exam_type = updates["exam_type"].strip()
+            if "start_time" in updates: exam.start_time = updates["start_time"].strip()
+            if "end_time" in updates: exam.end_time = updates["end_time"].strip()
+            if "duration" in updates: exam.duration = int(updates["duration"])
+            if "num_questions" in updates: exam.num_questions = int(updates["num_questions"])
+            if "difficulty" in updates: exam.difficulty = updates["difficulty"].strip()
+            if "status" in updates: exam.status = updates["status"].strip()
+            if "target_mode" in updates: exam.target_mode = updates["target_mode"].strip().upper()
+            if "program_code" in updates:
+                exam.program_code = str(updates["program_code"] or "").strip().upper() or None
+                if exam.program_code and "program_name" not in updates:
+                    exam.program_name = get_program_name(exam.program_code)
+            if "program_name" in updates: exam.program_name = updates["program_name"]
+            if "admission_year" in updates:
+                exam.admission_year = str(updates["admission_year"] or "").strip() or None
+            if "academic_year" in updates:
+                exam.academic_year = str(updates["academic_year"] or "").strip() or None
+            if "all_in_batch" in updates: exam.all_in_batch = bool(updates["all_in_batch"])
+
+            if "exam_date" in updates:
+                raw_d = updates["exam_date"]
+                if isinstance(raw_d, str) and raw_d.strip():
+                    try:
+                        exam.exam_date = datetime.strptime(raw_d.strip(), "%Y-%m-%d").date()
+                    except Exception:
+                        pass
+                elif hasattr(raw_d, "strftime"):
+                    exam.exam_date = raw_d
+
+            if "question_ids" in updates and isinstance(updates["question_ids"], list):
+                session.query(CourseExamQuestion).filter(CourseExamQuestion.exam_id == eid).delete(synchronize_session=False)
+                for sort_idx, qid in enumerate(dict.fromkeys(updates["question_ids"])):
+                    if session.query(Question).filter(Question.id == str(qid)).first():
+                        session.add(CourseExamQuestion(
+                            exam_id=eid,
+                            question_id=str(qid),
+                            sort_order=sort_idx
+                        ))
+
+            if "student_codes" in updates and isinstance(updates["student_codes"], list):
+                session.query(CourseExamTargetedStudent).filter(CourseExamTargetedStudent.exam_id == eid).delete(synchronize_session=False)
+                for sc in dict.fromkeys(updates["student_codes"]):
+                    if sc:
+                        session.add(CourseExamTargetedStudent(
+                            exam_id=eid,
+                            student_code=str(sc).strip().upper()
+                        ))
+
+            exam.updated_at = datetime.now()
+            session.commit()
+            return exam.to_dict()
+
+    exams = load_course_exams()
+    for e in exams:
+        if str(e.get("id")) == eid:
+            e.update(updates)
+            save_course_exams(exams)
+            return e
+    return None
+
+
+def update_course_exam_status_db(exam_id: str, status: str) -> bool:
+    """
+    Updates the status of a course exam (e.g. 'Draft', 'Published', 'Closed').
+    """
+    eid = str(exam_id).strip()
+    if is_database_configured():
+        with get_db_session() as session:
+            exam = session.query(CourseExam).filter(CourseExam.id == eid).first()
+            if not exam:
+                return False
+            exam.status = status.strip()
+            exam.updated_at = datetime.now()
+            session.commit()
+            return True
+
+    exams = load_course_exams()
+    for e in exams:
+        if str(e.get("id")) == eid:
+            e["status"] = status.strip()
+            save_course_exams(exams)
+            return True
+    return False
+
+
+def delete_course_exam_db(exam_id: str) -> bool:
+    """
+    Deletes course exam, safely cascades junction rows, detaches any ExamResult foreign keys.
+    """
+    eid = str(exam_id).strip()
+    if is_database_configured():
+        with get_db_session() as session:
+            exam = session.query(CourseExam).filter(CourseExam.id == eid).first()
+            if not exam:
+                return False
+            session.query(ExamResult).filter(ExamResult.course_exam_id == eid).update(
+                {ExamResult.course_exam_id: None},
+                synchronize_session=False
+            )
+            session.query(CourseExamQuestion).filter(CourseExamQuestion.exam_id == eid).delete(synchronize_session=False)
+            session.query(CourseExamTargetedStudent).filter(CourseExamTargetedStudent.exam_id == eid).delete(synchronize_session=False)
+            session.delete(exam)
+            session.commit()
+            return True
+
+    exams = load_course_exams()
+    filtered = [e for e in exams if str(e.get("id")) != eid]
+    if len(filtered) < len(exams):
+        save_course_exams(filtered)
+        return True
+    return False
+
+
+def set_course_exam_questions_db(exam_id: str, question_ids: List[str]) -> bool:
+    """
+    Updates question selection for an exam.
+    """
+    eid = str(exam_id).strip()
+    clean_qids = list(dict.fromkeys(str(q).strip() for q in question_ids if q))
+
+    if is_database_configured():
+        with get_db_session() as session:
+            exam = session.query(CourseExam).filter(CourseExam.id == eid).first()
+            if not exam:
+                return False
+            session.query(CourseExamQuestion).filter(CourseExamQuestion.exam_id == eid).delete(synchronize_session=False)
+            for sort_idx, qid in enumerate(clean_qids):
+                if session.query(Question).filter(Question.id == qid).first():
+                    session.add(CourseExamQuestion(
+                        exam_id=eid,
+                        question_id=qid,
+                        sort_order=sort_idx
+                    ))
+            exam.updated_at = datetime.now()
+            session.commit()
+            return True
+
+    exams = load_course_exams()
+    for e in exams:
+        if str(e.get("id")) == eid:
+            e["question_ids"] = clean_qids
+            save_course_exams(exams)
+            return True
+    return False
+
+
+def create_exam_result_db(result_data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Creates an exam result attempt in PostgreSQL (if configured) or results.json.
+    Ensures user_id foreign key constraint is satisfied.
+    """
+    if is_database_configured():
+        user_key = str(result_data.get("user_key") or result_data.get("user_id") or result_data.get("username") or "").strip()
+        exam_id = result_data.get("course_exam_id")
+        exam_id_str = str(exam_id).strip() if exam_id else None
+        exam_title = str(result_data.get("exam_title") or "Practice Examination").strip()
+        course_code = str(result_data.get("course_code") or "").strip().upper() or None
+
+        sub_at = datetime.now()
+        raw_date = result_data.get("date") or result_data.get("submitted_at")
+        if raw_date and isinstance(raw_date, str):
+            for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M", "%Y-%m-%d"):
+                try:
+                    sub_at = datetime.strptime(raw_date.strip(), fmt)
+                    break
+                except Exception:
+                    pass
+
+        with get_db_session() as session:
+            user = None
+            if user_key:
+                user = session.query(User).filter(
+                    (User.id == user_key) |
+                    (func.lower(User.username) == user_key.lower()) |
+                    (func.lower(User.email) == user_key.lower())
+                ).first()
+
+            if not user:
+                placeholder_id = user_key or f"user_{uuid.uuid4().hex[:10]}"
+                user = User(
+                    id=placeholder_id,
+                    username=placeholder_id,
+                    name=placeholder_id,
+                    email=f"{placeholder_id.lower()}@examforge.local",
+                    pw_hash="!",
+                    user_type="EXTERNAL"
+                )
+                session.add(user)
+                session.flush()
+
+            valid_exam_id = None
+            if exam_id_str:
+                exam_row = session.query(CourseExam).filter(CourseExam.id == exam_id_str).first()
+                if exam_row:
+                    valid_exam_id = exam_row.id
+
+            res = ExamResult(
+                user_id=user.id,
+                user_key=user_key or user.id,
+                course_exam_id=valid_exam_id,
+                exam_title=exam_title,
+                course_code=course_code,
+                score=float(result_data.get("score") or 0.0),
+                total=float(result_data.get("total") or 0.0),
+                time_taken=str(result_data.get("time_taken") or "").strip(),
+                submitted_at=sub_at,
+                descriptive_reports=result_data.get("descriptive_reports")
+            )
+            session.add(res)
+            session.commit()
+            return res.to_history_dict()
+
+    results = load_results()
+    user_key = str(result_data.get("user_key") or result_data.get("user_id") or result_data.get("username") or "anonymous").strip()
+    if user_key not in results:
+        results[user_key] = {"history": []}
+
+    item = {
+        "score": float(result_data.get("score", 0.0)),
+        "total": float(result_data.get("total", 0.0)),
+        "time_taken": str(result_data.get("time_taken", "")),
+        "date": result_data.get("date") or time.strftime("%Y-%m-%d %H:%M:%S"),
+        "descriptive_reports": result_data.get("descriptive_reports"),
+        "exam_title": result_data.get("exam_title", "Practice Examination"),
+        "course_code": result_data.get("course_code", ""),
+        "course_exam_id": result_data.get("course_exam_id", None)
+    }
+    results[user_key]["history"].append(item)
+    save_results(results)
+    return item

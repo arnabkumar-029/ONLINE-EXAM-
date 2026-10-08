@@ -1,6 +1,6 @@
 # exam_routes.py
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash
-from utils import load_results, save_results, descriptive_similarity, load_questions
+from utils import load_results, save_results, descriptive_similarity, load_questions, create_exam_result_db
 import time, sys, pprint
 
 exam_bp = Blueprint("exam", __name__, url_prefix="")
@@ -189,21 +189,19 @@ def save_result():
     # If results has existing history directly under username (for older accounts), keep using it; else use user_key
     target_key = username if (username in results and user_key not in results) else user_key
 
-    if target_key not in results:
-        results[target_key] = {"history": []}
-
-    results[target_key]["history"].append({
-        "score": session["score"],
-        "total": session["total_points"],
-        "time_taken": session["time_taken"],
+    create_exam_result_db({
+        "user_key": target_key,
+        "user_id": target_key,
+        "score": session.get("score", 0),
+        "total": session.get("total_points", 0),
+        "time_taken": session.get("time_taken", ""),
         "date": time.strftime("%Y-%m-%d %H:%M:%S"),
-        "descriptive_reports": session["descriptive_reports"],
+        "descriptive_reports": session.get("descriptive_reports"),
         "exam_title": session.get("course_exam_title", "Practice Examination"),
         "course_code": session.get("course_code", ""),
         "course_exam_id": session.get("course_exam_id", None)
     })
 
-    save_results(results)
     return redirect(url_for("exam.leaderboard"))
 
 

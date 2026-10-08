@@ -99,7 +99,10 @@ def load_programs() -> List[Dict[str, str]]:
         return list(DEFAULT_PROGRAMS)
 
 def save_programs(programs: List[Dict[str, str]]) -> None:
-    """Saves program definitions to PostgreSQL (if configured) or programs.json."""
+    """
+    DEPRECATED: Retained strictly for offline development / legacy testing fallback only.
+    Production write operations MUST use create_program_db(), update_program_db(), or delete_program_db().
+    """
     if is_database_configured():
         with get_db_session() as session:
             existing = {p.code.upper(): p for p in session.query(Program).all()}
@@ -551,8 +554,9 @@ def load_json(file):
 
 def save_json(file, data):
     """
-    Saves JSON data. If database is configured and file corresponds to a database table,
-    writes to PostgreSQL without modifying pristine JSON files on disk.
+    DEPRECATED: Retained strictly for offline development / legacy testing fallback only.
+    Production write operations MUST use dedicated database adapter functions.
+    If database is configured, writes to PostgreSQL without modifying pristine JSON files on disk.
     """
     if is_database_configured():
         basename = os.path.basename(file)
@@ -692,7 +696,10 @@ def load_users() -> Dict[str, Dict[str, Any]]:
     return normalized
 
 def save_users(users: Dict[str, Dict[str, Any]]):
-    """Saves user records to PostgreSQL (if configured) or users.json."""
+    """
+    DEPRECATED: Retained strictly for offline development / legacy testing fallback only.
+    Production write operations MUST use create_user_db(), update_user_db(), or delete_user_db().
+    """
     if is_database_configured():
         with get_db_session() as session:
             existing = {u.id: u for u in session.query(User).all()}
@@ -778,7 +785,10 @@ def load_results():
     return load_json(RESULTS_FILE)
 
 def save_results(results: Dict[str, Any]):
-    """Saves results dictionary to PostgreSQL (if configured) or results.json."""
+    """
+    DEPRECATED: Retained strictly for offline development / legacy testing fallback only.
+    Production write operations MUST use create_exam_result_db().
+    """
     if is_database_configured():
         for ukey, udata in results.items():
             if isinstance(udata, dict) and "history" in udata:
@@ -910,7 +920,10 @@ def load_course_exams() -> List[Dict[str, Any]]:
     return []
 
 def save_course_exams(exams: List[Dict[str, Any]]):
-    """Save course examinations list to PostgreSQL (if configured) or course_exams.json."""
+    """
+    DEPRECATED: Retained strictly for offline development / legacy testing fallback only.
+    Production write operations MUST use create_course_exam_db(), update_course_exam_db(), or delete_course_exam_db().
+    """
     if is_database_configured():
         for e in exams:
             eid = str(e.get("id") or "")

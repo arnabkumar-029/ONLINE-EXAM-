@@ -2,15 +2,11 @@
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash, jsonify
 from utils import (
     load_questions,
-    save_json,
     load_users,
-    save_users,
     load_results,
-    save_results,
     _migrate_one_question,
     _fix_type_to_capital,
     load_course_exams,
-    save_course_exams,
     get_course_exam_by_id,
     get_exam_live_status,
     get_course_exam_stats,
@@ -337,7 +333,7 @@ def add_student():
 
     from utils import (
         is_valid_username, parse_student_code, is_student_code_taken, is_email_taken,
-        load_users, save_users, get_program_name, get_program_by_code, calculate_academic_year
+        get_program_name
     )
     import uuid
     from werkzeug.security import generate_password_hash
@@ -464,7 +460,7 @@ def edit_student():
 
     from utils import (
         is_valid_username, is_student_code_taken,
-        load_users, save_users, get_program_name, calculate_academic_year
+        load_users, get_program_name
     )
     from werkzeug.security import generate_password_hash
 
@@ -616,7 +612,7 @@ def add_program():
     if not session.get("admin"):
         return redirect(url_for("admin.admin_login"))
 
-    from utils import load_programs, save_programs
+    from utils import load_programs
 
     name = (request.form.get("name") or request.form.get("program_name") or "").strip()
     code = (request.form.get("code") or request.form.get("program_code") or "").strip().upper()
@@ -659,7 +655,7 @@ def edit_program():
     if not session.get("admin"):
         return redirect(url_for("admin.admin_login"))
 
-    from utils import load_programs, save_programs, load_users, save_users, count_students_in_program
+    from utils import load_programs, count_students_in_program
 
     old_code = (request.form.get("old_code") or "").strip().upper()
     new_name = (request.form.get("name") or "").strip()
@@ -735,7 +731,7 @@ def delete_program(code):
     if not session.get("admin"):
         return redirect(url_for("admin.admin_login"))
 
-    from utils import load_programs, save_programs, count_students_in_program
+    from utils import load_programs
 
     c = (code or "").strip().upper()
     programs = load_programs()
@@ -1879,7 +1875,7 @@ def api_generate():
 @admin_bp.route("/api_save_generated", methods=["POST"])
 def api_save_generated():
     """
-    Saves the previewed & approved AI-generated questions into questions.json.
+    Saves the previewed & approved AI-generated questions into PostgreSQL Question Bank (or questions.json if offline).
     - Validates course_code and subject on every question.
     - Sets source = 'AI'.
     - Appends to existing questions without overwriting.

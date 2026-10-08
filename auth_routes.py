@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from utils import (
-    is_valid_username, password_has_spaces, load_users, save_users,
+    is_valid_username, password_has_spaces, load_users,
     parse_student_code, is_student_code_taken, is_email_taken, get_program_name, calculate_academic_year,
     get_student_identity_from_session_or_db, find_university_student_by_credentials, find_user_by_email,
     create_user_db

@@ -1,6 +1,6 @@
 # exam_routes.py
 from flask import Blueprint, render_template, request, session, redirect, url_for, flash
-from utils import load_results, save_results, descriptive_similarity, load_questions, create_exam_result_db
+from utils import load_results, descriptive_similarity, load_questions, create_exam_result_db
 import time, sys, pprint
 
 exam_bp = Blueprint("exam", __name__, url_prefix="")
@@ -554,7 +554,7 @@ def start_course_exam(exam_id):
     Secure server-side endpoint for students attempting an official course exam.
     Strictly verifies:
       1. Student session authentication
-      2. Valid exam ID in course_exams.json
+      2. Valid exam ID in PostgreSQL course_exams (or course_exams.json if offline)
       3. Student academic eligibility (program, batch, academic year or specific student inclusion)
       4. Not already completed/submitted by the student
       5. Current date & time >= start_time (locks future attempts)
